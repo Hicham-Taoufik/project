@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Information</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            padding: 20px;
+            max-width: 600px;
+        }
+        label {
+            font-weight: bold;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Patient Information</h2>
+    <p><strong>Name:</strong> <span id="name"></span></p>
+    <p><strong>CIN:</strong> <span id="cin"></span></p>
+    <p><strong>Date of Birth:</strong> <span id="dob"></span></p>
+    
+    <h3>Doctor Notes</h3>
+    <textarea id="doctorNotes" placeholder="Enter your notes here..."></textarea>
+    <br><br>
+    <button onclick="submitNotes()">Submit Notes</button>
+
+    <script>
+        // Fetch patient data from n8n Webhook
+        async function getPatientData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const cin = urlParams.get('cin'); // CIN extracted from the QR code URL
+
+            if (!cin) {
+                alert("No patient CIN found in the URL!");
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://your-n8n-url.com/webhook/patient-info?cin=${cin}`);
+                const data = await response.json();
+
+                document.getElementById("name").textContent = data.name;
+                document.getElementById("cin").textContent = data.cin;
+                document.getElementById("dob").textContent = data.dob;
+            } catch (error) {
+                console.error("Error fetching patient data:", error);
+            }
+        }
+
+        // Function to submit doctor notes to n8n
+        async function submitNotes() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const cin = urlParams.get('cin');
+            const notes = document.getElementById("doctorNotes").value;
+
+            if (!notes) {
+                alert("Please enter notes before submitting!");
+                return;
+            }
+
+            try {
+                await fetch(`https://your-n8n-url.com/webhook/update-notes`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ cin, notes })
+                });
+
+                alert("Notes submitted successfully!");
+            } catch (error) {
+                console.error("Error submitting notes:", error);
+            }
+        }
+
+        // Run function on page load
+        getPatientData();
+    </script>
+
+</body>
+</html>
