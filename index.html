@@ -4,58 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patient Information</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .container { max-width: 500px; margin: auto; padding: 20px; border: 1px solid #ddd; }
-        .title { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
-        .info { margin-bottom: 10px; }
-    </style>
 </head>
 <body>
+    <h1>Patient Information</h1>
+    <p><strong>Name:</strong> <span id="name"></span></p>
+    <p><strong>CIN:</strong> <span id="cin"></span></p>
+    <p><strong>Address:</strong> <span id="address"></span></p>
+    <p><strong>Date of Birth:</strong> <span id="dob"></span></p>
 
-<div class="container">
-    <div class="title">Patient Information</div>
-    <div class="info"><strong>Name:</strong> <span id="name">Loading...</span></div>
-    <div class="info"><strong>CIN:</strong> <span id="cin">Loading...</span></div>
-    <div class="info"><strong>Address:</strong> <span id="address">Loading...</span></div>
-    <div class="info"><strong>Date of Birth:</strong> <span id="dob">Loading...</span></div>
-</div>
+    <h2>Doctor's Notes</h2>
+    <textarea id="doctorNotes" placeholder="Enter diagnosis or treatment here..."></textarea>
+    <button onclick="submitNotes()">Submit Notes</button>
 
-<script>
-    function getQueryParam(param) {
+    <script>
+        // Fetch Patient Data from n8n Webhook
         const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get(param);
-    }
+        const cin = urlParams.get("cin"); // Get CIN from the URL
 
-    async function fetchPatientData() {
-        const cin = getQueryParam("cin");  // Get CIN from the URL
-        if (!cin) {
-            alert("No CIN provided in the URL!");
-            return;
+        fetch(`https://your-n8n-instance.com/webhook-test/patient-info?cin=${cin}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("name").innerText = data.name || "N/A";
+                document.getElementById("cin").innerText = data.cin || "N/A";
+                document.getElementById("address").innerText = data.address || "N/A";
+                document.getElementById("dob").innerText = data.dob || "N/A";
+            });
+
+        // Function to Send Doctor's Notes to n8n Webhook
+        function submitNotes() {
+            const doctorNotes = document.getElementById("doctorNotes").value;
+
+            fetch("https://your-n8n-instance.com/webhook-test/save-notes", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    cin: cin,  // CIN of the patient
+                    notes: doctorNotes
+                })
+            })
+            .then(response => response.json())
+            .then(data => alert("Notes saved successfully!"))
+            .catch(error => alert("Error saving notes"));
         }
-
-        const webhookUrl = `https://workflows.aphelionxinnovations.com/webhook-test/patient-info?cin=${cin}`;
-        
-        try {
-            const response = await fetch(webhookUrl);
-            if (!response.ok) {
-                throw new Error("Failed to fetch patient data.");
-            }
-
-            const data = await response.json(); // Get the first item in the array
-            document.getElementById("name").textContent = data.name || "N/A";
-            document.getElementById("cin").textContent = data.cin || "N/A";
-            document.getElementById("address").textContent = data.address || "N/A";
-            document.getElementById("dob").textContent = data.dob || "N/A";
-            
-        } catch (error) {
-            console.error("Error fetching patient data:", error);
-            alert("Failed to retrieve patient information.");
-        }
-    }
-
-    fetchPatientData();
-</script>
-
+    </script>
 </body>
 </html>
