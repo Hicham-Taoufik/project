@@ -37,7 +37,7 @@
             alert("No CIN provided in URL");
         } else {
             // Fetch patient data from n8n
-            fetch(`https://your-n8n-instance.com/webhook-test/patient-info?cin=${cin}`)
+            fetch(`https://workflows.aphelionxinnovations.com/webhook-test/patient-info?cin=${cin}`)
                 .then(response => response.json())
                 .then(data => {
                     document.getElementById("name").textContent = data.name;
