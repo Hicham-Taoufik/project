@@ -28,7 +28,7 @@
     }
 
     async function fetchPatientData() {
-        const cin = getQueryParam("cin");
+        const cin = getQueryParam("cin");  // Get CIN from the URL
         if (!cin) {
             alert("No CIN provided in the URL!");
             return;
@@ -42,17 +42,11 @@
                 throw new Error("Failed to fetch patient data.");
             }
 
-            const dataArray = await response.json();
-            if (!Array.isArray(dataArray) || dataArray.length === 0) {
-                throw new Error("Invalid response format.");
-            }
-
-            const data = dataArray[0]; // Extract the first item from the array
-            
-            document.getElementById("name").textContent = data["Nom et Prénom"] || "N/A";
-            document.getElementById("cin").textContent = data["CIN"] || "N/A";
-            document.getElementById("address").textContent = data["Adresse"] || "N/A";
-            document.getElementById("dob").textContent = data["Date de Naissance"] || "N/A";
+            const data = await response.json(); // Get the first item in the array
+            document.getElementById("name").textContent = data.name || "N/A";
+            document.getElementById("cin").textContent = data.cin || "N/A";
+            document.getElementById("address").textContent = data.address || "N/A";
+            document.getElementById("dob").textContent = data.dob || "N/A";
             
         } catch (error) {
             console.error("Error fetching patient data:", error);
