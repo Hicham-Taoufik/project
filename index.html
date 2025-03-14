@@ -20,7 +20,7 @@
     <script>
         function fetchPatientData() {
             let cin = document.getElementById("cin").value;
-            let webhookURL = `https://your-n8n-instance/webhook-test/patient-info?cin=${cin}`;
+            let webhookURL = `https://workflows.aphelionxinnovations.com/webhook-test/patient-info?cin=${cin}`;
 
             fetch(webhookURL)
             .then(response => response.text()) 
