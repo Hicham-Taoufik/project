@@ -15,24 +15,24 @@
 
 <div class="container">
     <div class="title">Patient Information</div>
-    <div class="info"><strong>Name:</strong> <span id="name"></span></div>
-    <div class="info"><strong>CIN:</strong> <span id="cin"></span></div>
-    <div class="info"><strong>Address:</strong> <span id="address"></span></div>
-    <div class="info"><strong>Date of Birth:</strong> <span id="dob"></span></div>
+    <div class="info"><strong>Name:</strong> <span id="name">Loading...</span></div>
+    <div class="info"><strong>CIN:</strong> <span id="cin">Loading...</span></div>
+    <div class="info"><strong>Address:</strong> <span id="address">Loading...</span></div>
+    <div class="info"><strong>Date of Birth:</strong> <span id="dob">Loading...</span></div>
 </div>
 
 <script>
-    // Function to get query parameter
+    // Function to get the CIN from the URL query parameters
     function getQueryParam(param) {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get(param);
     }
 
-    // Fetch patient data from n8n webhook
+    // Fetch patient data from the webhook
     async function fetchPatientData() {
         const cin = getQueryParam("cin");
         if (!cin) {
-            alert("No CIN provided!");
+            alert("No CIN provided in the URL!");
             return;
         }
 
@@ -40,21 +40,25 @@
         
         try {
             const response = await fetch(webhookUrl);
+            if (!response.ok) {
+                throw new Error("Failed to fetch patient data.");
+            }
+
             const data = await response.json();
             
             // Populate the webpage with patient data
-            document.getElementById("name").textContent = data.name;
-            document.getElementById("cin").textContent = data.cin;
-            document.getElementById("address").textContent = data.address;
-            document.getElementById("dob").textContent = data.dob;
+            document.getElementById("name").textContent = data.name || "N/A";
+            document.getElementById("cin").textContent = data.cin || "N/A";
+            document.getElementById("address").textContent = data.address || "N/A";
+            document.getElementById("dob").textContent = data.dob || "N/A";
             
         } catch (error) {
             console.error("Error fetching patient data:", error);
-            alert("Failed to retrieve patient data.");
+            alert("Failed to retrieve patient information.");
         }
     }
 
-    // Run function when page loads
+    // Run the function when the page loads
     fetchPatientData();
 </script>
 
