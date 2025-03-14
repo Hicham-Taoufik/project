@@ -4,58 +4,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patient Information</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .container { max-width: 500px; margin: auto; padding: 20px; border: 1px solid #ddd; }
-        .title { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
-        .info { margin-bottom: 10px; }
-    </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="title">Patient Information</div>
-    <div class="info"><strong>Name:</strong> <span id="name">Loading...</span></div>
-    <div class="info"><strong>CIN:</strong> <span id="cin">Loading...</span></div>
-    <div class="info"><strong>Address:</strong> <span id="address">Loading...</span></div>
-    <div class="info"><strong>Date of Birth:</strong> <span id="dob">Loading...</span></div>
-</div>
+    <h1>Patient Information</h1>
+    <p><strong>Name:</strong> <span id="name"></span></p>
+    <p><strong>CIN:</strong> <span id="cin"></span></p>
+    <p><strong>Address:</strong> <span id="address"></span></p>
+    <p><strong>Date of Birth:</strong> <span id="dob"></span></p>
 
-<script>
-    function getQueryParam(param) {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get(param);
-    }
+    <h2>Doctor's Notes</h2>
+    <textarea id="doctor_notes" placeholder="Enter diagnosis and notes here..." rows="5" cols="50"></textarea>
+    <br>
+    <button onclick="submitNotes()">Submit Notes</button>
 
-    async function fetchPatientData() {
-        const cin = getQueryParam("cin");  // Get CIN from the URL
-        if (!cin) {
-            alert("No CIN provided in the URL!");
-            return;
-        }
-
-        const webhookUrl = `https://workflows.aphelionxinnovations.com/webhook-test/patient-info?cin=${cin}`;
-        
-        try {
-            const response = await fetch(webhookUrl);
-            if (!response.ok) {
-                throw new Error("Failed to fetch patient data.");
+    <script>
+        // 1️⃣ Function to Load Patient Data from n8n Webhook
+        async function fetchPatientData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const cin = urlParams.get('cin'); // Get CIN from the URL
+            
+            if (!cin) {
+                alert("CIN not provided!");
+                return;
             }
 
-            const data = await response.json(); // Get the first item in the array
-            document.getElementById("name").textContent = data.name || "N/A";
-            document.getElementById("cin").textContent = data.cin || "N/A";
-            document.getElementById("address").textContent = data.address || "N/A";
-            document.getElementById("dob").textContent = data.dob || "N/A";
-            
-        } catch (error) {
-            console.error("Error fetching patient data:", error);
-            alert("Failed to retrieve patient information.");
-        }
-    }
+            const response = await fetch(`https://your-n8n-instance.com/webhook-test/patient-info?cin=${cin}`);
+            const data = await response.json();
 
-    fetchPatientData();
-</script>
+            document.getElementById("name").innerText = data.name || "N/A";
+            document.getElementById("cin").innerText = data.cin || "N/A";
+            document.getElementById("address").innerText = data.address || "N/A";
+            document.getElementById("dob").innerText = data.dob || "N/A";
+        }
+
+        // 2️⃣ Function to Submit Doctor's Notes
+        async function submitNotes() {
+            const notes = document.getElementById("doctor_notes").value;
+            const urlParams = new URLSearchParams(window.location.search);
+            const cin = urlParams.get('cin'); // Get CIN from URL
+
+            if (!cin || !notes) {
+                alert("Please enter a CIN and Notes!");
+                return;
+            }
+
+            const response = await fetch("https://your-n8n-instance.com/webhook-test/submit-notes", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ cin: cin, notes: notes })
+            });
+
+            if (response.ok) {
+                alert("Doctor's notes submitted successfully!");
+            } else {
+                alert("Error submitting notes.");
+            }
+        }
+
+        // Load patient data when the page loads
+        fetchPatientData();
+    </script>
 
 </body>
 </html>
