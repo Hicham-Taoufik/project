@@ -3,81 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Patient Information</title>
+    <title>Informations du Patient</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f6f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            font-family: Arial, sans-serif;
+            background-color: #F4F8FB;
+            text-align: center;
             margin: 0;
+            padding: 20px;
         }
         .container {
-            background: white;
-            padding: 30px;
             width: 50%;
-            max-width: 600px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+            margin: auto;
+            text-align: left;
+        }
+        .logo {
+            display: block;
+            margin: 0 auto 20px;
+            width: 150px;
         }
         h1 {
+            color: #2C3E50;
             text-align: center;
-            color: #2c3e50;
         }
-        .patient-info {
-            background: #ecf0f1;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
+        .info {
+            font-size: 18px;
+            margin: 10px 0;
         }
         label {
             font-weight: bold;
             display: block;
-            margin-top: 10px;
+            margin-top: 15px;
         }
-        textarea, input {
+        textarea {
             width: 100%;
-            padding: 10px;
+            height: 80px;
             margin-top: 5px;
-            border: 1px solid #ddd;
+            padding: 10px;
+            border: 1px solid #ccc;
             border-radius: 5px;
+            resize: none;
         }
         button {
             width: 100%;
-            padding: 10px;
-            background: #27ae60;
+            padding: 12px;
+            background: #2C7A4B;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
-            margin-top: 10px;
+            margin-top: 15px;
         }
         button:hover {
-            background: #219150;
+            background: #256B40;
         }
     </style>
 </head>
 <body>
+
+    <img src="logo.png" alt="Clinique Logo" class="logo">  <!-- Replace 'logo.png' with the actual path of your clinic logo -->
+    
     <div class="container">
         <h1>Informations du Patient</h1>
-        <div class="patient-info">
-            <p><strong>Nom et Prénom:</strong> <span id="name">Chargement...</span></p>
-            <p><strong>Âge:</strong> <span id="age">Chargement...</span></p>
-            <p><strong>Motif de Consultation:</strong> <span id="motif">Chargement...</span></p>
-        </div>
+        
+        <p class="info"><strong>Nom et Prénom :</strong> <span id="name">Chargement...</span></p>
+        <p class="info"><strong>Âge :</strong> <span id="age">Chargement...</span></p>
+        <p class="info"><strong>Motif de Consultation :</strong> <span id="consultation">Chargement...</span></p>
 
-        <h2>Diagnostic & Ordonnance</h2>
+        <h2>Diagnostic du Médecin</h2>
         <form id="notesForm">
-            <label for="diagnosis">Diagnostic Médical:</label>
-            <textarea id="diagnosis" name="diagnosis" placeholder="Entrez le diagnostic..." required></textarea>
-
-            <label for="prescription">Ordonnance:</label>
-            <textarea id="prescription" name="prescription" placeholder="Entrez l'ordonnance (médicaments, conseils)..." required></textarea>
+            <label>Diagnostic :</label>
+            <textarea id="diagnosis" name="diagnosis" placeholder="Entrez le diagnostic..."></textarea>
             
-            <input type="hidden" id="hiddenCIN" name="cin">
+            <label>Prescription :</label>
+            <textarea id="prescription" name="prescription" placeholder="Entrez l'ordonnance..."></textarea>
+            
             <button type="submit">Enregistrer</button>
         </form>
     </div>
@@ -85,40 +90,50 @@
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const patientCIN = urlParams.get("cin");
-        const webhookURL = `https://workflows.aphelionxinnovations.com/webhook-test/patient-info?cin=${patientCIN}`;
 
+        const webhookURL = `https://workflows.aphelionxinnovations.com/webhook-test/patient-info?cin=${patientCIN}`;
+        
         fetch(webhookURL)
             .then(response => response.json())
             .then(data => {
                 document.getElementById("name").innerText = data.name || "N/A";
-                document.getElementById("age").innerText = data.age || "N/A";
-                document.getElementById("motif").innerText = data.motif || "N/A";
-                document.getElementById("hiddenCIN").value = patientCIN;
+                document.getElementById("age").innerText = calculateAge(data["Date de Naissance"]) || "N/A";
+                document.getElementById("consultation").innerText = data["Motif de Consultation"] || "N/A";
             })
-            .catch(error => console.error("Erreur lors de la récupération des données:", error));
+            .catch(error => console.error("Erreur lors de la récupération des données :", error));
+
+        function calculateAge(birthDate) {
+            if (!birthDate) return "N/A";
+            const birthYear = new Date(birthDate).getFullYear();
+            const currentYear = new Date().getFullYear();
+            return currentYear - birthYear + " ans";
+        }
 
         document.getElementById("notesForm").addEventListener("submit", function(event) {
             event.preventDefault();
+
             const notesData = {
-                cin: document.getElementById("hiddenCIN").value,
+                cin: patientCIN,
                 diagnosis: document.getElementById("diagnosis").value,
                 prescription: document.getElementById("prescription").value
             };
 
-            fetch("https://workflows.aphelionxinnovations.com/webhook-test/submit-notes", {
+            const submitNotesURL = "https://workflows.aphelionxinnovations.com/webhook-test/submit-notes";
+            
+            fetch(submitNotesURL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(notesData)
             })
             .then(response => response.json())
             .then(data => {
-                alert("Diagnostic et ordonnance enregistrés avec succès !");
+                alert("Notes enregistrées avec succès !");
                 document.getElementById("diagnosis").value = "";
                 document.getElementById("prescription").value = "";
             })
             .catch(error => {
-                console.error("Erreur lors de l'enregistrement:", error);
-                alert("Échec de l'enregistrement.");
+                console.error("Erreur lors de l'enregistrement :", error);
+                alert("Échec de l'enregistrement des notes.");
             });
         });
     </script>
