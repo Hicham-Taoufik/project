@@ -1,128 +1,126 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patient Information</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 20px;
-            max-width: 600px;
-            margin: auto;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 2px 2px 12px rgba(0,0,0,0.1);
-            text-align: center;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f6f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
-        .logo-container img {
-            max-width: 150px;
-            margin-bottom: 10px;
+        .container {
+            background: white;
+            padding: 30px;
+            width: 50%;
+            max-width: 600px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
         h1 {
             text-align: center;
+            color: #2c3e50;
+        }
+        .patient-info {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
         }
         label {
             font-weight: bold;
-        }
-        textarea {
-            width: 100%;
-            height: 100px;
+            display: block;
             margin-top: 10px;
+        }
+        textarea, input {
+            width: 100%;
             padding: 10px;
+            margin-top: 5px;
             border: 1px solid #ddd;
             border-radius: 5px;
-            resize: none;
         }
         button {
-            background-color: green;
-            color: white;
-            padding: 10px;
-            border: none;
-            cursor: pointer;
-            display: block;
             width: 100%;
-            margin-top: 10px;
+            padding: 10px;
+            background: #27ae60;
+            color: white;
+            border: none;
             border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
         }
         button:hover {
-            background-color: darkgreen;
+            background: #219150;
         }
     </style>
 </head>
 <body>
-    
-    <div class="logo-container">
-        <img src="logo.webp" alt="Clinique Logo">
+    <div class="container">
+        <h1>Informations du Patient</h1>
+        <div class="patient-info">
+            <p><strong>Nom et Prénom:</strong> <span id="name">Chargement...</span></p>
+            <p><strong>Âge:</strong> <span id="age">Chargement...</span></p>
+            <p><strong>Motif de Consultation:</strong> <span id="motif">Chargement...</span></p>
+        </div>
+
+        <h2>Diagnostic & Ordonnance</h2>
+        <form id="notesForm">
+            <label for="diagnosis">Diagnostic Médical:</label>
+            <textarea id="diagnosis" name="diagnosis" placeholder="Entrez le diagnostic..." required></textarea>
+
+            <label for="prescription">Ordonnance:</label>
+            <textarea id="prescription" name="prescription" placeholder="Entrez l'ordonnance (médicaments, conseils)..." required></textarea>
+            
+            <input type="hidden" id="hiddenCIN" name="cin">
+            <button type="submit">Enregistrer</button>
+        </form>
     </div>
 
-    <h1>Patient Information</h1>
-
-    <p><strong>Name:</strong> <span id="name">Loading...</span></p>
-    <p><strong>CIN:</strong> <span id="cin">Loading...</span></p>
-    <p><strong>Address:</strong> <span id="address">Loading...</span></p>
-    <p><strong>Date of Birth:</strong> <span id="dob">Loading...</span></p>
-
-    <h2>Doctor Notes</h2>
-    <form id="notesForm">
-        <textarea id="notes" name="notes" placeholder="Enter diagnosis and notes..."></textarea>
-        <input type="hidden" id="hiddenCIN" name="cin">
-        <button type="submit">Submit Notes</button>
-    </form>
-
     <script>
-        // Get CIN from URL (when scanning QR Code)
         const urlParams = new URLSearchParams(window.location.search);
         const patientCIN = urlParams.get("cin");
-
-        // Webhook URL to fetch patient details
         const webhookURL = `https://workflows.aphelionxinnovations.com/webhook-test/patient-info?cin=${patientCIN}`;
 
-        // Fetch Patient Data
         fetch(webhookURL)
             .then(response => response.json())
             .then(data => {
                 document.getElementById("name").innerText = data.name || "N/A";
-                document.getElementById("cin").innerText = data.cin || "N/A";
-                document.getElementById("address").innerText = data.address || "N/A";
-                document.getElementById("dob").innerText = data.dob || "N/A";
-
-                // Store CIN in the hidden input field for notes submission
-                document.getElementById("hiddenCIN").value = data.cin;
+                document.getElementById("age").innerText = data.age || "N/A";
+                document.getElementById("motif").innerText = data.motif || "N/A";
+                document.getElementById("hiddenCIN").value = patientCIN;
             })
-            .catch(error => console.error("Error fetching patient data:", error));
+            .catch(error => console.error("Erreur lors de la récupération des données:", error));
 
-        // Handle Notes Submission
         document.getElementById("notesForm").addEventListener("submit", function(event) {
-            event.preventDefault(); // Prevent default form submission
-
+            event.preventDefault();
             const notesData = {
                 cin: document.getElementById("hiddenCIN").value,
-                notes: document.getElementById("notes").value
+                diagnosis: document.getElementById("diagnosis").value,
+                prescription: document.getElementById("prescription").value
             };
 
-            // Webhook URL to submit notes
-            const submitNotesURL = "https://workflows.aphelionxinnovations.com/webhook-test/submit-notes";
-
-            fetch(submitNotesURL, {
+            fetch("https://workflows.aphelionxinnovations.com/webhook-test/submit-notes", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(notesData)
             })
             .then(response => response.json())
             .then(data => {
-                alert("Notes submitted successfully!");
-                document.getElementById("notes").value = ""; // Clear textarea
+                alert("Diagnostic et ordonnance enregistrés avec succès !");
+                document.getElementById("diagnosis").value = "";
+                document.getElementById("prescription").value = "";
             })
             .catch(error => {
-                console.error("Error submitting notes:", error);
-                alert("Failed to submit notes.");
+                console.error("Erreur lors de l'enregistrement:", error);
+                alert("Échec de l'enregistrement.");
             });
         });
     </script>
-
 </body>
 </html>
