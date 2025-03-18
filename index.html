@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulaire d'Admission</title>
+    <title>Informations du Patient</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         body {
@@ -45,17 +45,11 @@
             display: block;
             margin-top: 15px;
         }
-        input, select, textarea {
-            width: 100%;
+        .info-box {
+            background: #F4F8FB;
             padding: 10px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 16px;
-        }
-        textarea {
-            resize: none;
-            height: 60px;
         }
         .row {
             display: flex;
@@ -88,72 +82,104 @@
 
     <img src="logo.webp" alt="Clinique Logo" class="logo">  
     <div class="container">
-        <h1><i class="fas fa-file-medical"></i> Formulaire d'Admission</h1>
+        <h1><i class="fas fa-user"></i> Informations du Patient</h1>
 
         <div class="row">
             <div>
                 <label>Nom:</label>
-                <input type="text" name="nom" placeholder="Entrez le nom">
+                <div class="info-box" id="nom">Chargement...</div>
             </div>
             <div>
                 <label>Prénom:</label>
-                <input type="text" name="prenom" placeholder="Entrez le prénom">
+                <div class="info-box" id="prenom">Chargement...</div>
             </div>
         </div>
 
         <div class="row">
             <div>
                 <label>Numéro d'Identification (CIN):</label>
-                <input type="text" name="cin" placeholder="Ex: AB123456">
+                <div class="info-box" id="cin">Chargement...</div>
             </div>
             <div>
                 <label>Téléphone:</label>
-                <input type="text" name="telephone" placeholder="Ex: 0697068234">
+                <div class="info-box" id="telephone">Chargement...</div>
             </div>
         </div>
 
         <label>Adresse:</label>
-        <textarea name="adresse" placeholder="Entrez l'adresse"></textarea>
+        <div class="info-box" id="adresse">Chargement...</div>
 
         <div class="row">
             <div>
                 <label>Ville:</label>
-                <input type="text" name="ville" placeholder="Ex: Casablanca">
+                <div class="info-box" id="ville">Chargement...</div>
             </div>
             <div>
                 <label>Date de Naissance:</label>
-                <input type="date" name="date_naissance">
+                <div class="info-box" id="date_naissance">Chargement...</div>
             </div>
         </div>
 
         <div class="row">
             <div>
                 <label>Sexe:</label>
-                <select name="sexe">
-                    <option>Masculin</option>
-                    <option>Féminin</option>
-                </select>
+                <div class="info-box" id="sexe">Chargement...</div>
             </div>
             <div>
                 <label>Avez-vous une mutuelle ?</label>
-                <select name="mutuelle">
-                    <option>Non</option>
-                    <option>Oui</option>
-                </select>
+                <div class="info-box" id="mutuelle">Chargement...</div>
             </div>
         </div>
 
         <label>Motif de Consultation:</label>
-        <select name="motif">
-            <option>Consultation</option>
-            <option>Urgence</option>
-            <option>Suivi médical</option>
-        </select>
+        <div class="info-box" id="motif_consultation">Chargement...</div>
 
-        <button type="submit" class="btn-submit">
-            <i class="fas fa-check"></i> Soumettre
-        </button>
+        <h2><i class="fas fa-file-medical"></i> Diagnostic du Médecin</h2>
+
+        <label>Diagnostic :</label>
+        <div class="info-box" id="diagnostic">Chargement...</div>
+
+        <label>Prescription :</label>
+        <div class="info-box" id="prescription">Chargement...</div>
     </div>
 
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const patientCIN = urlParams.get("cin");
+
+        const webhookURL = `https://workflows.aphelionxinnovations.com/webhook-test/patient-info?cin=${patientCIN}`;
+        
+        fetch(webhookURL)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("nom").innerText = data.nom || "N/A";
+                document.getElementById("prenom").innerText = data.prenom || "N/A";
+                document.getElementById("cin").innerText = data.cin || "N/A";
+                document.getElementById("telephone").innerText = formatPhoneNumber(data.telephone) || "N/A";
+                document.getElementById("adresse").innerText = data.adresse || "N/A";
+                document.getElementById("ville").innerText = data.ville || "N/A";
+                document.getElementById("date_naissance").innerText = formatDate(data.dob) || "N/A";
+                document.getElementById("sexe").innerText = data.sexe || "N/A";
+                document.getElementById("mutuelle").innerText = data.mutuelle || "N/A";
+                document.getElementById("motif_consultation").innerText = data.consultation || "N/A";
+                document.getElementById("diagnostic").innerText = data.diagnosis || "N/A";
+                document.getElementById("prescription").innerText = data.prescription || "N/A";
+            })
+            .catch(error => console.error("Erreur lors de la récupération des données :", error));
+
+        function formatDate(dateString) {
+            if (!dateString) return "N/A";
+            let parts = dateString.split("-");
+            return parts[2] + "/" + parts[1] + "/" + parts[0];
+        }
+
+        function formatPhoneNumber(phone) {
+            if (!phone) return "N/A";
+            if (phone.startsWith("0")) {
+                return "+212" + phone.substring(1);
+            }
+            return phone;
+        }
+    </script>
 </body>
 </html>
