@@ -3,55 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Informations du Patient</title>
+    <title>Formulaire d'Admission</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #F4F8FB;
+            background: linear-gradient(to bottom, #A0B9E3, #E8EFFF);
+            text-align: center;
             margin: 0;
             padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
         .container {
             width: 90%;
-            max-width: 500px;
+            max-width: 800px;
             background: white;
-            padding: 20px;
+            padding: 30px;
             border-radius: 10px;
             box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+            margin: auto;
             text-align: left;
         }
         .logo {
             display: block;
-            margin: 0 auto 20px;
-            width: 120px;
+            margin: 0 auto 10px;
+            width: 180px;
         }
-        h1, h2 {
+        h1 {
             color: #2C3E50;
             text-align: center;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
-        .info {
-            font-size: 16px;
-            margin: 10px 0;
+        h1 i {
+            color: #2C7A4B;
         }
         label {
             font-weight: bold;
             display: block;
             margin-top: 15px;
         }
-        textarea {
+        input, select, textarea {
             width: 100%;
-            height: 80px;
-            margin-top: 5px;
             padding: 10px;
+            margin-top: 5px;
             border: 1px solid #ccc;
             border-radius: 5px;
-            resize: none;
-            font-size: 14px;
+            font-size: 16px;
         }
-        button {
+        textarea {
+            resize: none;
+            height: 60px;
+        }
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+        .row div {
+            flex: 1;
+        }
+        .btn-submit {
             width: 100%;
             padding: 12px;
             background: #2C7A4B;
@@ -61,9 +74,12 @@
             cursor: pointer;
             font-size: 16px;
             margin-top: 15px;
-            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
-        button:hover {
+        .btn-submit:hover {
             background: #256B40;
         }
     </style>
@@ -71,75 +87,73 @@
 <body>
 
     <img src="logo.webp" alt="Clinique Logo" class="logo">  
-    
     <div class="container">
-        <h1>Informations du Patient</h1>
-        
-        <p class="info"><strong>Nom et Prénom :</strong> <span id="name">Chargement...</span></p>
-        <p class="info"><strong>Âge :</strong> <span id="age">Chargement...</span></p>
-        <p class="info"><strong>Motif de Consultation :</strong> <span id="consultation">Chargement...</span></p>
+        <h1><i class="fas fa-file-medical"></i> Formulaire d'Admission</h1>
 
-        <h2>Diagnostic du Médecin</h2>
-        <form id="notesForm">
-            <label>Diagnostic :</label>
-            <textarea id="diagnosis" name="diagnosis" placeholder="Entrez le diagnostic..."></textarea>
-            
-            <label>Prescription :</label>
-            <textarea id="prescription" name="prescription" placeholder="Entrez l'ordonnance..."></textarea>
-            
-            <button type="submit">Enregistrer</button>
-        </form>
+        <div class="row">
+            <div>
+                <label>Nom:</label>
+                <input type="text" name="nom" placeholder="Entrez le nom">
+            </div>
+            <div>
+                <label>Prénom:</label>
+                <input type="text" name="prenom" placeholder="Entrez le prénom">
+            </div>
+        </div>
+
+        <div class="row">
+            <div>
+                <label>Numéro d'Identification (CIN):</label>
+                <input type="text" name="cin" placeholder="Ex: AB123456">
+            </div>
+            <div>
+                <label>Téléphone:</label>
+                <input type="text" name="telephone" placeholder="Ex: 0697068234">
+            </div>
+        </div>
+
+        <label>Adresse:</label>
+        <textarea name="adresse" placeholder="Entrez l'adresse"></textarea>
+
+        <div class="row">
+            <div>
+                <label>Ville:</label>
+                <input type="text" name="ville" placeholder="Ex: Casablanca">
+            </div>
+            <div>
+                <label>Date de Naissance:</label>
+                <input type="date" name="date_naissance">
+            </div>
+        </div>
+
+        <div class="row">
+            <div>
+                <label>Sexe:</label>
+                <select name="sexe">
+                    <option>Masculin</option>
+                    <option>Féminin</option>
+                </select>
+            </div>
+            <div>
+                <label>Avez-vous une mutuelle ?</label>
+                <select name="mutuelle">
+                    <option>Non</option>
+                    <option>Oui</option>
+                </select>
+            </div>
+        </div>
+
+        <label>Motif de Consultation:</label>
+        <select name="motif">
+            <option>Consultation</option>
+            <option>Urgence</option>
+            <option>Suivi médical</option>
+        </select>
+
+        <button type="submit" class="btn-submit">
+            <i class="fas fa-check"></i> Soumettre
+        </button>
     </div>
 
-    <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const patientCIN = urlParams.get("cin");
-
-        const webhookURL = `https://workflows.aphelionxinnovations.com/webhook-test/patient-info?cin=${patientCIN}`;
-        
-        fetch(webhookURL)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("name").innerText = data.name || "N/A";
-                document.getElementById("age").innerText = calculateAge(data["Date de Naissance"]) || "N/A";
-                document.getElementById("consultation").innerText = data["Motif de Consultation"] || "N/A";
-            })
-            .catch(error => console.error("Erreur lors de la récupération des données :", error));
-
-        function calculateAge(birthDate) {
-            if (!birthDate) return "N/A";
-            const birthYear = new Date(birthDate).getFullYear();
-            const currentYear = new Date().getFullYear();
-            return currentYear - birthYear + " ans";
-        }
-
-        document.getElementById("notesForm").addEventListener("submit", function(event) {
-            event.preventDefault();
-
-            const notesData = {
-                cin: patientCIN,
-                diagnosis: document.getElementById("diagnosis").value,
-                prescription: document.getElementById("prescription").value
-            };
-
-            const submitNotesURL = "https://workflows.aphelionxinnovations.com/webhook-test/submit-notes";
-            
-            fetch(submitNotesURL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(notesData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert("Notes enregistrées avec succès !");
-                document.getElementById("diagnosis").value = "";
-                document.getElementById("prescription").value = "";
-            })
-            .catch(error => {
-                console.error("Erreur lors de l'enregistrement :", error);
-                alert("Échec de l'enregistrement des notes.");
-            });
-        });
-    </script>
 </body>
 </html>
