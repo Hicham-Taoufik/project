@@ -4,61 +4,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Informations du Patient</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: linear-gradient(to bottom, #A0B9E3, #E8EFFF);
-            text-align: center;
+            background-color: #F4F8FB;
             margin: 0;
             padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         .container {
             width: 90%;
-            max-width: 800px;
+            max-width: 500px;
             background: white;
-            padding: 30px;
+            padding: 20px;
             border-radius: 10px;
             box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
-            margin: auto;
             text-align: left;
         }
         .logo {
             display: block;
-            margin: 0 auto 10px;
-            width: 180px;
+            margin: 0 auto 20px;
+            width: 120px;
         }
-        h1 {
+        h1, h2 {
             color: #2C3E50;
             text-align: center;
-            font-size: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
         }
-        h1 i {
-            color: #2C7A4B;
+        .info {
+            font-size: 16px;
+            margin: 10px 0;
         }
         label {
             font-weight: bold;
             display: block;
             margin-top: 15px;
         }
-        .info-box {
-            background: #F4F8FB;
+        textarea {
+            width: 100%;
+            height: 80px;
+            margin-top: 5px;
             padding: 10px;
+            border: 1px solid #ccc;
             border-radius: 5px;
-            font-size: 16px;
+            resize: none;
+            font-size: 14px;
         }
-        .row {
-            display: flex;
-            gap: 10px;
-        }
-        .row div {
-            flex: 1;
-        }
-        .btn-submit {
+        button {
             width: 100%;
             padding: 12px;
             background: #2C7A4B;
@@ -68,12 +61,9 @@
             cursor: pointer;
             font-size: 16px;
             margin-top: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            transition: background 0.3s;
         }
-        .btn-submit:hover {
+        button:hover {
             background: #256B40;
         }
     </style>
@@ -81,66 +71,24 @@
 <body>
 
     <img src="logo.webp" alt="Clinique Logo" class="logo">  
+    
     <div class="container">
-        <h1><i class="fas fa-user"></i> Informations du Patient</h1>
+        <h1>Informations du Patient</h1>
+        
+        <p class="info"><strong>Nom et Prénom :</strong> <span id="name">Chargement...</span></p>
+        <p class="info"><strong>Âge :</strong> <span id="age">Chargement...</span></p>
+        <p class="info"><strong>Motif de Consultation :</strong> <span id="consultation">Chargement...</span></p>
 
-        <div class="row">
-            <div>
-                <label>Nom:</label>
-                <div class="info-box" id="nom">Chargement...</div>
-            </div>
-            <div>
-                <label>Prénom:</label>
-                <div class="info-box" id="prenom">Chargement...</div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div>
-                <label>Numéro d'Identification (CIN):</label>
-                <div class="info-box" id="cin">Chargement...</div>
-            </div>
-            <div>
-                <label>Téléphone:</label>
-                <div class="info-box" id="telephone">Chargement...</div>
-            </div>
-        </div>
-
-        <label>Adresse:</label>
-        <div class="info-box" id="adresse">Chargement...</div>
-
-        <div class="row">
-            <div>
-                <label>Ville:</label>
-                <div class="info-box" id="ville">Chargement...</div>
-            </div>
-            <div>
-                <label>Date de Naissance:</label>
-                <div class="info-box" id="date_naissance">Chargement...</div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div>
-                <label>Sexe:</label>
-                <div class="info-box" id="sexe">Chargement...</div>
-            </div>
-            <div>
-                <label>Avez-vous une mutuelle ?</label>
-                <div class="info-box" id="mutuelle">Chargement...</div>
-            </div>
-        </div>
-
-        <label>Motif de Consultation:</label>
-        <div class="info-box" id="motif_consultation">Chargement...</div>
-
-        <h2><i class="fas fa-file-medical"></i> Diagnostic du Médecin</h2>
-
-        <label>Diagnostic :</label>
-        <div class="info-box" id="diagnostic">Chargement...</div>
-
-        <label>Prescription :</label>
-        <div class="info-box" id="prescription">Chargement...</div>
+        <h2>Diagnostic du Médecin</h2>
+        <form id="notesForm">
+            <label>Diagnostic :</label>
+            <textarea id="diagnosis" name="diagnosis" placeholder="Entrez le diagnostic..."></textarea>
+            
+            <label>Prescription :</label>
+            <textarea id="prescription" name="prescription" placeholder="Entrez l'ordonnance..."></textarea>
+            
+            <button type="submit">Enregistrer</button>
+        </form>
     </div>
 
     <script>
@@ -152,34 +100,46 @@
         fetch(webhookURL)
             .then(response => response.json())
             .then(data => {
-                document.getElementById("nom").innerText = data.nom || "N/A";
-                document.getElementById("prenom").innerText = data.prenom || "N/A";
-                document.getElementById("cin").innerText = data.cin || "N/A";
-                document.getElementById("telephone").innerText = formatPhoneNumber(data.telephone) || "N/A";
-                document.getElementById("adresse").innerText = data.adresse || "N/A";
-                document.getElementById("ville").innerText = data.ville || "N/A";
-                document.getElementById("date_naissance").innerText = formatDate(data.dob) || "N/A";
-                document.getElementById("sexe").innerText = data.sexe || "N/A";
-                document.getElementById("mutuelle").innerText = data.mutuelle || "N/A";
-                document.getElementById("motif_consultation").innerText = data.consultation || "N/A";
-                document.getElementById("diagnostic").innerText = data.diagnosis || "N/A";
-                document.getElementById("prescription").innerText = data.prescription || "N/A";
+                document.getElementById("name").innerText = data.name || "N/A";
+                document.getElementById("age").innerText = calculateAge(data["Date de Naissance"]) || "N/A";
+                document.getElementById("consultation").innerText = data["Motif de Consultation"] || "N/A";
             })
             .catch(error => console.error("Erreur lors de la récupération des données :", error));
 
-        function formatDate(dateString) {
-            if (!dateString) return "N/A";
-            let parts = dateString.split("-");
-            return parts[2] + "/" + parts[1] + "/" + parts[0];
+        function calculateAge(birthDate) {
+            if (!birthDate) return "N/A";
+            const birthYear = new Date(birthDate).getFullYear();
+            const currentYear = new Date().getFullYear();
+            return currentYear - birthYear + " ans";
         }
 
-        function formatPhoneNumber(phone) {
-            if (!phone) return "N/A";
-            if (phone.startsWith("0")) {
-                return "+212" + phone.substring(1);
-            }
-            return phone;
-        }
+        document.getElementById("notesForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const notesData = {
+                cin: patientCIN,
+                diagnosis: document.getElementById("diagnosis").value,
+                prescription: document.getElementById("prescription").value
+            };
+
+            const submitNotesURL = "https://workflows.aphelionxinnovations.com/webhook-test/submit-notes";
+            
+            fetch(submitNotesURL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(notesData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert("Notes enregistrées avec succès !");
+                document.getElementById("diagnosis").value = "";
+                document.getElementById("prescription").value = "";
+            })
+            .catch(error => {
+                console.error("Erreur lors de l'enregistrement :", error);
+                alert("Échec de l'enregistrement des notes.");
+            });
+        });
     </script>
 </body>
 </html>
