@@ -1,0 +1,24 @@
+.badge {
+  padding: 0.5em 0.75em;
+  border-radius: 0.5rem;
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+.badge.bg-success {
+  background-color: #198754 !important;
+  color: white;
+}
+
+.card {
+  border: none;
+}
+
+#history-list li {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+#history-list li:last-child {
+  border-bottom: none;
+}
