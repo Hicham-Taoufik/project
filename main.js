@@ -1,4 +1,4 @@
-const BASE_URL = 'https://workflows.aphelionxinnovations.com/webhook'; // no trailing slash
+const BASE_URL = 'https://workflows.aphelionxinnovations.com';
 const ipp = 'IPP-1742812227738'; // Just an example. You might set this dynamically.
 
 window.addEventListener('DOMContentLoaded', async () => {
