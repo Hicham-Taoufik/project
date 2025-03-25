@@ -3,56 +3,53 @@
 <head>
   <meta charset="UTF-8" />
   <title>Tableau de bord du médecin</title>
-  <!-- Bootstrap 5 (CDN) -->
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 </head>
 <body class="bg-light">
 
   <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
     <div class="container-fluid">
       <a class="navbar-brand" href="#">Clinique XYZ</a>
-      <!-- Doctor name or logout link here -->
+      <div class="d-flex align-items-center">
+        <span class="me-3">Dr. Dupont</span>
+        <button class="btn btn-outline-secondary btn-sm">Déconnexion</button>
+      </div>
     </div>
   </nav>
 
   <div class="container my-4">
-    <h1>Tableau de bord du médecin</h1>
-    <hr />
+    <h1 class="mb-4">Tableau de bord du médecin</h1>
 
     <!-- Patient Info Row -->
     <div class="row mb-4">
       <!-- Patient Info -->
-      <div class="col-md-3">
-        <h4>Informations du patient</h4>
-        <div id="patient-info" class="border p-2 bg-white">
-          <!-- Filled dynamically in main.js -->
-          <p><strong>IPP:</strong> <span id="patient-ipp">N/A</span></p>
-          <p><strong>Nom:</strong> <span id="patient-nom">N/A</span></p>
-          <p><strong>Prénom:</strong> <span id="patient-prenom">N/A</span></p>
-          <p><strong>Mutuelle:</strong> <span id="patient-mutuelle">N/A</span></p>
-        </div>
-      </div>
-
-      <!-- Nurse Observations -->
       <div class="col-md-4">
-        <h4>Observation de l’infirmier</h4>
-        <div id="nurse-observation" class="border p-2 bg-white" style="min-height:120px;">
-          <!-- This could be loaded from an endpoint or typed in by a nurse. -->
-          <p>Observations du jour: (Soon to be implemented)</p>
+        <div class="card shadow-sm">
+          <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0">Informations du patient</h5>
+          </div>
+          <div class="card-body">
+            <dl class="mb-0">
+              <dt>IPP:</dt><dd id="patient-ipp">N/A</dd>
+              <dt>Nom:</dt><dd id="patient-nom">N/A</dd>
+              <dt>Prénom:</dt><dd id="patient-prenom">N/A</dd>
+              <dt>Mutuelle:</dt><dd id="patient-mutuelle">N/A</dd>
+            </dl>
+          </div>
         </div>
       </div>
 
       <!-- Patient History -->
-      <div class="col-md-5">
-        <h4>Historique du patient</h4>
-        <div id="patient-history" class="border p-2 bg-white" style="min-height:120px; overflow:auto;">
-          <!-- A list or table of previous consultations/prescriptions, loaded from main.js -->
-          <ul id="history-list" class="list-unstyled mb-0">
-            <!-- We’ll populate here with JavaScript -->
-          </ul>
+      <div class="col-md-8">
+        <div class="card shadow-sm h-100">
+          <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0">Historique du patient</h5>
+          </div>
+          <div class="card-body" style="overflow-y: auto; max-height: 300px;">
+            <ul id="history-list" class="list-unstyled mb-0">
+              <!-- Dynamic content -->
+            </ul>
+          </div>
         </div>
       </div>
     </div>
@@ -60,70 +57,89 @@
     <!-- Diagnostic + Prescription Row -->
     <div class="row mb-4">
       <!-- Diagnostic -->
-      <div class="col-md-6">
-        <h4>Diagnostic</h4>
-        <textarea
-          id="diagnostic-input"
-          class="form-control mb-2"
-          rows="4"
-          placeholder="Saisir le diagnostic ici..."
-        ></textarea>
-        <button id="submit-diagnostic-btn" class="btn btn-primary">Soumettre</button>
+      <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0">Diagnostic</h5>
+          </div>
+          <div class="card-body">
+            <textarea
+              id="diagnostic-input"
+              class="form-control mb-3"
+              rows="5"
+              placeholder="Saisir le diagnostic ici..."
+            ></textarea>
+            <button id="submit-diagnostic-btn" class="btn btn-primary w-100">
+              Soumettre le diagnostic
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- Prescription Section -->
       <div class="col-md-6">
-        <h4>Prescription</h4>
-        <!-- Raw prescription text area -->
-        <textarea
-          id="prescription-input"
-          class="form-control mb-2"
-          rows="4"
-          placeholder="e.g. Amoxicillin 3 fois par jour pendant 5 jours"
-        ></textarea>
-        <button id="submit-prescription-btn" class="btn btn-success mb-3">
-          AI Prescription Suggestion
-        </button>
-
-        <!-- AI suggestion display -->
-        <div id="ai-suggestion" class="border p-2 bg-white" style="min-height:80px;">
-          <strong>Suggéré:</strong> 
-          <div>
-            Début: <span id="suggest-start">N/A</span> |
-            Fin: <span id="suggest-end">N/A</span>
+        <div class="card shadow-sm h-100">
+          <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0">Prescription</h5>
           </div>
-          <div>
-            <span id="check-matin" class="badge bg-secondary">Matin</span>
-            <span id="check-apres-midi" class="badge bg-secondary">Après-midi</span>
-            <span id="check-soir" class="badge bg-secondary">Soir</span>
-            <span id="check-nuit" class="badge bg-secondary">Nuit</span>
-          </div>
-        </div>
+          <div class="card-body">
+            <textarea
+              id="prescription-input"
+              class="form-control mb-3"
+              rows="3"
+              placeholder="Ex: Amoxicilline 500mg 3 fois/jour pendant 5 jours"
+            ></textarea>
+            
+            <div class="d-grid gap-2 mb-3">
+              <button id="submit-prescription-btn" class="btn btn-success">
+                <i class="bi bi-magic me-2"></i>Suggestion IA
+              </button>
+            </div>
 
-        <!-- Validate or Modify -->
-        <div class="mt-2">
-          <button id="validate-prescription-btn" class="btn btn-primary">
-            Valider
-          </button>
-          <button id="modify-prescription-btn" class="btn btn-warning">
-            Modifier
-          </button>
+            <div id="ai-suggestion" class="card mb-3">
+              <div class="card-body">
+                <h6 class="card-subtitle mb-2 text-muted">Suggestion IA</h6>
+                <div class="row mb-2">
+                  <div class="col-6">
+                    <small>Début:</small>
+                    <div id="suggest-start" class="fw-bold">N/A</div>
+                  </div>
+                  <div class="col-6">
+                    <small>Fin:</small>
+                    <div id="suggest-end" class="fw-bold">N/A</div>
+                  </div>
+                </div>
+                <div class="d-flex gap-2">
+                  <span id="check-matin" class="badge">Matin</span>
+                  <span id="check-apres-midi" class="badge">Après-midi</span>
+                  <span id="check-soir" class="badge">Soir</span>
+                  <span id="check-nuit" class="badge">Nuit</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-grid gap-2">
+              <button id="validate-prescription-btn" class="btn btn-primary">
+                Valider la prescription
+              </button>
+              <button id="modify-prescription-btn" class="btn btn-outline-secondary">
+                Modifier manuellement
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Submit + or general finalize? -->
-    <div class="text-center">
-      <button class="btn btn-secondary" onclick="alert('A future action?')">
-        Quitter / Dashboard
+    <div class="text-center mt-4">
+      <button class="btn btn-outline-secondary" onclick="window.location.reload()">
+        Retour au tableau de bord
       </button>
     </div>
 
   </div>
 
-  <!-- Bootstrap + JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <!-- Custom JS -->
   <script src="main.js"></script>
 </body>
 </html>
