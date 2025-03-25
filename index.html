@@ -1,128 +1,129 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Tableau de bord du médecin - Test</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      padding: 20px;
-    }
-    .section {
-      background: #fff;
-      padding: 15px;
-      margin-bottom: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    }
-    .title {
-      font-weight: bold;
-      background: #00d8ff;
-      padding: 5px 10px;
-      margin-bottom: 10px;
-      display: inline-block;
-    }
-    .row {
-      display: flex;
-      gap: 20px;
-    }
-    textarea {
-      width: 100%;
-      height: 80px;
-    }
-    button {
-      margin-top: 10px;
-      padding: 8px 16px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    .checkboxes label {
-      margin-right: 10px;
-    }
-    .ai-box {
-      background: #eef;
-      padding: 10px;
-      border-left: 4px solid #00f;
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <title>Tableau de bord du médecin</title>
+  <!-- Bootstrap 5 (CDN) -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
 </head>
-<body>
-  <h1>Tableau de bord du médecin (Test)</h1>
+<body class="bg-light">
 
-  <div class="section">
-    <div class="title">Informations du patient</div><br>
-    <label>IPP:</label>
-    <input type="text" id="ipp" value="IPP-1742812227738">
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">Clinique XYZ</a>
+      <!-- Doctor name or logout link here -->
+    </div>
+  </nav>
+
+  <div class="container my-4">
+    <h1>Tableau de bord du médecin</h1>
+    <hr />
+
+    <!-- Patient Info Row -->
+    <div class="row mb-4">
+      <!-- Patient Info -->
+      <div class="col-md-3">
+        <h4>Informations du patient</h4>
+        <div id="patient-info" class="border p-2 bg-white">
+          <!-- Filled dynamically in main.js -->
+          <p><strong>IPP:</strong> <span id="patient-ipp">N/A</span></p>
+          <p><strong>Nom:</strong> <span id="patient-nom">N/A</span></p>
+          <p><strong>Prénom:</strong> <span id="patient-prenom">N/A</span></p>
+          <p><strong>Mutuelle:</strong> <span id="patient-mutuelle">N/A</span></p>
+        </div>
+      </div>
+
+      <!-- Nurse Observations -->
+      <div class="col-md-4">
+        <h4>Observation de l’infirmier</h4>
+        <div id="nurse-observation" class="border p-2 bg-white" style="min-height:120px;">
+          <!-- This could be loaded from an endpoint or typed in by a nurse. -->
+          <p>Observations du jour: (Soon to be implemented)</p>
+        </div>
+      </div>
+
+      <!-- Patient History -->
+      <div class="col-md-5">
+        <h4>Historique du patient</h4>
+        <div id="patient-history" class="border p-2 bg-white" style="min-height:120px; overflow:auto;">
+          <!-- A list or table of previous consultations/prescriptions, loaded from main.js -->
+          <ul id="history-list" class="list-unstyled mb-0">
+            <!-- We’ll populate here with JavaScript -->
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Diagnostic + Prescription Row -->
+    <div class="row mb-4">
+      <!-- Diagnostic -->
+      <div class="col-md-6">
+        <h4>Diagnostic</h4>
+        <textarea
+          id="diagnostic-input"
+          class="form-control mb-2"
+          rows="4"
+          placeholder="Saisir le diagnostic ici..."
+        ></textarea>
+        <button id="submit-diagnostic-btn" class="btn btn-primary">Soumettre</button>
+      </div>
+
+      <!-- Prescription Section -->
+      <div class="col-md-6">
+        <h4>Prescription</h4>
+        <!-- Raw prescription text area -->
+        <textarea
+          id="prescription-input"
+          class="form-control mb-2"
+          rows="4"
+          placeholder="e.g. Amoxicillin 3 fois par jour pendant 5 jours"
+        ></textarea>
+        <button id="submit-prescription-btn" class="btn btn-success mb-3">
+          AI Prescription Suggestion
+        </button>
+
+        <!-- AI suggestion display -->
+        <div id="ai-suggestion" class="border p-2 bg-white" style="min-height:80px;">
+          <strong>Suggéré:</strong> 
+          <div>
+            Début: <span id="suggest-start">N/A</span> |
+            Fin: <span id="suggest-end">N/A</span>
+          </div>
+          <div>
+            <span id="check-matin" class="badge bg-secondary">Matin</span>
+            <span id="check-apres-midi" class="badge bg-secondary">Après-midi</span>
+            <span id="check-soir" class="badge bg-secondary">Soir</span>
+            <span id="check-nuit" class="badge bg-secondary">Nuit</span>
+          </div>
+        </div>
+
+        <!-- Validate or Modify -->
+        <div class="mt-2">
+          <button id="validate-prescription-btn" class="btn btn-primary">
+            Valider
+          </button>
+          <button id="modify-prescription-btn" class="btn btn-warning">
+            Modifier
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit + or general finalize? -->
+    <div class="text-center">
+      <button class="btn btn-secondary" onclick="alert('A future action?')">
+        Quitter / Dashboard
+      </button>
+    </div>
+
   </div>
 
-  <div class="section">
-    <div class="title">Diagnostic</div><br>
-    <textarea id="diagnostic" placeholder="Entrez le diagnostic..."></textarea>
-  </div>
-
-  <div class="section">
-    <div class="title">Prescription</div><br>
-    <textarea id="prescription">Paracetamol 3 fois par jour pendant 5 jours</textarea><br>
-    <button onclick="submitPrescription()">Soumettre à l'IA</button>
-  </div>
-
-  <div id="aiSuggestion" class="section" style="display:none">
-    <div class="title">Suggestion de l'IA</div>
-    <div class="ai-box" id="aiBox"></div>
-    <button onclick="validatePrescription()">Valider</button>
-  </div>
-
-  <script>
-    let aiData = {};
-
-    async function submitPrescription() {
-      const ipp = document.getElementById('ipp').value;
-      const prescription = document.getElementById('prescription').value;
-
-      const response = await fetch("https://workflows.aphelionxinnovations.com/webhook-test/doctor-submit-prescription", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ipp, prescription })
-      });
-
-      const result = await response.json();
-      aiData = result.suggestion;
-
-      document.getElementById("aiSuggestion").style.display = "block";
-      document.getElementById("aiBox").innerHTML = `
-        <b>Médicament:</b> ${aiData.medicament}<br>
-        <b>Début:</b> ${aiData.start_date} | <b>Fin:</b> ${aiData.end_date}<br>
-        <b>Horaires:</b><br>
-        ☑ Matin: ${aiData.schedule.matin} 
-        ☑ Après-midi: ${aiData.schedule.apres_midi} 
-        ❌ Soir: ${aiData.schedule.soir} 
-        ❌ Nuit: ${aiData.schedule.nuit}
-      `;
-    }
-
-    async function validatePrescription() {
-      const ipp = document.getElementById('ipp').value;
-      const final_prescription = document.getElementById('prescription').value;
-
-      const payload = {
-        ipp,
-        final_prescription,
-        medicament_name: aiData.medicament,
-        start_date: aiData.start_date,
-        end_date: aiData.end_date,
-        schedule: aiData.schedule
-      };
-
-      const res = await fetch("https://workflows.aphelionxinnovations.com/webhook-test/doctor-validate-prescription", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-
-      const result = await res.json();
-      alert(result.message || "Prescription enregistrée !");
-    }
-  </script>
+  <!-- Bootstrap + JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Custom JS -->
+  <script src="main.js"></script>
 </body>
 </html>
