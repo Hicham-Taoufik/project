@@ -1,102 +1,38 @@
-const BASE_URL = 'https://workflows.aphelionxinnovations.com';
-const TOKEN = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJndWlkIjoiZmJmMmI1ZjctZTc3ZS00ZGZmLWJlN2UtN2ZlOGVkZmViZmY1IiwiZmlyc3ROYW1lIjoiTW91c3NhIiwibGFzdE5hbWUiOiJTYWlkaSIsInVzZXJuYW1lIjoic2FpZGkiLCJlbWFpbCI6Im1vdXNzYS5zYWlkaS4wMUBnbXppbC5jb20iLCJwYXNzd29yZCI6ImFkbWluMTIzNCIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc0Mjk1MjMyNn0.1s_IWO-h-AKwkP0LIX8mcjdeLRwsRtgbqAchIJSRVEA';
+function getPatient() {
+  const cin = document.getElementById("getCin").value;
+  const url = `https://workflows.aphelionxinnovations.com/webhook/get-patient?cin=${cin}`;
 
-// Handle patient creation
-document.getElementById('createForm').addEventListener('submit', async function (e) {
-  e.preventDefault();
-  const message = document.getElementById('message');
-  message.textContent = '';
-  message.className = '';
+  fetch(url)
+    .then(res => res.json())
+    .then(data => {
+      if (!data || !data.nom) {
+        document.getElementById("getResult").innerHTML = "<p class='error'>Patient non trouvé.</p>";
+        return;
+      }
 
-  const data = Object.fromEntries(new FormData(this));
-  data.has_insurance = this.has_insurance.checked;
-
-  try {
-    const response = await fetch(`${BASE_URL}/webhook/create-patient`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': TOKEN
-      },
-      body: JSON.stringify(data)
+      const qr = data.qr_code || `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${cin}`;
+      document.getElementById("getResult").innerHTML = `
+        <div>
+          <h3>👤 ${data.prenom} ${data.nom}</h3>
+          <p>🆔 <strong>CIN:</strong> ${data.cin}</p>
+          <p>📘 <strong>IPP:</strong> ${data.ipp}</p>
+          <p>📞 <strong>Téléphone:</strong> ${data.telephone}</p>
+          <p>🏡 <strong>Adresse:</strong> ${data.adresse}</p>
+          <p>📅 <strong>Naissance:</strong> ${new Date(data.date_naissance).toLocaleDateString()}</p>
+          <p>🧬 <strong>Sexe:</strong> ${data.sexe}</p>
+          <p>💳 <strong>Mutuelle:</strong> ${data.mutuelle || "Non"}</p>
+          <p>🕒 <strong>Créé le:</strong> ${new Date(data.created_at).toLocaleString()}</p>
+          <img src="${qr}" class="qrcode" />
+          <br/><br/>
+          <button onclick="printQRCode('${qr}')" class="btn-secondary">🖨️ Imprimer le QR Code</button>
+        </div>
+      `;
+    })
+    .catch(() => {
+      document.getElementById("getResult").innerHTML = "<p class='error'>Erreur lors de la récupération des données.</p>";
     });
-
-    const result = await response.json();
-
-    if (response.ok) {
-      message.textContent = '✅ Patient créé avec succès !';
-      message.className = 'success';
-      this.reset(); // clear form after success
-    } else {
-      message.textContent = '❌ Erreur: ' + (result.message || 'Vérifie les champs');
-      message.className = 'error';
-    }
-  } catch (err) {
-    message.textContent = 'Erreur réseau ou serveur !';
-    message.className = 'error';
-    console.error(err);
-  }
-});
-
-// Handle patient lookup
-async function getPatient() {
-  const cin = document.getElementById('getCin').value;
-  const getResult = document.getElementById('getResult');
-  getResult.innerHTML = '';
-
-  try {
-    const response = await fetch(`${BASE_URL}/webhook/get-patient?cin=${cin}`, {
-      headers: { 'Authorization': TOKEN }
-    });
-
-    const data = await response.json();
-
-    if (!response.ok || !data || Object.keys(data).length === 0) {
-      getResult.innerHTML = `<p class="error">❌ Patient non trouvé.</p>`;
-      return;
-    }
-
-    const {
-      ipp,
-      nom,
-      prenom,
-      cin: patientCin,
-      telephone,
-      adresse,
-      ville,
-      date_naissance,
-      sexe,
-      has_insurance,
-      mutuelle,
-      created_at,
-      qr_code
-    } = data;
-
-    const card = `
-      <div style="padding: 20px; background: #ecf0f1; border-radius: 10px; margin-top: 20px;">
-        <h3>👤 ${prenom} ${nom}</h3>
-        <p><strong>🆔 CIN:</strong> ${patientCin}</p>
-        <p><strong>📋 IPP:</strong> ${ipp}</p>
-        <p><strong>📞 Téléphone:</strong> ${telephone}</p>
-        <p><strong>🏠 Adresse:</strong> ${adresse}, ${ville}</p>
-        <p><strong>📅 Naissance:</strong> ${new Date(date_naissance).toLocaleDateString()}</p>
-        <p><strong>🧬 Sexe:</strong> ${sexe === 'M' ? 'Homme' : 'Femme'}</p>
-        <p><strong>💊 Mutuelle:</strong> ${has_insurance ? mutuelle.toUpperCase() : 'Non assuré'}</p>
-        <p><strong>🕓 Créé le:</strong> ${new Date(created_at).toLocaleString()}</p>
-        <br />
-        <button onclick="printQRCode('${qr_code}')">🖨️ Imprimer le QR Code</button>
-      </div>
-    `;
-
-    getResult.innerHTML = card;
-
-  } catch (err) {
-    getResult.innerHTML = `<p class="error">Erreur serveur ou réseau !</p>`;
-    console.error(err);
-  }
 }
 
-// Print QR Code only
 function printQRCode(qrUrl) {
   const printWindow = window.open('', '_blank');
   printWindow.document.write(`
@@ -105,27 +41,33 @@ function printQRCode(qrUrl) {
         <title>Imprimer le QR Code</title>
         <style>
           body {
+            font-family: 'Inter', sans-serif;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
             margin: 0;
-            font-family: sans-serif;
+            background: white;
           }
-          img {
-            border: 1px solid #333;
+          img.logo {
+            width: 100px;
+            margin-bottom: 20px;
+          }
+          img.qrcode {
+            width: 300px;
+            border: 2px solid #007BFF;
             padding: 10px;
           }
         </style>
       </head>
       <body>
-        <img src="${qrUrl}" alt="QR Code" />
+        <img src="logo.webp" alt="Clinic Logo" class="logo" />
+        <img src="${qrUrl}" alt="QR Code" class="qrcode" />
         <script>
-          window.onload = function() {
+          window.onload = () => {
             window.print();
-            window.onafterprint = function() {
-              window.close();
-            };
+            window.onafterprint = () => window.close();
           };
         </script>
       </body>
