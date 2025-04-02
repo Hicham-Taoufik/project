@@ -1,8 +1,13 @@
 const BASE_URL = 'https://workflows.aphelionxinnovations.com';
 const TOKEN = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJndWlkIjoiZmJmMmI1ZjctZTc3ZS00ZGZmLWJlN2UtN2ZlOGVkZmViZmY1IiwiZmlyc3ROYW1lIjoiTW91c3NhIiwibGFzdE5hbWUiOiJTYWlkaSIsInVzZXJuYW1lIjoic2FpZGkiLCJlbWFpbCI6Im1vdXNzYS5zYWlkaS4wMUBnbXppbC5jb20iLCJwYXNzd29yZCI6ImFkbWluMTIzNCIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc0Mjk1MjMyNn0.1s_IWO-h-AKwkP0LIX8mcjdeLRwsRtgbqAchIJSRVEA';
 
+
 document.getElementById('createForm').addEventListener('submit', async function (e) {
   e.preventDefault();
+  const message = document.getElementById('message');
+  message.textContent = '';
+  message.className = '';
+
   const data = Object.fromEntries(new FormData(this));
   data.has_insurance = this.has_insurance.checked;
 
@@ -19,14 +24,16 @@ document.getElementById('createForm').addEventListener('submit', async function 
     const result = await response.json();
 
     if (response.ok) {
-      alert('✅ Patient créé avec succès !');
-      console.log(result);
+      message.textContent = '✅ Patient créé avec succès !';
+      message.className = 'success';
+      this.reset(); // clear form after success
     } else {
-      alert('❌ Erreur: ' + (result.message || 'Vérifie les champs'));
-      console.error(result);
+      message.textContent = '❌ Erreur: ' + (result.message || 'Vérifie les champs');
+      message.className = 'error';
     }
   } catch (err) {
-    alert('Erreur réseau ou serveur !');
+    message.textContent = 'Erreur réseau ou serveur !';
+    message.className = 'error';
     console.error(err);
   }
 });
