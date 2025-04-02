@@ -1,17 +1,9 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Clinic Reception Dashboard</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
 <body>
   <h1>🎯 Clinic Reception Dashboard</h1>
 
-  <div class="dashboard-grid">
+  <div class="dashboard-wrapper">
     <!-- Créer un Patient -->
-    <section>
+    <section class="left-panel">
       <h2>🩺 Créer un Patient</h2>
       <form id="createForm" class="form-grid">
         <input name="nom" placeholder="Nom" required />
@@ -36,7 +28,7 @@
     </section>
 
     <!-- Rechercher un Patient -->
-    <section>
+    <section class="right-panel">
       <h2>🔍 Rechercher un Patient</h2>
       <div class="search-bar">
         <input id="getCin" placeholder="Entrer le CIN" />
@@ -48,4 +40,3 @@
 
   <script src="script.js" defer></script>
 </body>
-</html>
