@@ -1,18 +1,29 @@
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+/* Layout for two side-by-side panels */
+.dashboard-wrapper {
+  display: flex;
   gap: 30px;
+  align-items: flex-start;
   max-width: 1200px;
   margin: 0 auto;
+  flex-wrap: wrap;
 }
 
+/* Left and right sides */
+.left-panel,
+.right-panel {
+  flex: 1;
+  min-width: 400px;
+}
+
+/* Reusable card styling */
 section {
-  background: #fff;
+  background: white;
   padding: 25px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
+/* Form grid layout */
 .form-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -23,26 +34,4 @@ section {
   .form-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-}
-
-.dashboard-wrapper {
-  display: flex;
-  gap: 30px;
-  align-items: flex-start;
-  max-width: 1200px;
-  margin: 0 auto;
-  flex-wrap: wrap;
-}
-
-.left-panel,
-.right-panel {
-  flex: 1;
-  min-width: 400px;
-}
-
-section {
-  background: white;
-  padding: 25px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
