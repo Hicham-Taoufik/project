@@ -9,10 +9,11 @@
 <body>
   <h1>🎯 Clinic Reception Dashboard</h1>
 
-  <section>
-    <h2>🩺 Créer un Patient</h2>
-    <form id="createForm" class="form-grid">
-      <div class="form-group">
+  <div class="dashboard-grid">
+    <!-- Créer un Patient -->
+    <section>
+      <h2>🩺 Créer un Patient</h2>
+      <form id="createForm" class="form-grid">
         <input name="nom" placeholder="Nom" required />
         <input name="prenom" placeholder="Prénom" required />
         <input name="cin" placeholder="CIN" required />
@@ -24,27 +25,26 @@
           <option value="M">Homme</option>
           <option value="F">Femme</option>
         </select>
-        <div class="mutuelle-box">
-          <label>
-            <input type="checkbox" name="has_insurance" />
-            A une mutuelle ?
-          </label>
-          <input name="mutuelle" placeholder="Nom Mutuelle (si oui)" />
-        </div>
+        <label>
+          <input type="checkbox" name="has_insurance" />
+          A une mutuelle ?
+        </label>
+        <input name="mutuelle" placeholder="Nom Mutuelle (si oui)" />
         <button type="submit">Créer</button>
         <p id="message"></p>
-      </div>
-    </form>
-  </section>
+      </form>
+    </section>
 
-  <section>
-    <h2>🔍 Rechercher un Patient</h2>
-    <div class="search-bar">
-      <input id="getCin" placeholder="Entrer le CIN" />
-      <button onclick="getPatient()">Rechercher</button>
-    </div>
-    <div id="getResult"></div>
-  </section>
+    <!-- Rechercher un Patient -->
+    <section>
+      <h2>🔍 Rechercher un Patient</h2>
+      <div class="search-bar">
+        <input id="getCin" placeholder="Entrer le CIN" />
+        <button onclick="getPatient()">Rechercher</button>
+      </div>
+      <div id="getResult"></div>
+    </section>
+  </div>
 
   <script src="script.js" defer></script>
 </body>
