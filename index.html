@@ -5,12 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Clinic Reception Dashboard</title>
   <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
 </head>
 <body>
   <h1>🎯 Clinic Reception Dashboard</h1>
 
   <div class="dashboard-wrapper">
-    <!-- 🩺 Créer un Patient -->
+    <!-- Créer un Patient -->
     <section class="left-panel">
       <h2>🩺 Créer un Patient</h2>
       <form id="createForm" class="form-grid">
@@ -25,22 +26,22 @@
           <option value="M">Homme</option>
           <option value="F">Femme</option>
         </select>
-        <label>
+        <label class="checkbox-label">
           <input type="checkbox" name="has_insurance" />
           A une mutuelle ?
         </label>
         <input name="mutuelle" placeholder="Nom Mutuelle (si oui)" />
-        <button type="submit">Créer</button>
+        <button type="submit" class="btn-primary">Créer</button>
         <p id="message"></p>
       </form>
     </section>
 
-    <!-- 🔍 Rechercher un Patient -->
+    <!-- Rechercher un Patient -->
     <section class="right-panel">
       <h2>🔍 Rechercher un Patient</h2>
       <div class="search-bar">
         <input id="getCin" placeholder="Entrer le CIN" />
-        <button onclick="getPatient()">Rechercher</button>
+        <button onclick="getPatient()" class="btn-secondary">Rechercher</button>
       </div>
       <div id="getResult"></div>
     </section>
