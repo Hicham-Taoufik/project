@@ -1,3 +1,6 @@
+const BASE_URL = 'https://workflows.aphelionxinnovations.com';
+const TOKEN = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJndWlkIjoiZmJmMmI1ZjctZTc3ZS00ZGZmLWJlN2UtN2ZlOGVkZmViZmY1IiwiZmlyc3ROYW1lIjoiTW91c3NhIiwibGFzdE5hbWUiOiJTYWlkaSIsInVzZXJuYW1lIjoic2FpZGkiLCJlbWFpbCI6Im1vdXNzYS5zYWlkaS4wMUBnbXppbC5jb20iLCJwYXNzd29yZCI6ImFkbWluMTIzNCIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTc0Mjk1MjMyNn0.1s_IWO-h-AKwkP0LIX8mcjdeLRwsRtgbqAchIJSRVEA';
+// Search and display patient info
 function getPatient() {
   const cin = document.getElementById("getCin").value;
   const url = `https://workflows.aphelionxinnovations.com/webhook/get-patient?cin=${cin}`;
@@ -6,11 +9,13 @@ function getPatient() {
     .then(res => res.json())
     .then(data => {
       if (!data || !data.nom) {
-        document.getElementById("getResult").innerHTML = "<p class='error'>Patient non trouvé.</p>";
+        document.getElementById("getResult").innerHTML =
+          "<p class='error'>Patient non trouvé.</p>";
         return;
       }
 
       const qr = data.qr_code || `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${cin}`;
+
       document.getElementById("getResult").innerHTML = `
         <div>
           <h3>👤 ${data.prenom} ${data.nom}</h3>
@@ -29,10 +34,12 @@ function getPatient() {
       `;
     })
     .catch(() => {
-      document.getElementById("getResult").innerHTML = "<p class='error'>Erreur lors de la récupération des données.</p>";
+      document.getElementById("getResult").innerHTML =
+        "<p class='error'>Erreur lors de la récupération des données.</p>";
     });
 }
 
+// Print the QR Code with logo and clean layout
 function printQRCode(qrUrl) {
   const printWindow = window.open('', '_blank');
   printWindow.document.write(`
@@ -74,3 +81,38 @@ function printQRCode(qrUrl) {
     </html>
   `);
 }
+
+// Optional: handle form submission
+document.getElementById("createForm")?.addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  const form = e.target;
+  const payload = {
+    nom: form.nom.value,
+    prenom: form.prenom.value,
+    cin: form.cin.value,
+    telephone: form.telephone.value,
+    adresse: form.adresse.value,
+    ville: form.ville.value,
+    date_naissance: form.date_naissance.value,
+    sexe: form.sexe.value,
+    has_insurance: form.has_insurance.checked,
+    mutuelle: form.mutuelle.value || ""
+  };
+
+  fetch("https://workflows.aphelionxinnovations.com/webhook/create-patient", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  })
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("message").innerHTML = "<span class='success'>✅ Patient créé avec succès.</span>";
+      form.reset();
+    })
+    .catch(() => {
+      document.getElementById("message").innerHTML = "<span class='error'>❌ Erreur lors de la création du patient.</span>";
+    });
+});
