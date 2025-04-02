@@ -62,7 +62,6 @@ input:focus, select:focus {
 }
 
 .checkbox-label {
-  grid-column: span 2;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -121,4 +120,17 @@ button {
 .error {
   color: red;
   font-weight: bold;
+}
+
+.mutuelle-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  align-items: center;
+  grid-column: span 2;
+}
+
+img.qrcode {
+  max-width: 300px;
+  margin-top: 20px;
 }
