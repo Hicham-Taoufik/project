@@ -1,51 +1,54 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Clinic Reception Dashboard</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <h1>Clinic Reception Dashboard</h1>
+const BASE_URL = 'https://workflows.aphelionxinnovations.com';
+const TOKEN = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoicmVjZXB0aW9uIiwiaWF0IjoxNzQyNzY3MTk3fQ.JM5x28Gc-NQxuKu0hymv5UCjT8Qm98qWilT3_VztPwE';
 
-  <section>
-    <h2>Create Patient</h2>
-    <form id="createForm">
-      <input name="nom" placeholder="Nom" required />
-      <input name="prenom" placeholder="Prénom" required />
-      <input name="cin" placeholder="CIN" required />
-      <input name="telephone" placeholder="Téléphone" required />
-      <input name="adresse" placeholder="Adresse" required />
-      <input name="ville" placeholder="Ville" required />
-      <input name="date_naissance" type="date" required />
-      <select name="sexe">
-        <option value="M">Homme</option>
-        <option value="F">Femme</option>
-      </select>
-      <label>
-        <input type="checkbox" name="has_insurance" />
-        A une mutuelle ?
-      </label>
-      <input name="mutuelle" placeholder="Nom Mutuelle (si oui)" />
-      <button type="submit">Créer</button>
-    </form>
-  </section>
+document.getElementById('createForm').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  const message = document.getElementById('message');
+  message.textContent = '';
+  message.className = '';
 
-  <section>
-    <h2>Get Patient</h2>
-    <input id="getCin" placeholder="Entrer CIN" />
-    <button onclick="getPatient()">Rechercher</button>
-    <pre id="getResult"></pre>
-  </section>
+  const data = Object.fromEntries(new FormData(this));
+  data.has_insurance = this.has_insurance.checked;
 
-  <section>
-    <h2>List Patients</h2>
-    <button onclick="listPatients()">Afficher Tous</button>
-    <pre id="listResult"></pre>
-  </section>
+  try {
+    const response = await fetch(`${BASE_URL}/webhook/create-patient`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': TOKEN
+      },
+      body: JSON.stringify(data)
+    });
 
-  <!-- ✅ LINK to your script -->
-  <script src="script.js" defer></script>
-</body>
-</html>
+    const result = await response.json();
+
+    if (response.ok) {
+      message.textContent = '✅ Patient créé avec succès !';
+      message.className = 'success';
+      this.reset(); // clear form after success
+    } else {
+      message.textContent = '❌ Erreur: ' + (result.message || 'Vérifie les champs');
+      message.className = 'error';
+    }
+  } catch (err) {
+    message.textContent = 'Erreur réseau ou serveur !';
+    message.className = 'error';
+    console.error(err);
+  }
+});
+
+async function getPatient() {
+  const cin = document.getElementById('getCin').value;
+  const response = await fetch(`${BASE_URL}/webhook/get-patient?cin=${cin}`, {
+    headers: { 'Authorization': TOKEN }
+  });
+
+  const data = await response.json();
+  document.getElementById('getResult').textContent = JSON.stringify(data, null, 2);
+}
+
+async function listPatients() {
+  const response = await fetch(`${BASE_URL}/webhook/list-patients`);
+  const data = await response.json();
+  document.getElementById('listResult').textContent = JSON.stringify(data, null, 2);
+}
