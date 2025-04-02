@@ -40,16 +40,37 @@ document.getElementById('createForm').addEventListener('submit', async function 
 
 async function getPatient() {
   const cin = document.getElementById('getCin').value;
-  const response = await fetch(`${BASE_URL}/webhook/get-patient?cin=${cin}`, {
-    headers: { 'Authorization': TOKEN }
-  });
+  const getResult = document.getElementById('getResult');
+  getResult.innerHTML = '';
 
-  const data = await response.json();
-  document.getElementById('getResult').textContent = JSON.stringify(data, null, 2);
-}
+  try {
+    const response = await fetch(`${BASE_URL}/webhook/get-patient?cin=${cin}`, {
+      headers: { 'Authorization': TOKEN }
+    });
 
-async function listPatients() {
-  const response = await fetch(`${BASE_URL}/webhook/list-patients`);
-  const data = await response.json();
-  document.getElementById('listResult').textContent = JSON.stringify(data, null, 2);
+    const data = await response.json();
+
+    if (!response.ok || !data || Object.keys(data).length === 0) {
+      getResult.innerHTML = `<p class="error">❌ Patient non trouvé.</p>`;
+      return;
+    }
+
+    const card = `
+      <div style="padding: 20px; background: #ecf0f1; border-radius: 10px;">
+        <h3>${data.prenom} ${data.nom}</h3>
+        <p><strong>CIN:</strong> ${data.cin}</p>
+        <p><strong>Téléphone:</strong> ${data.telephone}</p>
+        <p><strong>Adresse:</strong> ${data.adresse}, ${data.ville}</p>
+        <p><strong>Date de naissance:</strong> ${data.date_naissance}</p>
+        <p><strong>Sexe:</strong> ${data.sexe === 'M' ? 'Homme' : 'Femme'}</p>
+        <p><strong>Mutuelle:</strong> ${data.has_insurance ? data.mutuelle : 'Non'}</p>
+      </div>
+    `;
+
+    getResult.innerHTML = card;
+
+  } catch (err) {
+    getResult.innerHTML = `<p class="error">Erreur serveur ou réseau !</p>`;
+    console.error(err);
+  }
 }
