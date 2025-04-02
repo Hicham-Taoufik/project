@@ -26,11 +26,13 @@
           <option value="M">Homme</option>
           <option value="F">Femme</option>
         </select>
-        <label class="checkbox-label">
-          <input type="checkbox" name="has_insurance" />
-          A une mutuelle ?
-        </label>
-        <input name="mutuelle" placeholder="Nom Mutuelle (si oui)" />
+        <div class="mutuelle-group">
+          <label class="checkbox-label">
+            <input type="checkbox" name="has_insurance" />
+            A une mutuelle ?
+          </label>
+          <input name="mutuelle" placeholder="Nom Mutuelle (si oui)" />
+        </div>
         <button type="submit" class="btn-primary">Créer</button>
         <p id="message"></p>
       </form>
