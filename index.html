@@ -11,32 +11,38 @@
 
   <section>
     <h2>🩺 Créer un Patient</h2>
-    <form id="createForm">
-      <input name="nom" placeholder="Nom" required />
-      <input name="prenom" placeholder="Prénom" required />
-      <input name="cin" placeholder="CIN" required />
-      <input name="telephone" placeholder="Téléphone" required />
-      <input name="adresse" placeholder="Adresse" required />
-      <input name="ville" placeholder="Ville" required />
-      <input name="date_naissance" type="date" required />
-      <select name="sexe">
-        <option value="M">Homme</option>
-        <option value="F">Femme</option>
-      </select>
-      <label>
-        <input type="checkbox" name="has_insurance" />
-        A une mutuelle ?
-      </label>
-      <input name="mutuelle" placeholder="Nom Mutuelle (si oui)" />
-      <button type="submit">Créer</button>
+    <form id="createForm" class="form-grid">
+      <div class="form-group">
+        <input name="nom" placeholder="Nom" required />
+        <input name="prenom" placeholder="Prénom" required />
+        <input name="cin" placeholder="CIN" required />
+        <input name="telephone" placeholder="Téléphone" required />
+        <input name="adresse" placeholder="Adresse" required />
+        <input name="ville" placeholder="Ville" required />
+        <input name="date_naissance" type="date" required />
+        <select name="sexe">
+          <option value="M">Homme</option>
+          <option value="F">Femme</option>
+        </select>
+        <div class="mutuelle-box">
+          <label>
+            <input type="checkbox" name="has_insurance" />
+            A une mutuelle ?
+          </label>
+          <input name="mutuelle" placeholder="Nom Mutuelle (si oui)" />
+        </div>
+        <button type="submit">Créer</button>
+        <p id="message"></p>
+      </div>
     </form>
-    <p id="message"></p>
   </section>
 
   <section>
     <h2>🔍 Rechercher un Patient</h2>
-    <input id="getCin" placeholder="Entrer le CIN" />
-    <button onclick="getPatient()">Rechercher</button>
+    <div class="search-bar">
+      <input id="getCin" placeholder="Entrer le CIN" />
+      <button onclick="getPatient()">Rechercher</button>
+    </div>
     <div id="getResult"></div>
   </section>
 
