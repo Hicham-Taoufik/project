@@ -940,7 +940,7 @@
         if(stream) stream.getTracks().forEach(track => track.stop());
         return; 
       }
-      // For individual recordings, we expect a config from getFieldConfig; for full dictation, we handle separately.
+      // For individual recordings, we expect a config; for full dictation, no config is needed.
       const config = (field === "fullDictation") ? null : getFieldConfig(field);
       console.log(`Stopped for ${field}. Chunks:${audioChunks.length}`);
       const s = document.getElementById(`${field}Status`);
@@ -971,10 +971,9 @@
       } else {
         const blob = new Blob(audioChunks, {type:'audio/webm'});
         if(s) s.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Transc...';
-        // For full dictation, don't call auto-fill function here. Wait for user to click "Traiter Dictée".
         if(field === "fullDictation") {
-          // You can automatically process here if desired.
-          // processFullDictation();
+          // Do not auto-process here; wait for user to click "Traiter Dictée"
+          console.log("Full dictation recorded. Awaiting processing.");
         } else {
           sendAudioToAI(blob, field);
         }
@@ -1092,6 +1091,7 @@
     
     // --- Processing Full Dictation ---
     function processFullDictation() {
+      console.log("processFullDictation called!");
       if (!currentIPP || !currentVisitId) {
         alert("Patient/visite non chargé.");
         return;
@@ -1117,16 +1117,356 @@
       })
       .then(responseData => {
         console.log("Dictée traitée:", responseData);
-        // Check for extractedData property
+        // Check for extractedData property in the response
         const data = responseData.extractedData || responseData;
         if (data) {
-          // Auto-populate individual fields with the response data
+          // Auto-populate individual fields with data from full dictation
           document.getElementById("diagnosticInput").value = data.diagnostic || "";
           document.getElementById("notesInput").value = data.notes_supplementaires || "";
           document.getElementById("antecedentsInput").value = data.antecedents || "";
           document.getElementById("treatmentInput").value = data.traitement_en_cours || "";
           document.getElementById("orientationInput").value = data.orientation || "";
-          // Optionally update other fields if needed (e.g. ordonnance_medicale, prescription_exploration)
+          // Optionally, update additional fields here
+          showMessage("fullDictationMessage", "Dictée traitée et champs mis à jour.", "success");
+        } else {
+          throw new Error("Données non reçues.");
+        }
+      })
+      .catch(e => {
+        console.error("Erreur lors du traitement de la dictée:", e);
+        showMessage("fullDictationMessage", `<i class="fas fa-times-circle"></i> Erreur: ${e.message}`, "error");
+      })
+      .finally(() => {
+        statusEl.innerHTML = "";
+      });
+    }
+    
+    // --- Form Submission Functions for Individual Fields ---
+    function submitDiagnostic() { 
+      const diag = document.getElementById("diagnosticInput").value;
+      if (!diag || !currentIPP || !currentVisitId) { 
+        showMessage("diagMessage", `Diagnostic vide ou patient/visite non chargé.`, "warning");
+        return;
+      }
+      showMessage("diagMessage", "", "");
+      const saveButton = document.getElementById('submitDiagBtn');
+      if(saveButton) saveButton.disabled = true;
+      fetchWithAuth(`${BASE_URL}${UPDATE_DIAGNOSIS_ENDPOINT}`, {
+        method:"POST",
+        body: JSON.stringify({ ipp: currentIPP, visit_id: currentVisitId, diagnostic: diag })
+      })
+      .then(r => r.ok ? r.json().catch(() => ({})) : r.text().then(t => { throw new Error(t || `Err ${r.status}`); }))
+      .then(() => { 
+        showMessage("diagMessage", "<i class='fas fa-check-circle'></i> Diagnostic Enregistré.", "success"); 
+      })
+      .catch(e => {
+        if (!e.message.startsWith('Auth')) {
+          showMessage("diagMessage", `<i class='fas fa-exclamation-triangle'></i> Err Enregistrement: ${e.message}`, "error");
+        }
+        console.error("Err submitDiag:", e);
+      })
+      .finally(() => { if(saveButton) saveButton.disabled = false; });
+    }
+    
+    function submitPrescription() {
+      const presc = document.getElementById("prescriptionInput").value;
+      const submitBtn = document.getElementById('submitPrescBtn');
+      const messageEl = document.getElementById("validationMessage");
+      const aiSuggestionContainer = document.getElementById("aiSuggestion");
+      if (!presc || !currentIPP || !currentVisitId) {
+        if (messageEl) showMessage(messageEl.id, `Prescription vide ou patient/visite non chargé.`, "warning");
+        if(aiSuggestionContainer) aiSuggestionContainer.style.display = "none";
+        return;
+      }
+      if (messageEl) showMessage(messageEl.id, "", "");
+      if(aiSuggestionContainer) aiSuggestionContainer.style.display = "none";
+      if (submitBtn) submitBtn.disabled = true;
+      if (aiSuggestionContainer) {
+        aiSuggestionContainer.style.display = "block";
+        aiSuggestionContainer.innerHTML = `<h3><i class="fas fa-lightbulb"></i> Suggestion IA</h3><div class="message message-loading" style="display:block;"><i class="fas fa-spinner fa-spin"></i> Analyse IA en cours...</div>`;
+      }
+      fetchWithAuth(`${BASE_URL}${SUBMIT_PRESCRIPTION_AI_ENDPOINT}`, {
+        method: "POST",
+        body: JSON.stringify({ ipp: currentIPP, visit_id: currentVisitId, prescription: presc })
+      })
+      .then(responseData => {
+        console.log("AI Raw Response:", JSON.stringify(responseData, null, 2));
+        let suggestionData = null;
+        if (Array.isArray(responseData) && responseData.length > 0 && responseData[0].output && typeof responseData[0].output === 'object') {
+          suggestionData = responseData[0].output;
+          console.log("Extracted suggestion data (from array[0].output):", suggestionData);
+        } else if (typeof responseData === 'object' && responseData !== null && responseData.success === true && responseData.suggestion && typeof responseData.suggestion === 'object') {
+          suggestionData = responseData.suggestion;
+          console.log("Extracted suggestion data (from direct object):", suggestionData);
+        } else {
+          let backendMessage = responseData?.message;
+          if (!backendMessage && Array.isArray(responseData) && responseData.length > 0) backendMessage = responseData[0]?.message;
+          throw new Error(backendMessage || "Réponse IA invalide ou structure inattendue.");
+        }
+        if (suggestionData) {
+          if(aiSuggestionContainer) {
+            aiSuggestionContainer.innerHTML = `
+              <h3><i class="fas fa-lightbulb"></i> Suggestion IA</h3>
+              <div class="input-group"> <label for="medicament">Médicament:</label> <input type="text" id="medicament"/> </div>
+              <div class="input-group"> <label for="start_date">Date début:</label> <input type="date" id="start_date"/> </div>
+              <div class="input-group"> <label for="end_date">Date fin:</label> <input type="date" id="end_date"/> </div>
+              <div class="input-group">
+                <label>Horaires:</label>
+                <div class="checkbox-wrapper">
+                  <label class="checkbox-item"><input type="checkbox" id="matin"/> Matin</label>
+                  <label class="checkbox-item"><input type="checkbox" id="apres_midi"/> Après-midi</label>
+                  <label class="checkbox-item"><input type="checkbox" id="soir"/> Soir</label>
+                  <label class="checkbox-item"><input type="checkbox" id="nuit"/> Nuit</label>
+                </div>
+              </div>
+              <div class="btn-group">
+                <button type="button" class="btn btn-success" id="validatePrescBtn" onclick="validatePrescription()">
+                  <i class="fas fa-check-double"></i> Valider
+                </button>
+              </div>`;
+            aiSuggestionContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        } else {
+          console.log("AI processed, but no suggestion found or extracted.");
+          if(aiSuggestionContainer) {
+            aiSuggestionContainer.innerHTML = `<h3><i class="fas fa-lightbulb"></i> Suggestion IA</h3><p>L'IA n'a pas pu extraire de suggestion structurée.</p>`;
+            aiSuggestionContainer.style.display = 'block';
+          }
+        }
+      })
+      .catch(e => {
+        if (messageEl && !e.message.startsWith('Auth')) {
+          showMessage(messageEl.id, `<i class='fas fa-exclamation-triangle'></i> Err AI: ${e.message}`, "error");
+        } else if (!e.message.startsWith('Auth')){
+          console.error(`Err AI: ${e.message} (validationMessage element not found)`);
+        }
+        console.error("Err submitPresc:", e);
+        if(aiSuggestionContainer) aiSuggestionContainer.style.display = "none";
+      })
+      .finally(() => {
+        if (submitBtn) submitBtn.disabled = false;
+      });
+    }
+    
+    function validatePrescription() { 
+      const med = document.getElementById("medicament").value,
+            sd = document.getElementById("start_date").value,
+            ed = document.getElementById("end_date").value;
+      const validateBtn = document.getElementById('validatePrescBtn'); 
+      const messageEl = document.getElementById("validationMessage"); 
+      if (!med || !sd || !ed || !currentIPP || !currentVisitId) { 
+        if(messageEl) showMessage(messageEl.id, `Champs requis ou patient/visite non chargé.`, "warning");
+        return;
+      }
+      if(messageEl) showMessage(messageEl.id, "", "");
+      if(validateBtn) validateBtn.disabled = true;
+      const sched = {
+        matin: document.getElementById("matin").checked,
+        apres_midi: document.getElementById("apres_midi").checked,
+        soir: document.getElementById("soir").checked,
+        nuit: document.getElementById("nuit").checked
+      };
+      const cvAPI = (dt) => { 
+        if (!dt || !/^\d{4}-\d{2}-\d{2}$/.test(dt)) return ''; 
+        const p = dt.split('-'); 
+        if(p.length !== 3) return ''; 
+        return `${p[1]}/${p[2]}/${p[0]}`; 
+      };
+      const apiSD = cvAPI(sd),
+            apiED = cvAPI(ed);
+      fetchWithAuth(`${BASE_URL}${VALIDATE_PRESCRIPTION_AI_ENDPOINT}`, {
+        method:"POST",
+        body: JSON.stringify({
+          ipp: currentIPP,
+          visit_id: currentVisitId,
+          final_prescription: document.getElementById("prescriptionInput").value,
+          start_date: apiSD,
+          end_date: apiED,
+          schedule: sched,
+          medicament_name: med
+        })
+      })
+      .then(r => r.ok ? r.json().catch(() => ({})) : r.text().then(t => { throw new Error(t || `Err ${r.status}`); }))
+      .then(() => {
+        if(messageEl) showMessage(messageEl.id, "<i class='fas fa-check-circle'></i> Prescription validée.", "success");
+        if(aiSuggestionDiv) aiSuggestionDiv.style.display = 'none';
+      })
+      .catch(e => {
+        if (!e.message.startsWith('Auth')) {
+          if(messageEl) showMessage(messageEl.id, `<i class='fas fa-exclamation-triangle'></i> Err valid: ${e.message}`, "error");
+        }
+        console.error("Err validatePresc:", e);
+      })
+      .finally(() => { if(validateBtn) validateBtn.disabled = false; });
+    }
+    
+    // --- QR SCANNER CODE ---
+    function updateScanStatus(message, type = 'info') { 
+      showMessage('scanResult', message, type); 
+    }
+    if (scanButton) { 
+      scanButton.onclick = async () => { 
+        if (!scanning) { 
+          try { 
+            updateScanStatus(''); 
+            scannerContainer.style.display = 'block'; 
+            updateScanStatus('Recherche caméra...', 'loading'); 
+            currentStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }); 
+            video.srcObject = currentStream; 
+            video.setAttribute('playsinline', true); 
+            await video.play(); 
+            updateScanStatus('Caméra prête. Scannez le code.', 'info'); 
+            scanButton.innerHTML = '<i class="fas fa-stop-circle"></i> Arrêter Scan'; 
+            scanButton.classList.replace('btn-primary','btn-danger'); 
+            scanning = true; 
+            clearTimeout(scanTimeout); 
+            scanTimeout = setTimeout(() => { 
+              if (scanning) { 
+                updateScanStatus('Aucun code détecté.', 'warning'); 
+                stopScanner(); 
+              } 
+            }, 30000); 
+            requestAnimationFrame(tick); 
+          } catch (err) { 
+            console.error("Cam Err:", err); 
+            let errMsg = err.message; 
+            if (err.name === 'NotAllowedError') errMsg = "Permission caméra refusée."; 
+            else if (err.name === 'NotFoundError') errMsg = "Caméra non trouvée."; 
+            updateScanStatus(`Err Cam: ${errMsg}`, 'error'); 
+            stopScanner(); 
+          } 
+        } else { 
+          stopScanner(); 
+          updateScanStatus('Scan arrêté.', 'info'); 
+        } 
+      }; 
+    } else { 
+      console.warn("Scan button not found."); 
+    }
+    
+    function stopScanner() { 
+      clearTimeout(scanTimeout); 
+      if (currentStream) { 
+        currentStream.getTracks().forEach(track => track.stop()); 
+      } 
+      if(video) video.srcObject = null; 
+      if(scannerContainer) scannerContainer.style.display = 'none'; 
+      if(scanButton) {
+        scanButton.innerHTML = '<i class="fas fa-qrcode"></i> Scanner QR'; 
+        scanButton.classList.replace('btn-danger','btn-primary');
+      } 
+      scanning = false; 
+      currentStream = null; 
+    }
+    
+    function tick() { 
+      if (!scanning || !video || video.videoWidth === 0 || video.readyState < 2) { 
+        if (scanning) requestAnimationFrame(tick); 
+        return; 
+      } 
+      const tce = document.createElement('canvas'); 
+      tce.height = video.videoHeight; 
+      tce.width = video.videoWidth; 
+      const tc = tce.getContext("2d",{willReadFrequently:true}); 
+      tc.drawImage(video, 0, 0, tce.width, tce.height); 
+      try { 
+        const id = tc.getImageData(0, 0, tce.width, tce.height); 
+        const code = window.jsQR?.(id.data, id.width, id.height, { inversionAttempts: "dontInvert" }); 
+        if (code) { 
+          console.log("QR Found:", code.data); 
+          stopScanner(); 
+          processScannedQrCode(code.data); 
+        } else { 
+          requestAnimationFrame(tick); 
+        } 
+      } catch (e) { 
+        console.error("Error QR proc:", e); 
+        requestAnimationFrame(tick); 
+      } 
+    }
+    
+    function processScannedQrCode(scannedUrl) { 
+      clearTimeout(scanTimeout); 
+      updateScanStatus('Code détecté. Traitement...', 'loading'); 
+      try { 
+        const url = new URL(scannedUrl); 
+        if (scannedUrl.startsWith(QR_TARGET_BASE_URL)) { 
+          const ippFromQr = url.searchParams.get('ipp'); 
+          if (ippFromQr) { 
+            updateScanStatus(`Patient IPP ${ippFromQr} trouvé. Chargement...`, 'success'); 
+            loadPatientIntoCurrentDashboard(ippFromQr); 
+          } else { 
+            updateScanStatus('Erreur: IPP manquant.', 'error'); 
+            clearDoctorUI(); 
+          } 
+        } else { 
+          updateScanStatus('Erreur: QR Code non reconnu.', 'error'); 
+          clearDoctorUI(); 
+        } 
+      } catch (e) { 
+        updateScanStatus(`Erreur: Format QR invalide (${e.message}).`, 'error'); 
+        clearDoctorUI(); 
+      } 
+    }
+    
+    function loadPatientIntoCurrentDashboard(scannedIpp) { 
+      console.log(`Loading patient ${scannedIpp} into Doctor dashboard`); 
+      clearDoctorUI(); 
+      currentIPP = scannedIpp; 
+      try { 
+        const newUrl = new URL(window.location); 
+        newUrl.searchParams.set('ipp', scannedIpp); 
+        window.history.pushState({ ipp: scannedIpp }, '', newUrl); 
+      } catch(e) { 
+        console.error("History API err:", e); 
+      } 
+      console.log("Calling loadPatient..."); 
+      loadPatient(scannedIpp); 
+      setTimeout(() => { updateScanStatus('', ''); }, 4000); 
+      window.scrollTo({ top: 0, behavior: 'smooth' }); 
+    }
+    
+    function capitalize(s) {
+      if (typeof s !== 'string') return '';
+      return s.charAt(0).toUpperCase() + s.slice(1);
+    }
+    
+    // --- Processing Full Dictation ---
+    function processFullDictation() {
+      console.log("processFullDictation called!");
+      if (!currentIPP || !currentVisitId) {
+        alert("Patient/visite non chargé.");
+        return;
+      }
+      const statusEl = document.getElementById("fullDictationStatus");
+      statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement...';
+      
+      if (audioChunks.length === 0) {
+        statusEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Aucun audio enregistré.';
+        return;
+      }
+      const blob = new Blob(audioChunks, { type: 'audio/webm' });
+      audioChunks = []; // Clear for next recording
+      
+      const fd = new FormData();
+      fd.append("audio", blob, `fullDictation_${currentIPP}_${Date.now()}.webm`);
+      fd.append("ipp", currentIPP);
+      fd.append("visit_id", currentVisitId);
+      
+      fetchWithAuth(BASE_URL + PROCESS_VISIT_DICTATION_ENDPOINT, {
+        method: "POST",
+        body: fd
+      })
+      .then(responseData => {
+        console.log("Dictée traitée:", responseData);
+        const data = responseData.extractedData || responseData;
+        if (data) {
+          document.getElementById("diagnosticInput").value = data.diagnostic || "";
+          document.getElementById("notesInput").value = data.notes_supplementaires || "";
+          document.getElementById("antecedentsInput").value = data.antecedents || "";
+          document.getElementById("treatmentInput").value = data.traitement_en_cours || "";
+          document.getElementById("orientationInput").value = data.orientation || "";
+          // Optionally update additional fields (e.g., ordonnance_medicale, prescription_exploration)
           showMessage("fullDictationMessage", "Dictée traitée et champs mis à jour.", "success");
         } else {
           throw new Error("Données non reçues.");
