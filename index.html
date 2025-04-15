@@ -33,7 +33,7 @@
       --shadow-focus: 0 0 0 3px rgba(93, 116, 242, 0.2); 
       --border-radius: 8px; 
       --transition-speed: 0.2s; 
-      font-size: 15px; 
+      font-size: 15px;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', sans-serif; background: var(--gray-100); color: var(--gray-800); line-height: 1.5; min-height: 100vh; padding: 0; visibility: hidden; }
@@ -123,7 +123,7 @@
   </style>
 </head>
 <body>
-  <!-- Body starts hidden until loaded -->
+  <!-- Body hidden until page loads -->
   <div class="container">
     <div class="header no-print">
       <div class="header-main-content">
@@ -148,7 +148,9 @@
       <div class="card-body">
         <div class="qr-scanner-section">
           <div class="btn-group">
-            <button id="scanQrButton" class="btn btn-primary"><i class="fas fa-qrcode"></i> Scanner QR</button>
+            <button id="scanQrButton" class="btn btn-primary">
+              <i class="fas fa-qrcode"></i> Scanner QR
+            </button>
           </div>
           <div id="scanner-container">
             <video id="scanner-video" playsinline></video>
@@ -172,13 +174,12 @@
             <div class="empty-state-description">Utilisez le bouton "Scanner QR" ou chargez un patient via l'URL.</div>
           </div>
         </div>
-        <!-- START: Nurse Data Display -->
+        <!-- Nurse Data Display -->
         <div id="nurseDataDisplay" class="nurse-data-display" style="display: none; margin-top: 20px; border-top: 1px solid var(--gray-200); padding-top: 15px;">
           <h4><i class="fas fa-user-nurse"></i> Données Infirmières</h4>
           <div id="nurseObservationsDisplay"><p><strong>Observation:</strong> <span>-</span></p></div>
           <div id="nurseVitalsDisplay"><p><strong>Signes Vitaux (derniers):</strong> <span>-</span></p></div>
         </div>
-        <!-- END: Nurse Data Display -->
       </div>
     </div>
 
@@ -299,7 +300,7 @@
       </div>
     </div>
     
-    <!-- New Transcription Cards Row (Antecedents, Treatment, Exploration) -->
+    <!-- New Transcription Cards Row (Antécédents, Traitement, Exploration) -->
     <div class="flex-row">
       <!-- Antécédents Card -->
       <div class="flex-col">
@@ -377,7 +378,7 @@
   </div> <!-- End Container -->
 
   <!-- jsQR Library Script -->
-  <script src="./jsQR.js"></script> <!-- Ensure correct path -->
+  <script src="./jsQR.js"></script>
 
   <script>
     // --- Configuration & Globals ---
@@ -423,16 +424,16 @@
         alert('Session expirée.'); 
         window.location.href = LOGIN_PAGE_URL; 
         return Promise.reject(new Error('Token non trouvé.')); 
-      } 
+      }
       const headers = { 
         ...options.headers, 
         'Authorization': `Bearer ${token}` 
-      }; 
+      };
       if (options.body && !(options.body instanceof FormData)) { 
         headers['Content-Type'] = 'application/json'; 
       } else if (options.body instanceof FormData) { 
         delete headers['Content-Type']; 
-      } 
+      }
       return fetch(url, { ...options, headers: headers })
         .then(async response => { 
           if (response.status === 401 || response.status === 403) { 
@@ -441,7 +442,7 @@
             alert('Session invalide.'); 
             window.location.href = LOGIN_PAGE_URL; 
             throw new Error(`Auth failed: ${response.status}`); 
-          } 
+          }
           if (!response.ok) { 
             let errorText = response.statusText; 
             try { 
@@ -457,7 +458,7 @@
             } 
             console.error(`Doctor: API Error ${response.status} for ${url}: ${errorText}`); 
             throw new Error(`Erreur ${response.status}: ${errorText}`); 
-          } 
+          }
           const contentType = response.headers.get("content-type"); 
           if (contentType && contentType.includes("application/json")) { 
             const text = await response.text(); 
@@ -493,7 +494,7 @@
       if (!messageElement) { 
         console.error(`Msg Elem "${elementId}" not found.`); 
         return; 
-      } 
+      }
       const statusIcons = {
         'info':'fas fa-info-circle',
         'success':'fas fa-check-circle',
@@ -565,7 +566,12 @@
     function enableDoctorSections(enable) { 
       const diagCardBody = document.getElementById('diagCardBody'); 
       const prescCardBody = document.getElementById('prescCardBody');
-      // Include all card bodies for transcription fields:
+      const notesCardBody = document.getElementById('notesCardBody');
+      const orientationCardBody = document.getElementById('orientationCardBody');
+      const antecedentsCardBody = document.getElementById('antecedentsCardBody');
+      const treatmentCardBody = document.getElementById('treatmentCardBody');
+      const explorationCardBody = document.getElementById('explorationCardBody');
+      
       const elementsToToggle = document.querySelectorAll(
         '#diagCardBody textarea, #diagCardBody button, ' +
         '#prescCardBody textarea, #prescCardBody button, ' +
@@ -576,29 +582,40 @@
         '#explorationCardBody textarea, #explorationCardBody button, ' +
         '#aiSuggestion input, #aiSuggestion button'
       );
+      
       if (enable && currentIPP && currentVisitId) { 
         if(diagCardBody) { diagCardBody.style.opacity = '1'; diagCardBody.style.pointerEvents = 'auto'; } 
         if(prescCardBody) { prescCardBody.style.opacity = '1'; prescCardBody.style.pointerEvents = 'auto'; }
-        // Enable all new sections as well:
-        elementsToToggle.forEach(el => { if(el) el.disabled = false; });
+        if(notesCardBody) { notesCardBody.style.opacity = '1'; notesCardBody.style.pointerEvents = 'auto'; }
+        if(orientationCardBody) { orientationCardBody.style.opacity = '1'; orientationCardBody.style.pointerEvents = 'auto'; }
+        if(antecedentsCardBody) { antecedentsCardBody.style.opacity = '1'; antecedentsCardBody.style.pointerEvents = 'auto'; }
+        if(treatmentCardBody) { treatmentCardBody.style.opacity = '1'; treatmentCardBody.style.pointerEvents = 'auto'; }
+        if(explorationCardBody) { explorationCardBody.style.opacity = '1'; explorationCardBody.style.pointerEvents = 'auto'; }
+        elementsToToggle.forEach(el => { if (el) el.disabled = false; });
         const stopDiag = document.getElementById('stopDiagRecordBtn'); 
         const stopPresc = document.getElementById('stopPrescRecordBtn'); 
         if(stopDiag) stopDiag.disabled = true; 
         if(stopPresc) stopPresc.disabled = true; 
       } else { 
         if(diagCardBody) { diagCardBody.style.opacity = '0.5'; diagCardBody.style.pointerEvents = 'none'; } 
-        if(prescCardBody) { prescCardBody.style.opacity = '0.5'; prescCardBody.style.pointerEvents = 'none'; } 
-        elementsToToggle.forEach(el => { if(el) el.disabled = true; });
-        // Clear textareas
-        const fields = ['diagnosticInput', 'prescriptionInput', 'notesInput', 'orientationInput', 'antecedentsInput', 'treatmentInput', 'explorationInput'];
-        fields.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
-        if(aiSuggestionDiv) aiSuggestionDiv.style.display = 'none';
+        if(prescCardBody) { prescCardBody.style.opacity = '0.5'; prescCardBody.style.pointerEvents = 'none'; }
+        if(notesCardBody) { notesCardBody.style.opacity = '0.5'; notesCardBody.style.pointerEvents = 'none'; }
+        if(orientationCardBody) { orientationCardBody.style.opacity = '0.5'; orientationCardBody.style.pointerEvents = 'none'; }
+        if(antecedentsCardBody) { antecedentsCardBody.style.opacity = '0.5'; antecedentsCardBody.style.pointerEvents = 'none'; }
+        if(treatmentCardBody) { treatmentCardBody.style.opacity = '0.5'; treatmentCardBody.style.pointerEvents = 'none'; }
+        if(explorationCardBody) { explorationCardBody.style.opacity = '0.5'; explorationCardBody.style.pointerEvents = 'none'; }
+        elementsToToggle.forEach(el => { if (el) el.disabled = true; });
+        ['diagnosticInput', 'prescriptionInput', 'notesInput', 'orientationInput', 'antecedentsInput', 'treatmentInput', 'explorationInput'].forEach(id => {
+          const el = document.getElementById(id);
+          if(el) el.value = '';
+        });
+        if (aiSuggestionDiv) aiSuggestionDiv.style.display = 'none';
         showMessage('diagMessage', '', ''); 
         showMessage('validationMessage', '', '');
         const diagStatus = document.getElementById('diagnosisStatus'); 
         const prescStatus = document.getElementById('prescriptionStatus'); 
         if (diagStatus) diagStatus.innerHTML = ''; 
-        if (prescStatus) prescStatus.innerHTML = ''; 
+        if (prescStatus) prescStatus.innerHTML = '';
         if (mediaRecorder?.state === 'recording') stopRecording(recordingField); 
         recordingField = null; 
         mediaRecorder = null; 
@@ -606,14 +623,20 @@
       } 
     }
     
-    // --- Function to clear UI (including nurse data) ---
+    // --- Clear UI Function ---
     function clearDoctorUI() {
       currentIPP = null;
       currentVisitId = null;
-      if (patientInfoDiv) patientInfoDiv.innerHTML = `<div class="empty-state" style="grid-column: 1 / -1;"><i class="fas fa-qrcode"></i><div class="empty-state-message">Prêt à scanner</div><div class="empty-state-description">Utilisez le bouton "Scanner QR".</div></div>`;
+      if (patientInfoDiv) patientInfoDiv.innerHTML = `<div class="empty-state" style="grid-column: 1 / -1;">
+        <i class="fas fa-qrcode"></i>
+        <div class="empty-state-message">Prêt à scanner</div>
+        <div class="empty-state-description">Utilisez le bouton "Scanner QR".</div>
+      </div>`;
       if (nurseDataDisplayDiv) nurseDataDisplayDiv.style.display = 'none';
-      const fields = ['diagnosticInput', 'prescriptionInput', 'notesInput', 'orientationInput', 'antecedentsInput', 'treatmentInput', 'explorationInput'];
-      fields.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+      ['diagnosticInput', 'prescriptionInput', 'notesInput', 'orientationInput', 'antecedentsInput', 'treatmentInput', 'explorationInput'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.value = '';
+      });
       if (aiSuggestionDiv) aiSuggestionDiv.style.display = 'none';
       showMessage('diagMessage', '', '');
       showMessage('validationMessage', '', '');
@@ -733,13 +756,12 @@
       if (!currentIPP || !currentVisitId) { 
         alert("Chargez un patient et sa visite."); 
         return; 
-      } 
-      if (mediaRecorder?.state === 'recording') return; 
-      audioChunks = []; 
-      recordingField = field; 
-      const statusEl = document.getElementById(`${field}Status`); 
+      }
+      if (mediaRecorder?.state === 'recording') return;
+      audioChunks = [];
+      recordingField = field;
+      const statusEl = document.getElementById(`${field}Status`);
       let startBtn, stopBtn;
-      // Determine button IDs based on field
       switch(field) {
         case 'diagnosis':
           startBtn = document.getElementById('startDiagRecordBtn');
@@ -788,14 +810,14 @@
     }
     
     function stopRecording(field) { 
-      const statusEl = document.getElementById(`${field}Status`); 
+      const statusEl = document.getElementById(`${field}Status`);
       if (mediaRecorder && mediaRecorder.state === 'recording' && recordingField === field){ 
-        console.log(`Stop rec for ${recordingField}`); 
-        mediaRecorder.stop(); 
-        if(statusEl) statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Arrêt...'; 
+        console.log(`Stop rec for ${recordingField}`);
+        mediaRecorder.stop();
+        if(statusEl) statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Arrêt...';
       } else { 
-        console.log("Not recording or wrong field."); 
-      } 
+        console.log("Not recording or wrong field.");
+      }
       let startBtn, stopBtn;
       switch(field) {
         case 'diagnosis':
@@ -823,15 +845,15 @@
         console.warn("handleStop no field."); 
         if(stream) stream.getTracks().forEach(track => track.stop());
         return; 
-      } 
-      const config = getFieldConfig(field); 
+      }
+      const config = getFieldConfig(field);
       if (!config) { 
-        console.error(`Config not found for ${field}`); 
+        console.error(`Config not found for ${field}`);
         if(stream) stream.getTracks().forEach(track => track.stop());
         return; 
-      } 
-      console.log(`Stopped for ${field}. Chunks:${audioChunks.length}`); 
-      const s = document.getElementById(`${field}Status`); 
+      }
+      console.log(`Stopped for ${field}. Chunks:${audioChunks.length}`);
+      const s = document.getElementById(`${field}Status`);
       let startBtn, stopBtn;
       switch(field) {
         case 'diagnosis':
@@ -858,8 +880,8 @@
         sendAudioToAI(blob, field);
         audioChunks = [];
       }
-      recordingField = null; 
-      mediaRecorder = null; 
+      recordingField = null;
+      mediaRecorder = null;
       if(stream) stream.getTracks().forEach(track => track.stop());
     }
     
@@ -919,7 +941,6 @@
           } else {
             throw new Error(resultObject?.message || 'Transcription échouée ou format invalide.');
           }
-          // Set transcript into corresponding textarea (mapping field names to textarea IDs)
           const fieldToTextarea = {
             diagnosis: 'diagnosticInput',
             prescription: 'prescriptionInput',
@@ -1001,7 +1022,6 @@
       const submitBtn = document.getElementById('submitPrescBtn');
       const messageEl = document.getElementById("validationMessage");
       const aiSuggestionContainer = document.getElementById("aiSuggestion");
-    
       if (!presc || !currentIPP || !currentVisitId) {
         if (messageEl) showMessage(messageEl.id, `Prescription vide ou patient/visite non chargé.`, "warning");
         if(aiSuggestionContainer) aiSuggestionContainer.style.display = "none";
@@ -1010,12 +1030,10 @@
       if (messageEl) showMessage(messageEl.id, "", "");
       if(aiSuggestionContainer) aiSuggestionContainer.style.display = "none";
       if (submitBtn) submitBtn.disabled = true;
-    
       if (aiSuggestionContainer) {
         aiSuggestionContainer.style.display = "block";
         aiSuggestionContainer.innerHTML = `<h3><i class="fas fa-lightbulb"></i> Suggestion IA</h3><div class="message message-loading" style="display:block;"><i class="fas fa-spinner fa-spin"></i> Analyse IA en cours...</div>`;
       }
-    
       fetchWithAuth(`${BASE_URL}${SUBMIT_PRESCRIPTION_AI_ENDPOINT}`, {
         method: "POST",
         body: JSON.stringify({ ipp: currentIPP, visit_id: currentVisitId, prescription: presc })
@@ -1034,7 +1052,6 @@
           if (!backendMessage && Array.isArray(responseData) && responseData.length > 0) backendMessage = responseData[0]?.message;
           throw new Error(backendMessage || "Réponse IA invalide ou structure inattendue.");
         }
-    
         if (suggestionData) {
           if(aiSuggestionContainer) {
             aiSuggestionContainer.innerHTML = `
