@@ -97,13 +97,15 @@
     .empty-state i { font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.6; display: block; }
     .empty-state-message { font-size: 1rem; font-weight: 500; margin-bottom: 0.25rem; }
     .empty-state-description { font-size: 0.85rem; }
-    /* START: Added Nurse Data Display CSS */
+    /* Nurse Data Display CSS */
     .nurse-data-display { background-color: var(--gray-100); padding: 1rem; border-radius: var(--border-radius); margin-top: 1rem; border: 1px solid var(--gray-200); }
     .nurse-data-display h4 { font-size: 0.9rem; margin-bottom: 0.75rem; color: var(--gray-700); border-bottom: 1px solid var(--gray-300); padding-bottom: 0.5rem; display: flex; align-items: center; }
     .nurse-data-display h4 i { margin-right: 8px; color: var(--primary); }
     .nurse-data-display p { font-size: 0.85rem; margin-bottom: 0.4rem; color: var(--gray-800); }
     .nurse-data-display strong { color: var(--gray-600); }
-    /* END: Added Nurse Data Display CSS */
+    /* Mode selection styling */
+    .mode-selection { margin: 20px 0; padding: 10px; background: var(--gray-200); border-radius: var(--border-radius); }
+    .mode-selection label { margin-right: 15px; font-weight: 600; }
     @media (max-width: 768px) { 
       .flex-row { flex-direction: column; gap: 20px; } 
       .patient-info { grid-template-columns: 1fr 1fr; } 
@@ -183,193 +185,238 @@
       </div>
     </div>
 
-    <!-- Diagnosis & Prescription Row -->
-    <div class="flex-row">
-      <!-- Diagnostic Card -->
-      <div class="flex-col">
-        <div class="card">
-          <div class="card-header">
-            <h2 class="card-title"><i class="fas fa-stethoscope"></i> Diagnostic</h2>
-            <div class="card-actions"><i class="fas fa-notes-medical"></i></div>
-          </div>
-          <div class="card-body" id="diagCardBody" style="opacity: 0.5; pointer-events: none;">
-            <div class="input-group">
-              <textarea id="diagnosticInput" placeholder="Entrez le diagnostic..." disabled></textarea>
-            </div>
-            <div class="btn-group">
-              <button class="btn btn-outline" id="startDiagRecordBtn" onclick="startRecording('diagnosis')" disabled>
-                <i class="fas fa-microphone"></i> Démarrer
-              </button>
-              <button class="btn btn-outline" id="stopDiagRecordBtn" onclick="stopRecording('diagnosis')" disabled>
-                <i class="fas fa-stop-circle"></i> Arrêter
-              </button>
-              <span id="diagnosisStatus" class="status"></span>
-            </div>
-            <div class="btn-group">
-              <button class="btn btn-success" id="submitDiagBtn" onclick="submitDiagnostic()" disabled>
-                <i class="fas fa-check-circle"></i> Enregistrer
-              </button>
-            </div>
-            <div id="diagMessage" class="message"></div>
-          </div>
+    <!-- Mode Selection: Choose between Global Dictation and Individual Dictation -->
+    <div class="mode-selection">
+      <label>
+        <input type="radio" name="dictationMode" value="global" checked>
+        Dictée Globale
+      </label>
+      <label>
+        <input type="radio" name="dictationMode" value="individual">
+        Dictée Individuelle
+      </label>
+    </div>
+
+    <!-- Global Dictation UI -->
+    <div id="globalDictationUI">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title"><i class="fas fa-file-medical-alt"></i> Dictée Complète</h2>
         </div>
-      </div>
-      
-      <!-- Prescription Card -->
-      <div class="flex-col">
-        <div class="card">
-          <div class="card-header">
-            <h2 class="card-title"><i class="fas fa-prescription-bottle-alt"></i> Prescription</h2>
-            <div class="card-actions"><i class="fas fa-pills"></i></div>
+        <div class="card-body" id="fullDictationCardBody" style="opacity: 0.5; pointer-events: none;">
+          <div class="input-group">
+            <textarea id="fullDictationInput" placeholder="Enregistrez la dictée complète..." disabled></textarea>
           </div>
-          <div class="card-body" id="prescCardBody" style="opacity: 0.5; pointer-events: none;">
-            <div class="input-group">
-              <textarea id="prescriptionInput" placeholder="Entrez la prescription..." disabled></textarea>
-            </div>
-            <div class="btn-group">
-              <button class="btn btn-outline" id="startPrescRecordBtn" onclick="startRecording('prescription')" disabled>
-                <i class="fas fa-microphone"></i> Démarrer
-              </button>
-              <button class="btn btn-outline" id="stopPrescRecordBtn" onclick="stopRecording('prescription')" disabled>
-                <i class="fas fa-stop-circle"></i> Arrêter
-              </button>
-              <span id="prescriptionStatus" class="status"></span>
-            </div>
-            <div class="btn-group">
-              <button class="btn btn-primary" id="submitPrescBtn" onclick="submitPrescription()" disabled>
-                <i class="fas fa-robot"></i> Soumettre IA
-              </button>
-            </div>
-            <div id="aiSuggestion" class="ai-suggestion" style="display: none;">
-              <!-- Contenu généré par JS -->
-            </div>
-            <div id="validationMessage" class="message"></div>
+          <div class="btn-group">
+            <button class="btn btn-outline" id="startFullDictationRecordBtn" onclick="startRecording('fullDictation')" disabled>
+              <i class="fas fa-microphone"></i> Démarrer
+            </button>
+            <button class="btn btn-outline" id="stopFullDictationRecordBtn" onclick="stopRecording('fullDictation')" disabled>
+              <i class="fas fa-stop-circle"></i> Arrêter
+            </button>
+            <span id="fullDictationStatus" class="status"></span>
+          </div>
+          <div id="fullDictationMessage" class="message"></div>
+          <div class="btn-group" style="margin-top:12px;">
+            <button class="btn btn-primary" id="processFullDictationBtn" onclick="processFullDictation()" disabled>
+              <i class="fas fa-cogs"></i> Traiter Dictée
+            </button>
           </div>
         </div>
       </div>
     </div>
-    
-    <!-- New Transcription Cards Row (Notes & Orientation) -->
-    <div class="flex-row">
-      <!-- Notes Card -->
-      <div class="flex-col">
-        <div class="card">
-          <div class="card-header">
-            <h2 class="card-title"><i class="fas fa-file-alt"></i> Notes</h2>
+
+    <!-- Individual Mode UI (Always visible when Global is not used)
+         Contains existing transcription cards for each segment -->
+    <div id="individualModeUI">
+      <!-- Diagnosis & Prescription Row -->
+      <div class="flex-row">
+        <!-- Diagnostic Card -->
+        <div class="flex-col">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title"><i class="fas fa-stethoscope"></i> Diagnostic</h2>
+              <div class="card-actions"><i class="fas fa-notes-medical"></i></div>
+            </div>
+            <div class="card-body" id="diagCardBody" style="opacity: 0.5; pointer-events: none;">
+              <div class="input-group">
+                <textarea id="diagnosticInput" placeholder="Entrez le diagnostic..." disabled></textarea>
+              </div>
+              <div class="btn-group">
+                <button class="btn btn-outline" id="startDiagRecordBtn" onclick="startRecording('diagnosis')" disabled>
+                  <i class="fas fa-microphone"></i> Démarrer
+                </button>
+                <button class="btn btn-outline" id="stopDiagRecordBtn" onclick="stopRecording('diagnosis')" disabled>
+                  <i class="fas fa-stop-circle"></i> Arrêter
+                </button>
+                <span id="diagnosisStatus" class="status"></span>
+              </div>
+              <div class="btn-group">
+                <button class="btn btn-success" id="submitDiagBtn" onclick="submitDiagnostic()" disabled>
+                  <i class="fas fa-check-circle"></i> Enregistrer
+                </button>
+              </div>
+              <div id="diagMessage" class="message"></div>
+            </div>
           </div>
-          <div class="card-body" id="notesCardBody" style="opacity: 0.5; pointer-events: none;">
-            <div class="input-group">
-              <textarea id="notesInput" placeholder="Entrez les notes..." disabled></textarea>
+        </div>
+        
+        <!-- Prescription Card -->
+        <div class="flex-col">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title"><i class="fas fa-prescription-bottle-alt"></i> Prescription</h2>
+              <div class="card-actions"><i class="fas fa-pills"></i></div>
             </div>
-            <div class="btn-group">
-              <button class="btn btn-outline" id="startNotesRecordBtn" onclick="startRecording('notes')" disabled>
-                <i class="fas fa-microphone"></i> Démarrer
-              </button>
-              <button class="btn btn-outline" id="stopNotesRecordBtn" onclick="stopRecording('notes')" disabled>
-                <i class="fas fa-stop-circle"></i> Arrêter
-              </button>
-              <span id="notesStatus" class="status"></span>
+            <div class="card-body" id="prescCardBody" style="opacity: 0.5; pointer-events: none;">
+              <div class="input-group">
+                <textarea id="prescriptionInput" placeholder="Entrez la prescription..." disabled></textarea>
+              </div>
+              <div class="btn-group">
+                <button class="btn btn-outline" id="startPrescRecordBtn" onclick="startRecording('prescription')" disabled>
+                  <i class="fas fa-microphone"></i> Démarrer
+                </button>
+                <button class="btn btn-outline" id="stopPrescRecordBtn" onclick="stopRecording('prescription')" disabled>
+                  <i class="fas fa-stop-circle"></i> Arrêter
+                </button>
+                <span id="prescriptionStatus" class="status"></span>
+              </div>
+              <div class="btn-group">
+                <button class="btn btn-primary" id="submitPrescBtn" onclick="submitPrescription()" disabled>
+                  <i class="fas fa-robot"></i> Soumettre IA
+                </button>
+              </div>
+              <div id="aiSuggestion" class="ai-suggestion" style="display: none;">
+                <!-- Contenu généré par JS -->
+              </div>
+              <div id="validationMessage" class="message"></div>
             </div>
-            <div id="notesMessage" class="message"></div>
           </div>
         </div>
       </div>
       
-      <!-- Orientation Card -->
-      <div class="flex-col">
-        <div class="card">
-          <div class="card-header">
-            <h2 class="card-title"><i class="fas fa-map-signs"></i> Orientation</h2>
-          </div>
-          <div class="card-body" id="orientationCardBody" style="opacity: 0.5; pointer-events: none;">
-            <div class="input-group">
-              <textarea id="orientationInput" placeholder="Entrez l'orientation..." disabled></textarea>
+      <!-- Next Row: Notes & Orientation -->
+      <div class="flex-row">
+        <!-- Notes Card -->
+        <div class="flex-col">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title"><i class="fas fa-file-alt"></i> Notes</h2>
             </div>
-            <div class="btn-group">
-              <button class="btn btn-outline" id="startOrientationRecordBtn" onclick="startRecording('orientation')" disabled>
-                <i class="fas fa-microphone"></i> Démarrer
-              </button>
-              <button class="btn btn-outline" id="stopOrientationRecordBtn" onclick="stopRecording('orientation')" disabled>
-                <i class="fas fa-stop-circle"></i> Arrêter
-              </button>
-              <span id="orientationStatus" class="status"></span>
+            <div class="card-body" id="notesCardBody" style="opacity: 0.5; pointer-events: none;">
+              <div class="input-group">
+                <textarea id="notesInput" placeholder="Entrez les notes..." disabled></textarea>
+              </div>
+              <div class="btn-group">
+                <button class="btn btn-outline" id="startNotesRecordBtn" onclick="startRecording('notes')" disabled>
+                  <i class="fas fa-microphone"></i> Démarrer
+                </button>
+                <button class="btn btn-outline" id="stopNotesRecordBtn" onclick="stopRecording('notes')" disabled>
+                  <i class="fas fa-stop-circle"></i> Arrêter
+                </button>
+                <span id="notesStatus" class="status"></span>
+              </div>
+              <div id="notesMessage" class="message"></div>
             </div>
-            <div id="orientationMessage" class="message"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- New Transcription Cards Row (Antécédents, Traitement, Exploration) -->
-    <div class="flex-row">
-      <!-- Antécédents Card -->
-      <div class="flex-col">
-        <div class="card">
-          <div class="card-header">
-            <h2 class="card-title"><i class="fas fa-history"></i> Antécédents</h2>
-          </div>
-          <div class="card-body" id="antecedentsCardBody" style="opacity: 0.5; pointer-events: none;">
-            <div class="input-group">
-              <textarea id="antecedentsInput" placeholder="Entrez les antécédents..." disabled></textarea>
-            </div>
-            <div class="btn-group">
-              <button class="btn btn-outline" id="startAntecedentsRecordBtn" onclick="startRecording('antecedents')" disabled>
-                <i class="fas fa-microphone"></i> Démarrer
-              </button>
-              <button class="btn btn-outline" id="stopAntecedentsRecordBtn" onclick="stopRecording('antecedents')" disabled>
-                <i class="fas fa-stop-circle"></i> Arrêter
-              </button>
-              <span id="antecedentsStatus" class="status"></span>
-            </div>
-            <div id="antecedentsMessage" class="message"></div>
           </div>
         </div>
-      </div>
-      
-      <!-- Traitement Card -->
-      <div class="flex-col">
-        <div class="card">
-          <div class="card-header">
-            <h2 class="card-title"><i class="fas fa-syringe"></i> Traitement</h2>
-          </div>
-          <div class="card-body" id="treatmentCardBody" style="opacity: 0.5; pointer-events: none;">
-            <div class="input-group">
-              <textarea id="treatmentInput" placeholder="Entrez le traitement..." disabled></textarea>
+        
+        <!-- Orientation Card -->
+        <div class="flex-col">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title"><i class="fas fa-map-signs"></i> Orientation</h2>
             </div>
-            <div class="btn-group">
-              <button class="btn btn-outline" id="startTreatmentRecordBtn" onclick="startRecording('treatment')" disabled>
-                <i class="fas fa-microphone"></i> Démarrer
-              </button>
-              <button class="btn btn-outline" id="stopTreatmentRecordBtn" onclick="stopRecording('treatment')" disabled>
-                <i class="fas fa-stop-circle"></i> Arrêter
-              </button>
-              <span id="treatmentStatus" class="status"></span>
+            <div class="card-body" id="orientationCardBody" style="opacity: 0.5; pointer-events: none;">
+              <div class="input-group">
+                <textarea id="orientationInput" placeholder="Entrez l'orientation..." disabled></textarea>
+              </div>
+              <div class="btn-group">
+                <button class="btn btn-outline" id="startOrientationRecordBtn" onclick="startRecording('orientation')" disabled>
+                  <i class="fas fa-microphone"></i> Démarrer
+                </button>
+                <button class="btn btn-outline" id="stopOrientationRecordBtn" onclick="stopRecording('orientation')" disabled>
+                  <i class="fas fa-stop-circle"></i> Arrêter
+                </button>
+                <span id="orientationStatus" class="status"></span>
+              </div>
+              <div id="orientationMessage" class="message"></div>
             </div>
-            <div id="treatmentMessage" class="message"></div>
           </div>
         </div>
       </div>
       
-      <!-- Exploration Card -->
-      <div class="flex-col">
-        <div class="card">
-          <div class="card-header">
-            <h2 class="card-title"><i class="fas fa-microscope"></i> Exploration</h2>
+      <!-- Next Row: Antécédents, Traitement, Exploration -->
+      <div class="flex-row">
+        <!-- Antécédents Card -->
+        <div class="flex-col">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title"><i class="fas fa-history"></i> Antécédents</h2>
+            </div>
+            <div class="card-body" id="antecedentsCardBody" style="opacity: 0.5; pointer-events: none;">
+              <div class="input-group">
+                <textarea id="antecedentsInput" placeholder="Entrez les antécédents..." disabled></textarea>
+              </div>
+              <div class="btn-group">
+                <button class="btn btn-outline" id="startAntecedentsRecordBtn" onclick="startRecording('antecedents')" disabled>
+                  <i class="fas fa-microphone"></i> Démarrer
+                </button>
+                <button class="btn btn-outline" id="stopAntecedentsRecordBtn" onclick="stopRecording('antecedents')" disabled>
+                  <i class="fas fa-stop-circle"></i> Arrêter
+                </button>
+                <span id="antecedentsStatus" class="status"></span>
+              </div>
+              <div id="antecedentsMessage" class="message"></div>
+            </div>
           </div>
-          <div class="card-body" id="explorationCardBody" style="opacity: 0.5; pointer-events: none;">
-            <div class="input-group">
-              <textarea id="explorationInput" placeholder="Entrez l'exploration..." disabled></textarea>
+        </div>
+        
+        <!-- Traitement Card -->
+        <div class="flex-col">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title"><i class="fas fa-syringe"></i> Traitement</h2>
             </div>
-            <div class="btn-group">
-              <button class="btn btn-outline" id="startExplorationRecordBtn" onclick="startRecording('exploration')" disabled>
-                <i class="fas fa-microphone"></i> Démarrer
-              </button>
-              <button class="btn btn-outline" id="stopExplorationRecordBtn" onclick="stopRecording('exploration')" disabled>
-                <i class="fas fa-stop-circle"></i> Arrêter
-              </button>
-              <span id="explorationStatus" class="status"></span>
+            <div class="card-body" id="treatmentCardBody" style="opacity: 0.5; pointer-events: none;">
+              <div class="input-group">
+                <textarea id="treatmentInput" placeholder="Entrez le traitement..." disabled></textarea>
+              </div>
+              <div class="btn-group">
+                <button class="btn btn-outline" id="startTreatmentRecordBtn" onclick="startRecording('treatment')" disabled>
+                  <i class="fas fa-microphone"></i> Démarrer
+                </button>
+                <button class="btn btn-outline" id="stopTreatmentRecordBtn" onclick="stopRecording('treatment')" disabled>
+                  <i class="fas fa-stop-circle"></i> Arrêter
+                </button>
+                <span id="treatmentStatus" class="status"></span>
+              </div>
+              <div id="treatmentMessage" class="message"></div>
             </div>
-            <div id="explorationMessage" class="message"></div>
+          </div>
+        </div>
+        
+        <!-- Exploration Card -->
+        <div class="flex-col">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title"><i class="fas fa-microscope"></i> Exploration</h2>
+            </div>
+            <div class="card-body" id="explorationCardBody" style="opacity: 0.5; pointer-events: none;">
+              <div class="input-group">
+                <textarea id="explorationInput" placeholder="Entrez l'exploration..." disabled></textarea>
+              </div>
+              <div class="btn-group">
+                <button class="btn btn-outline" id="startExplorationRecordBtn" onclick="startRecording('exploration')" disabled>
+                  <i class="fas fa-microphone"></i> Démarrer
+                </button>
+                <button class="btn btn-outline" id="stopExplorationRecordBtn" onclick="stopRecording('exploration')" disabled>
+                  <i class="fas fa-stop-circle"></i> Arrêter
+                </button>
+                <span id="explorationStatus" class="status"></span>
+              </div>
+              <div id="explorationMessage" class="message"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -399,6 +446,9 @@
     const TRANSCRIBE_TREATMENT_ENDPOINT = "/webhook/transcribe-treatment";
     const TRANSCRIBE_EXPLORATION_ENDPOINT = "/webhook/transcribe-exploration";
     
+    // New full dictation endpoint:
+    const PROCESS_VISIT_DICTATION_ENDPOINT = "/process-visit-dictation";
+    
     let currentIPP = null;
     let currentVisitId = null;
     let mediaRecorder;
@@ -415,6 +465,41 @@
     const scannerContainer = document.getElementById('scanner-container');
     const video = document.getElementById('scanner-video');
     const aiSuggestionDiv = document.getElementById('aiSuggestion');
+    
+    // --- Mode Selection: Toggle between Global and Individual Dictation ---
+    document.querySelectorAll('input[name="dictationMode"]').forEach(radio => {
+      radio.addEventListener("change", (e) => {
+        if (e.target.value === "global") {
+          document.getElementById("globalDictationUI").style.display = "block";
+          document.getElementById("individualModeUI").style.display = "block"; // show individual fields for editing afterward
+          enableFullDictationSection(true);
+        } else {
+          document.getElementById("globalDictationUI").style.display = "none";
+          document.getElementById("individualModeUI").style.display = "block";
+          enableFullDictationSection(false);
+        }
+      });
+    });
+    
+    // Function to enable/disable the global dictation section
+    function enableFullDictationSection(enable) {
+      const fullCard = document.getElementById("fullDictationCardBody");
+      const processBtn = document.getElementById("processFullDictationBtn");
+      if (enable && currentIPP && currentVisitId) {
+        fullCard.style.opacity = '1';
+        fullCard.style.pointerEvents = 'auto';
+        if (processBtn) processBtn.disabled = false;
+        // Enable recording buttons:
+        document.getElementById("startFullDictationRecordBtn").disabled = false;
+        document.getElementById("stopFullDictationRecordBtn").disabled = false;
+      } else {
+        fullCard.style.opacity = '0.5';
+        fullCard.style.pointerEvents = 'none';
+        if (processBtn) processBtn.disabled = true;
+        document.getElementById("startFullDictationRecordBtn").disabled = true;
+        document.getElementById("stopFullDictationRecordBtn").disabled = true;
+      }
+    }
     
     // --- Auth & Helpers ---
     function fetchWithAuth(url, options={}) { 
@@ -562,7 +647,7 @@
       } 
     }
     
-    // --- Enable/Disable Doctor Sections ---
+    // --- Enable/Disable Doctor Sections (for individual fields) ---
     function enableDoctorSections(enable) { 
       const diagCardBody = document.getElementById('diagCardBody'); 
       const prescCardBody = document.getElementById('prescCardBody');
@@ -713,6 +798,7 @@
       patientInfoContainer.innerHTML = '<div style="grid-column: 1 / -1; text-align: center;"><i class="fas fa-spinner fa-spin"></i> Chargement...</div>';
       if (nurseDataDisplayDiv) nurseDataDisplayDiv.style.display = 'none';
       enableDoctorSections(false);
+      enableFullDictationSection(false);
     
       fetchWithAuth(`${BASE_URL}${GET_PATIENT_DATA_ENDPOINT}?ipp=${ipp}`)
         .then(responseData => {
@@ -741,6 +827,8 @@
           `;
           displayNurseData(nurseObservations, vitalSigns);
           enableDoctorSections(true);
+          // Enable global dictation section now that patient is loaded
+          enableFullDictationSection(true);
         })
         .catch(e => { 
           if (!e.message.startsWith('Auth')) { 
@@ -770,6 +858,10 @@
         case 'prescription':
           startBtn = document.getElementById('startPrescRecordBtn');
           stopBtn = document.getElementById('stopPrescRecordBtn');
+          break;
+        case 'fullDictation':
+          startBtn = document.getElementById('startFullDictationRecordBtn');
+          stopBtn = document.getElementById('stopFullDictationRecordBtn');
           break;
         default:
           startBtn = document.getElementById(`start${capitalize(field)}RecordBtn`);
@@ -828,6 +920,10 @@
           startBtn = document.getElementById('startPrescRecordBtn');
           stopBtn = document.getElementById('stopPrescRecordBtn');
           break;
+        case 'fullDictation':
+          startBtn = document.getElementById('startFullDictationRecordBtn');
+          stopBtn = document.getElementById('stopFullDictationRecordBtn');
+          break;
         default:
           startBtn = document.getElementById(`start${capitalize(field)}RecordBtn`);
           stopBtn = document.getElementById(`stop${capitalize(field)}RecordBtn`);
@@ -847,7 +943,7 @@
         return; 
       }
       const config = getFieldConfig(field);
-      if (!config) { 
+      if (!config && field !== "fullDictation") { 
         console.error(`Config not found for ${field}`);
         if(stream) stream.getTracks().forEach(track => track.stop());
         return; 
@@ -864,6 +960,10 @@
           startBtn = document.getElementById('startPrescRecordBtn');
           stopBtn = document.getElementById('stopPrescRecordBtn');
           break;
+        case 'fullDictation':
+          startBtn = document.getElementById('startFullDictationRecordBtn');
+          stopBtn = document.getElementById('stopFullDictationRecordBtn');
+          break;
         default:
           startBtn = document.getElementById(`start${capitalize(field)}RecordBtn`);
           stopBtn = document.getElementById(`stop${capitalize(field)}RecordBtn`);
@@ -877,7 +977,13 @@
       } else {
         const blob = new Blob(audioChunks, {type:'audio/webm'});
         if(s) s.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Transc...';
-        sendAudioToAI(blob, field);
+        if(field === "fullDictation") {
+          // For full dictation, do not auto-fill individual fields here.
+          // The global process function will handle auto-population.
+          // Call processFullDictation automatically if desired, or let the user click "Traiter Dictée".
+        } else {
+          sendAudioToAI(blob, field);
+        }
         audioChunks = [];
       }
       recordingField = null;
@@ -885,7 +991,7 @@
       if(stream) stream.getTracks().forEach(track => track.stop());
     }
     
-    // --- Send Audio Function ---
+    // --- Send Audio Function for Individual Recordings ---
     function sendAudioToAI(blob, field) {
       if (!field) {
         console.error("Field missing");
@@ -990,7 +1096,55 @@
       return map[field];
     }
     
-    // --- Form Submission Functions ---
+    // --- Processing Full Dictation ---
+    function processFullDictation() {
+      if (!currentIPP || !currentVisitId) {
+        alert("Patient/visite non chargé.");
+        return;
+      }
+      const statusEl = document.getElementById("fullDictationStatus");
+      statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement...';
+      
+      // Use audioChunks from the fullDictation recording
+      if (audioChunks.length === 0) {
+        statusEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Aucun audio enregistré.';
+        return;
+      }
+      const blob = new Blob(audioChunks, { type: 'audio/webm' });
+      audioChunks = []; // Clear for next recording
+      
+      const fd = new FormData();
+      fd.append("audio", blob, `fullDictation_${currentIPP}_${Date.now()}.webm`);
+      fd.append("ipp", currentIPP);
+      fd.append("visit_id", currentVisitId);
+      
+      fetchWithAuth(BASE_URL + PROCESS_VISIT_DICTATION_ENDPOINT, {
+        method: "POST",
+        body: fd
+      })
+      .then(responseData => {
+        console.log("Dictée traitée:", responseData);
+        // Assume the responseData is a structured JSON with keys: diagnostic, antecedents, traitement_en_cours, orientation, notes_supplementaires, etc.
+        if (responseData) {
+          document.getElementById("diagnosticInput").value = responseData.diagnostic || "";
+          document.getElementById("notesInput").value = responseData.notes_supplementaires || "";
+          document.getElementById("antecedentsInput").value = responseData.antecedents || "";
+          document.getElementById("treatmentInput").value = responseData.traitement_en_cours || "";
+          document.getElementById("orientationInput").value = responseData.orientation || "";
+          // Optionally update additional fields...
+          showMessage("fullDictationMessage", "Dictée traitée et champs mis à jour.", "success");
+        }
+      })
+      .catch(e => {
+        console.error("Erreur lors du traitement de la dictée:", e);
+        showMessage("fullDictationMessage", `<i class="fas fa-times-circle"></i> Erreur: ${e.message}`, "error");
+      })
+      .finally(() => {
+        statusEl.innerHTML = "";
+      });
+    }
+    
+    // --- Form Submission Functions for Individual Fields ---
     function submitDiagnostic() { 
       const diag = document.getElementById("diagnosticInput").value;
       if (!diag || !currentIPP || !currentVisitId) { 
