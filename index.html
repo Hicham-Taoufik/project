@@ -185,7 +185,7 @@
       </div>
     </div>
 
-    <!-- Mode Selection: Choose between Global Dictation and Individual Dictation -->
+    <!-- Mode Selection: Global or Individual Dictation -->
     <div class="mode-selection">
       <label>
         <input type="radio" name="dictationMode" value="global" checked>
@@ -226,8 +226,7 @@
       </div>
     </div>
 
-    <!-- Individual Mode UI (Always visible when Global is not used)
-         Contains existing transcription cards for each segment -->
+    <!-- Individual Mode UI -->
     <div id="individualModeUI">
       <!-- Diagnosis & Prescription Row -->
       <div class="flex-row">
@@ -439,7 +438,7 @@
     const SUBMIT_PRESCRIPTION_AI_ENDPOINT = "/webhook/doctor-submit-prescription";
     const VALIDATE_PRESCRIPTION_AI_ENDPOINT = "/webhook/doctor-validate-prescription";
     
-    // New transcription endpoints for additional fields:
+    // New transcription endpoints
     const TRANSCRIBE_NOTES_ENDPOINT = "/webhook/transcribe-notes";
     const TRANSCRIBE_ORIENTATION_ENDPOINT = "/webhook/transcribe-orientation";
     const TRANSCRIBE_ANTECEDENTS_ENDPOINT = "/webhook/transcribe-antecedents";
@@ -471,7 +470,7 @@
       radio.addEventListener("change", (e) => {
         if (e.target.value === "global") {
           document.getElementById("globalDictationUI").style.display = "block";
-          document.getElementById("individualModeUI").style.display = "block"; // show individual fields for editing afterward
+          document.getElementById("individualModeUI").style.display = "block"; // always available for editing
           enableFullDictationSection(true);
         } else {
           document.getElementById("globalDictationUI").style.display = "none";
@@ -481,7 +480,7 @@
       });
     });
     
-    // Function to enable/disable the global dictation section
+    // Enable/Disable Global Dictation Section
     function enableFullDictationSection(enable) {
       const fullCard = document.getElementById("fullDictationCardBody");
       const processBtn = document.getElementById("processFullDictationBtn");
@@ -489,7 +488,6 @@
         fullCard.style.opacity = '1';
         fullCard.style.pointerEvents = 'auto';
         if (processBtn) processBtn.disabled = false;
-        // Enable recording buttons:
         document.getElementById("startFullDictationRecordBtn").disabled = false;
         document.getElementById("stopFullDictationRecordBtn").disabled = false;
       } else {
@@ -508,7 +506,7 @@
         console.error('Doctor: No token.'); 
         alert('Session expirée.'); 
         window.location.href = LOGIN_PAGE_URL; 
-        return Promise.reject(new Error('Token non trouvé.')); 
+        return Promise.reject(new Error('Token non trouvé.'));
       }
       const headers = { 
         ...options.headers, 
@@ -647,7 +645,7 @@
       } 
     }
     
-    // --- Enable/Disable Doctor Sections (for individual fields) ---
+    // --- Enable/Disable Individual Fields ---
     function enableDoctorSections(enable) { 
       const diagCardBody = document.getElementById('diagCardBody'); 
       const prescCardBody = document.getElementById('prescCardBody');
@@ -730,6 +728,7 @@
       if (diagStatus) diagStatus.innerHTML = ''; 
       if (prescStatus) prescStatus.innerHTML = '';
       enableDoctorSections(false);
+      enableFullDictationSection(false);
       try { 
         const url = new URL(window.location); 
         url.searchParams.delete('ipp'); 
@@ -827,7 +826,6 @@
           `;
           displayNurseData(nurseObservations, vitalSigns);
           enableDoctorSections(true);
-          // Enable global dictation section now that patient is loaded
           enableFullDictationSection(true);
         })
         .catch(e => { 
@@ -942,12 +940,8 @@
         if(stream) stream.getTracks().forEach(track => track.stop());
         return; 
       }
-      const config = getFieldConfig(field);
-      if (!config && field !== "fullDictation") { 
-        console.error(`Config not found for ${field}`);
-        if(stream) stream.getTracks().forEach(track => track.stop());
-        return; 
-      }
+      // For individual recordings, we expect a config from getFieldConfig; for full dictation, we handle separately.
+      const config = (field === "fullDictation") ? null : getFieldConfig(field);
       console.log(`Stopped for ${field}. Chunks:${audioChunks.length}`);
       const s = document.getElementById(`${field}Status`);
       let startBtn, stopBtn;
@@ -977,10 +971,10 @@
       } else {
         const blob = new Blob(audioChunks, {type:'audio/webm'});
         if(s) s.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Transc...';
+        // For full dictation, don't call auto-fill function here. Wait for user to click "Traiter Dictée".
         if(field === "fullDictation") {
-          // For full dictation, do not auto-fill individual fields here.
-          // The global process function will handle auto-population.
-          // Call processFullDictation automatically if desired, or let the user click "Traiter Dictée".
+          // You can automatically process here if desired.
+          // processFullDictation();
         } else {
           sendAudioToAI(blob, field);
         }
@@ -1105,7 +1099,6 @@
       const statusEl = document.getElementById("fullDictationStatus");
       statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement...';
       
-      // Use audioChunks from the fullDictation recording
       if (audioChunks.length === 0) {
         statusEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Aucun audio enregistré.';
         return;
@@ -1124,15 +1117,19 @@
       })
       .then(responseData => {
         console.log("Dictée traitée:", responseData);
-        // Assume the responseData is a structured JSON with keys: diagnostic, antecedents, traitement_en_cours, orientation, notes_supplementaires, etc.
-        if (responseData) {
-          document.getElementById("diagnosticInput").value = responseData.diagnostic || "";
-          document.getElementById("notesInput").value = responseData.notes_supplementaires || "";
-          document.getElementById("antecedentsInput").value = responseData.antecedents || "";
-          document.getElementById("treatmentInput").value = responseData.traitement_en_cours || "";
-          document.getElementById("orientationInput").value = responseData.orientation || "";
-          // Optionally update additional fields...
+        // Check for extractedData property
+        const data = responseData.extractedData || responseData;
+        if (data) {
+          // Auto-populate individual fields with the response data
+          document.getElementById("diagnosticInput").value = data.diagnostic || "";
+          document.getElementById("notesInput").value = data.notes_supplementaires || "";
+          document.getElementById("antecedentsInput").value = data.antecedents || "";
+          document.getElementById("treatmentInput").value = data.traitement_en_cours || "";
+          document.getElementById("orientationInput").value = data.orientation || "";
+          // Optionally update other fields if needed (e.g. ordonnance_medicale, prescription_exploration)
           showMessage("fullDictationMessage", "Dictée traitée et champs mis à jour.", "success");
+        } else {
+          throw new Error("Données non reçues.");
         }
       })
       .catch(e => {
