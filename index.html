@@ -62,7 +62,7 @@
     .flex-col { flex: 1; min-width: 320px; }
     label { display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--gray-600); }
     textarea, input[type="text"] { width: 100%; padding: 10px 12px; font-size: 0.9rem; border-radius: var(--border-radius); border: 1px solid var(--gray-300); background: white; transition: all 0.2s ease; font-family: 'Inter', sans-serif; }
-    /* Date fields use text inputs with class french-date */
+    /* Date fields use plain text inputs with class french-date */
     input.french-date { width: 100%; padding: 10px 12px; font-size: 0.9rem; border-radius: var(--border-radius); border: 1px solid var(--gray-300); }
     input.french-date:focus { outline: none; border-color: var(--primary); box-shadow: var(--shadow-focus); }
     .input-group { margin-bottom: 15px; }
@@ -1147,39 +1147,8 @@
       if (messageEl) showMessage(messageEl.id, "", "");
       if (aiSuggestionContainer) aiSuggestionContainer.style.display = "none";
       if (submitBtn) submitBtn.disabled = true;
-      if (aiSuggestionContainer) {
-        // Build the suggestion HTML with the French dates injected directly.
-        aiSuggestionContainer.style.display = "block";
-        aiSuggestionContainer.innerHTML = `
-          <h3><i class="fas fa-lightbulb"></i> Suggestion IA</h3>
-          <div class="input-group">
-            <label for="medicament">Médicament:</label>
-            <input type="text" id="medicament" value=""/>
-          </div>
-          <div class="input-group">
-            <label for="start_date">Date début (jj/mm/aaaa):</label>
-            <input type="text" class="french-date" id="start_date" placeholder="jj/mm/aaaa" value="${suggestionData && suggestionData.start_date ? convertToFrenchDate(suggestionData.start_date) : ''}"/>
-          </div>
-          <div class="input-group">
-            <label for="end_date">Date fin (jj/mm/aaaa):</label>
-            <input type="text" class="french-date" id="end_date" placeholder="jj/mm/aaaa" value="${suggestionData && suggestionData.end_date ? convertToFrenchDate(suggestionData.end_date) : ''}"/>
-          </div>
-          <div class="input-group">
-            <label>Horaires:</label>
-            <div class="checkbox-wrapper">
-              <label class="checkbox-item"><input type="checkbox" id="matin" ${suggestionData && suggestionData.schedule && suggestionData.schedule.matin ? "checked" : ""}/> Matin</label>
-              <label class="checkbox-item"><input type="checkbox" id="apres_midi" ${suggestionData && suggestionData.schedule && suggestionData.schedule.apres_midi ? "checked" : ""}/> Après-midi</label>
-              <label class="checkbox-item"><input type="checkbox" id="soir" ${suggestionData && suggestionData.schedule && suggestionData.schedule.soir ? "checked" : ""}/> Soir</label>
-              <label class="checkbox-item"><input type="checkbox" id="nuit" ${suggestionData && suggestionData.schedule && suggestionData.schedule.nuit ? "checked" : ""}/> Nuit</label>
-            </div>
-          </div>
-          <div class="btn-group">
-            <button type="button" class="btn btn-success" id="validatePrescBtn" onclick="validatePrescription()">
-              <i class="fas fa-check-double"></i> Valider
-            </button>
-          </div>`;
-        aiSuggestionContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
+
+      // Fetch the AI suggestion
       fetchWithAuth(`${BASE_URL}${SUBMIT_PRESCRIPTION_AI_ENDPOINT}`, {
         method: "POST",
         body: JSON.stringify({ ipp: currentIPP, visit_id: currentVisitId, prescription: presc })
@@ -1198,45 +1167,38 @@
           if (!backendMessage && Array.isArray(responseData) && responseData.length > 0) backendMessage = responseData[0]?.message;
           throw new Error(backendMessage || "Réponse IA invalide ou structure inattendue.");
         }
-        // Now update the suggestion block with the returned data
-        if (suggestionData) {
-          if (aiSuggestionContainer) {
-            aiSuggestionContainer.innerHTML = `
-              <h3><i class="fas fa-lightbulb"></i> Suggestion IA</h3>
-              <div class="input-group">
-                <label for="medicament">Médicament:</label>
-                <input type="text" id="medicament" value="${suggestionData.medicament || ''}"/>
+        // Now that suggestionData is defined, build the suggestion block
+        if (aiSuggestionContainer) {
+          aiSuggestionContainer.style.display = "block";
+          aiSuggestionContainer.innerHTML = `
+            <h3><i class="fas fa-lightbulb"></i> Suggestion IA</h3>
+            <div class="input-group">
+              <label for="medicament">Médicament:</label>
+              <input type="text" id="medicament" value="${suggestionData.medicament || ''}"/>
+            </div>
+            <div class="input-group">
+              <label for="start_date">Date début (jj/mm/aaaa):</label>
+              <input type="text" class="french-date" id="start_date" placeholder="jj/mm/aaaa" value="${convertToFrenchDate(suggestionData.start_date)}"/>
+            </div>
+            <div class="input-group">
+              <label for="end_date">Date fin (jj/mm/aaaa):</label>
+              <input type="text" class="french-date" id="end_date" placeholder="jj/mm/aaaa" value="${convertToFrenchDate(suggestionData.end_date)}"/>
+            </div>
+            <div class="input-group">
+              <label>Horaires:</label>
+              <div class="checkbox-wrapper">
+                <label class="checkbox-item"><input type="checkbox" id="matin" ${suggestionData.schedule && suggestionData.schedule.matin ? "checked" : ""}/> Matin</label>
+                <label class="checkbox-item"><input type="checkbox" id="apres_midi" ${suggestionData.schedule && suggestionData.schedule.apres_midi ? "checked" : ""}/> Après-midi</label>
+                <label class="checkbox-item"><input type="checkbox" id="soir" ${suggestionData.schedule && suggestionData.schedule.soir ? "checked" : ""}/> Soir</label>
+                <label class="checkbox-item"><input type="checkbox" id="nuit" ${suggestionData.schedule && suggestionData.schedule.nuit ? "checked" : ""}/> Nuit</label>
               </div>
-              <div class="input-group">
-                <label for="start_date">Date début (jj/mm/aaaa):</label>
-                <input type="text" class="french-date" id="start_date" placeholder="jj/mm/aaaa" value="${convertToFrenchDate(suggestionData.start_date)}"/>
-              </div>
-              <div class="input-group">
-                <label for="end_date">Date fin (jj/mm/aaaa):</label>
-                <input type="text" class="french-date" id="end_date" placeholder="jj/mm/aaaa" value="${convertToFrenchDate(suggestionData.end_date)}"/>
-              </div>
-              <div class="input-group">
-                <label>Horaires:</label>
-                <div class="checkbox-wrapper">
-                  <label class="checkbox-item"><input type="checkbox" id="matin" ${suggestionData.schedule && suggestionData.schedule.matin ? "checked" : ""}/> Matin</label>
-                  <label class="checkbox-item"><input type="checkbox" id="apres_midi" ${suggestionData.schedule && suggestionData.schedule.apres_midi ? "checked" : ""}/> Après-midi</label>
-                  <label class="checkbox-item"><input type="checkbox" id="soir" ${suggestionData.schedule && suggestionData.schedule.soir ? "checked" : ""}/> Soir</label>
-                  <label class="checkbox-item"><input type="checkbox" id="nuit" ${suggestionData.schedule && suggestionData.schedule.nuit ? "checked" : ""}/> Nuit</label>
-                </div>
-              </div>
-              <div class="btn-group">
-                <button type="button" class="btn btn-success" id="validatePrescBtn" onclick="validatePrescription()">
-                  <i class="fas fa-check-double"></i> Valider
-                </button>
-              </div>`;
-            aiSuggestionContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-          }
-        } else {
-          console.log("AI processed, but no suggestion found or extracted.");
-          if (aiSuggestionContainer) {
-            aiSuggestionContainer.innerHTML = `<h3><i class="fas fa-lightbulb"></i> Suggestion IA</h3><p>L'IA n'a pas pu extraire de suggestion structurée.</p>`;
-            aiSuggestionContainer.style.display = 'block';
-          }
+            </div>
+            <div class="btn-group">
+              <button type="button" class="btn btn-success" id="validatePrescBtn" onclick="validatePrescription()">
+                <i class="fas fa-check-double"></i> Valider
+              </button>
+            </div>`;
+          aiSuggestionContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
       })
       .catch(e => {
@@ -1428,6 +1390,21 @@
     function capitalize(s) {
       if (typeof s !== 'string') return '';
       return s.charAt(0).toUpperCase() + s.slice(1);
+    }
+
+    // --- getFieldConfig Helper ---
+    function getFieldConfig(field) {
+      // Example configuration for transcription endpoints and associated message element IDs.
+      const map = {
+        diagnosis: { apiEndpoint: TRANSCRIBE_DIAGNOSIS_ENDPOINT, messageId: 'diagMessage' },
+        prescription: { apiEndpoint: TRANSCRIBE_PRESCRIPTION_ENDPOINT, messageId: 'validationMessage' },
+        notes: { apiEndpoint: TRANSCRIBE_NOTES_ENDPOINT, messageId: 'notesMessage' },
+        orientation: { apiEndpoint: TRANSCRIBE_ORIENTATION_ENDPOINT, messageId: 'orientationMessage' },
+        antecedents: { apiEndpoint: TRANSCRIBE_ANTECEDENTS_ENDPOINT, messageId: 'antecedentsMessage' },
+        treatment: { apiEndpoint: TRANSCRIBE_TREATMENT_ENDPOINT, messageId: 'treatmentMessage' },
+        exploration: { apiEndpoint: TRANSCRIBE_EXPLORATION_ENDPOINT, messageId: 'explorationMessage' }
+      };
+      return map[field];
     }
 
     // --- window.onload ---
