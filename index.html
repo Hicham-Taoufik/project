@@ -791,14 +791,14 @@
           console.log(`Patient Loaded: IPP=${currentIPP}, VisitID=${currentVisitId}`);
     
           patientInfoContainer.innerHTML = `
-            <div class="info-group"><div class="info-label">Nom</div><div class="info-value">${sanitizeInput(patientData.nom||'-')}</div></div>
-            <div class="info-group"><div class="info-label">Prénom</div><div class="info-value">${sanitizeInput(patientData.prenom||'-')}</div></div>
+            <div class="info-group"><div class="info-label">Nom</div><div class="info-value">${sanitizeInput(patientData.nom || '-')}</div></div>
+            <div class="info-group"><div class="info-label">Prénom</div><div class="info-value">${sanitizeInput(patientData.prenom || '-')}</div></div>
             <div class="info-group"><div class="info-label">IPP</div><div class="info-value">${sanitizeInput(currentIPP)}</div></div>
             <div class="info-group"><div class="info-label">Visite ID</div><div class="info-value" style="font-weight:bold;">${sanitizeInput(currentVisitId)}</div></div>
-            <div class="info-group"><div class="info-label">CIN</div><div class="info-value">${sanitizeInput(patientData.cin||'-')}</div></div>
-            <div class="info-group"><div class="info-label">Téléphone</div><div class="info-value">${sanitizeInput(patientData.telephone||'-')}</div></div>
-            <div class="info-group"><div class="info-label">Adresse</div><div class="info-value">${sanitizeInput(patientData.adresse||'-')}</div></div>
-            <div class="info-group"><div class="info-label">Mutuelle</div><div class="info-value">${sanitizeInput(patientData.mutuelle||'Aucune')}</div></div>
+            <div class="info-group"><div class="info-label">CIN</div><div class="info-value">${sanitizeInput(patientData.cin || '-')}</div></div>
+            <div class="info-group"><div class="info-label">Téléphone</div><div class="info-value">${sanitizeInput(patientData.telephone || '-')}</div></div>
+            <div class="info-group"><div class="info-label">Adresse</div><div class="info-value">${sanitizeInput(patientData.adresse || '-')}</div></div>
+            <div class="info-group"><div class="info-label">Mutuelle</div><div class="info-value">${sanitizeInput(patientData.mutuelle || 'Aucune')}</div></div>
             <div class="info-group"><div class="info-label">Naissance</div><div class="info-value">${formatDate(patientData.date_naissance)}</div></div>
             <div class="info-group"><div class="info-label">Sexe</div><div class="info-value">${sanitizeInput(patientData.sexe === 'M' ? 'Homme' : patientData.sexe === 'F' ? 'Femme' : '-')}</div></div>
           `;
@@ -808,7 +808,7 @@
         })
         .catch(e => { 
           if (!e.message.startsWith('Auth')) { 
-            if(patientInfoContainer) patientInfoContainer.innerHTML = `<div class="message message-error" style="display:block;grid-column:1/-1;">Erreur chargement: ${e.message}</div>`; 
+            if (patientInfoContainer) patientInfoContainer.innerHTML = `<div class="message message-error" style="display:block;grid-column:1/-1;">Erreur chargement: ${e.message}</div>`; 
           } 
           console.error("Err loadPatient:", e); 
           clearDoctorUI(); 
@@ -997,7 +997,7 @@
       const messageEl = document.getElementById(config.messageId);
       if (s) s.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi...';
       
-      fetchWithAuth(ep, { method:"POST", body: fd })
+      fetchWithAuth(ep, { method: "POST", body: fd })
         .then(responseData => {
           console.log(`Raw Transc response ${field}:`, JSON.stringify(responseData));
           let transcript = '';
@@ -1049,7 +1049,7 @@
             if (currentStatusHTML && (currentStatusHTML.includes('Err Transc') || currentStatusHTML.includes('Vide'))) {
               if (s) s.innerHTML = '';
             }
-          }, 5000);
+          }, 4000);
         });
     }
 
@@ -1245,11 +1245,11 @@
       const validateBtn = document.getElementById('validatePrescBtn'); 
       const messageEl = document.getElementById("validationMessage"); 
       if (!med || !sd || !ed || !currentIPP || !currentVisitId) { 
-        if(messageEl) showMessage(messageEl.id, "Champs requis ou patient/visite non chargé.", "warning");
+        if (messageEl) showMessage(messageEl.id, "Champs requis ou patient/visite non chargé.", "warning");
         return;
       }
-      if(messageEl) showMessage(messageEl.id, "", "");
-      if(validateBtn) validateBtn.disabled = true;
+      if (messageEl) showMessage(messageEl.id, "", "");
+      if (validateBtn) validateBtn.disabled = true;
       const sched = {
         matin: document.getElementById("matin").checked,
         apres_midi: document.getElementById("apres_midi").checked,
@@ -1278,16 +1278,16 @@
       })
       .then(r => r.ok ? r.json().catch(() => ({})) : r.text().then(t => { throw new Error(t || `Err ${r.status}`); }))
       .then(() => {
-        if(messageEl) showMessage(messageEl.id, "<i class='fas fa-check-circle'></i> Prescription validée.", "success");
-        if(aiSuggestionDiv) aiSuggestionDiv.style.display = 'none';
+        if (messageEl) showMessage(messageEl.id, "<i class='fas fa-check-circle'></i> Prescription validée.", "success");
+        if (aiSuggestionDiv) aiSuggestionDiv.style.display = 'none';
       })
       .catch(e => {
         if (!e.message.startsWith('Auth')) {
-          if(messageEl) showMessage(messageEl.id, `<i class='fas fa-exclamation-triangle'></i> Err valid: ${e.message}`, "error");
+          if (messageEl) showMessage(messageEl.id, `<i class='fas fa-exclamation-triangle'></i> Err valid: ${e.message}`, "error");
         }
         console.error("Err validatePresc:", e);
       })
-      .finally(() => { if(validateBtn) validateBtn.disabled = false; });
+      .finally(() => { if (validateBtn) validateBtn.disabled = false; });
     }
 
     // --- QR SCANNER CODE ---
@@ -1357,7 +1357,7 @@
       const tce = document.createElement('canvas'); 
       tce.height = video.videoHeight; 
       tce.width = video.videoWidth; 
-      const tc = tce.getContext("2d",{willReadFrequently:true}); 
+      const tc = tce.getContext("2d", { willReadFrequently: true }); 
       tc.drawImage(video, 0, 0, tce.width, tce.height); 
       try { 
         const id = tc.getImageData(0, 0, tce.width, tce.height); 
