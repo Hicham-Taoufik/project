@@ -43,7 +43,7 @@
     .header { display: flex; align-items: center; padding: 15px 0; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid var(--gray-200); }
     .header-main-content { display: flex; align-items: center; gap: 10px; flex-grow: 1; }
     .logo { display: flex; align-items: center; }
-    .logo-img { height: 35px; width: auto; margin-right: 10px;}
+    .logo-img { height: 35px; width: auto; margin-right: 10px; }
     .header-title { color: var(--primary); font-size: 1.3rem; font-weight: 600; margin: 0; }
     .header-logout { margin-left: auto; flex-shrink: 0; }
     .logout-btn { padding: 5px 10px; font-size: 0.8rem; border-radius: var(--border-radius); }
@@ -197,7 +197,7 @@
       </label>
     </div>
 
-    <!-- Global Dictation UI (will auto-send on stop) -->
+    <!-- Global Dictation UI (auto-submits on stop) -->
     <div id="globalDictationUI">
       <div class="card">
         <div class="card-header">
@@ -216,7 +216,7 @@
             </button>
             <span id="fullDictationStatus" class="status"></span>
           </div>
-          <!-- Optional message display -->
+          <!-- This section no longer has a separate "Traiter Dictée" button -->
           <div id="fullDictationMessage" class="message"></div>
         </div>
       </div>
@@ -419,7 +419,6 @@
 
   <!-- jsQR Library Script -->
   <script src="./jsQR.js"></script>
-
   <script>
     // --- Configuration & Globals ---
     const BASE_URL = 'https://workflows.aphelionxinnovations.com';
@@ -439,7 +438,7 @@
     const TRANSCRIBE_TREATMENT_ENDPOINT = "/webhook/transcribe-treatment";
     const TRANSCRIBE_EXPLORATION_ENDPOINT = "/webhook/transcribe-exploration";
     
-    // Full dictation endpoint – make sure this matches your n8n workflow setup
+    // Full dictation endpoint – ensure it matches your n8n webhook path
     const PROCESS_VISIT_DICTATION_ENDPOINT = "/webhook/process-visit-dictation";
     
     let currentIPP = null;
@@ -911,7 +910,7 @@
         if(stream) stream.getTracks().forEach(track => track.stop());
         return; 
       }
-      // For fullDictation, we don’t use a separate config.
+      // For fullDictation, we don't use a separate config.
       const config = (field === "fullDictation") ? null : getFieldConfig(field);
       console.log(`Stopped for ${field}. Chunks: ${audioChunks.length}`);
       const s = document.getElementById(`${field}Status`);
@@ -933,7 +932,7 @@
           startBtn = document.getElementById(`start${capitalize(field)}RecordBtn`);
           stopBtn = document.getElementById(`stop${capitalize(field)}RecordBtn`);
       }
-      if (stopBtn) stopBtn.disabled = true;
+      if(stopBtn) stopBtn.disabled = true;
       if(audioChunks.length === 0){
         console.warn("No audio.");
         if(s) s.innerHTML = '<i class="fas fa-exclamation-circle"></i> Vide';
@@ -944,7 +943,6 @@
         if(s) s.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Transc...';
         if(field === "fullDictation") {
           console.log("Full dictation recorded. Auto-submitting...");
-          // Automatically send the full dictation once recording stops.
           sendFullDictationAudio(blob);
         } else {
           sendAudioToAI(blob, field);
@@ -1071,12 +1069,16 @@
         console.log("Dictée traitée:", responseData);
         const data = responseData.extractedData || responseData;
         if (data) {
-          // Auto-populate individual fields with response data
+          // Populate individual fields using all keys from the transcription response.
           document.getElementById("diagnosticInput").value = data.diagnostic || "";
           document.getElementById("notesInput").value = data.notes_supplementaires || "";
           document.getElementById("antecedentsInput").value = data.antecedents || "";
           document.getElementById("treatmentInput").value = data.traitement_en_cours || "";
           document.getElementById("orientationInput").value = data.orientation || "";
+          // New mappings for the additional fields:
+          document.getElementById("prescriptionInput").value = data.ordonnance_medicale || "";
+          document.getElementById("explorationInput").value = data.prescription_exploration || "";
+          
           showMessage("fullDictationMessage", "Dictée traitée et champs mis à jour.", "success");
         } else {
           throw new Error("Données non reçues.");
