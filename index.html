@@ -62,7 +62,7 @@
     .flex-col { flex: 1; min-width: 320px; }
     label { display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--gray-600); }
     textarea, input[type="text"] { width: 100%; padding: 10px 12px; font-size: 0.9rem; border-radius: var(--border-radius); border: 1px solid var(--gray-300); background: white; transition: all 0.2s ease; font-family: 'Inter', sans-serif; }
-    /* Date inputs will be text inputs for French display */
+    /* Date fields will be text inputs and use the french-date class */
     input.french-date { width: 100%; padding: 10px 12px; font-size: 0.9rem; border-radius: var(--border-radius); border: 1px solid var(--gray-300); }
     input.french-date:focus { outline: none; border-color: var(--primary); box-shadow: var(--shadow-focus); }
     .input-group { margin-bottom: 15px; }
@@ -419,7 +419,7 @@
   <!-- jsQR Library Script -->
   <script src="./jsQR.js"></script>
   <script>
-    // --- Helper: Convert date from mm/dd/yyyy to French format (dd/mm/yyyy) ---
+    // --- Helper: Convert date from mm/dd/yyyy to French (dd/mm/yyyy) ---
     function convertToFrenchDate(aiDateStr) {
       if (!aiDateStr || !/^\d{2}\/\d{2}\/\d{4}$/.test(aiDateStr)) {
         return "";
@@ -1084,7 +1084,7 @@
         console.log("Dictée traitée:", responseData);
         const data = responseData.extractedData || responseData;
         if (data) {
-          // Populate individual fields using all keys from the transcription response.
+          // Populate individual fields using the transcription response.
           document.getElementById("diagnosticInput").value = data.diagnostic || "";
           document.getElementById("notesInput").value = data.notes_supplementaires || "";
           document.getElementById("antecedentsInput").value = data.antecedents || "";
@@ -1155,11 +1155,11 @@
             <input type="text" id="medicament"/>
           </div>
           <div class="input-group">
-            <label for="start_date">Date début:</label>
+            <label for="start_date">Date début (jj/mm/aaaa):</label>
             <input type="text" class="french-date" id="start_date" placeholder="jj/mm/aaaa"/>
           </div>
           <div class="input-group">
-            <label for="end_date">Date fin:</label>
+            <label for="end_date">Date fin (jj/mm/aaaa):</label>
             <input type="text" class="french-date" id="end_date" placeholder="jj/mm/aaaa"/>
           </div>
           <div class="input-group">
@@ -1197,7 +1197,6 @@
         }
         if (suggestionData) {
           if (suggestionData.start_date) {
-            // Convert mm/dd/yyyy from backend to French dd/mm/yyyy
             document.getElementById("start_date").value = convertToFrenchDate(suggestionData.start_date);
           }
           if (suggestionData.end_date) {
@@ -1207,8 +1206,8 @@
             aiSuggestionContainer.innerHTML = `
               <h3><i class="fas fa-lightbulb"></i> Suggestion IA</h3>
               <div class="input-group"> <label for="medicament">Médicament:</label> <input type="text" id="medicament" value="${suggestionData.medicament || ''}"/> </div>
-              <div class="input-group"> <label for="start_date">Date début:</label> <input type="text" class="french-date" id="start_date" placeholder="jj/mm/aaaa"/> </div>
-              <div class="input-group"> <label for="end_date">Date fin:</label> <input type="text" class="french-date" id="end_date" placeholder="jj/mm/aaaa"/> </div>
+              <div class="input-group"> <label for="start_date">Date début (jj/mm/aaaa):</label> <input type="text" class="french-date" id="start_date" placeholder="jj/mm/aaaa"/> </div>
+              <div class="input-group"> <label for="end_date">Date fin (jj/mm/aaaa):</label> <input type="text" class="french-date" id="end_date" placeholder="jj/mm/aaaa"/> </div>
               <div class="input-group">
                 <label>Horaires:</label>
                 <div class="checkbox-wrapper">
@@ -1259,7 +1258,7 @@
       }
       if (messageEl) showMessage(messageEl.id, "", "");
       if (validateBtn) validateBtn.disabled = true;
-      // Convert French date (dd/mm/yyyy) back to mm/dd/yyyy for the backend
+      // Convert French dates back to backend format (mm/dd/yyyy)
       const backendSD = convertFrenchToBackendDate(frenchSD);
       const backendED = convertFrenchToBackendDate(frenchED);
       fetchWithAuth(`${BASE_URL}${VALIDATE_PRESCRIPTION_AI_ENDPOINT}`, {
