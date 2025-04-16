@@ -62,7 +62,7 @@
     .flex-col { flex: 1; min-width: 320px; }
     label { display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--gray-600); }
     textarea, input[type="text"] { width: 100%; padding: 10px 12px; font-size: 0.9rem; border-radius: var(--border-radius); border: 1px solid var(--gray-300); background: white; transition: all 0.2s ease; font-family: 'Inter', sans-serif; }
-    /* Date fields will be text inputs and use the french-date class */
+    /* Date fields use text inputs with class french-date */
     input.french-date { width: 100%; padding: 10px 12px; font-size: 0.9rem; border-radius: var(--border-radius); border: 1px solid var(--gray-300); }
     input.french-date:focus { outline: none; border-color: var(--primary); box-shadow: var(--shadow-focus); }
     .input-group { margin-bottom: 15px; }
@@ -1148,27 +1148,29 @@
       if (aiSuggestionContainer) aiSuggestionContainer.style.display = "none";
       if (submitBtn) submitBtn.disabled = true;
       if (aiSuggestionContainer) {
+        // Build the suggestion HTML with the French dates injected directly.
         aiSuggestionContainer.style.display = "block";
-        aiSuggestionContainer.innerHTML = `<h3><i class="fas fa-lightbulb"></i> Suggestion IA</h3>
+        aiSuggestionContainer.innerHTML = `
+          <h3><i class="fas fa-lightbulb"></i> Suggestion IA</h3>
           <div class="input-group">
             <label for="medicament">Médicament:</label>
-            <input type="text" id="medicament"/>
+            <input type="text" id="medicament" value=""/>
           </div>
           <div class="input-group">
             <label for="start_date">Date début (jj/mm/aaaa):</label>
-            <input type="text" class="french-date" id="start_date" placeholder="jj/mm/aaaa"/>
+            <input type="text" class="french-date" id="start_date" placeholder="jj/mm/aaaa" value="${suggestionData && suggestionData.start_date ? convertToFrenchDate(suggestionData.start_date) : ''}"/>
           </div>
           <div class="input-group">
             <label for="end_date">Date fin (jj/mm/aaaa):</label>
-            <input type="text" class="french-date" id="end_date" placeholder="jj/mm/aaaa"/>
+            <input type="text" class="french-date" id="end_date" placeholder="jj/mm/aaaa" value="${suggestionData && suggestionData.end_date ? convertToFrenchDate(suggestionData.end_date) : ''}"/>
           </div>
           <div class="input-group">
             <label>Horaires:</label>
             <div class="checkbox-wrapper">
-              <label class="checkbox-item"><input type="checkbox" id="matin"/> Matin</label>
-              <label class="checkbox-item"><input type="checkbox" id="apres_midi"/> Après-midi</label>
-              <label class="checkbox-item"><input type="checkbox" id="soir"/> Soir</label>
-              <label class="checkbox-item"><input type="checkbox" id="nuit"/> Nuit</label>
+              <label class="checkbox-item"><input type="checkbox" id="matin" ${suggestionData && suggestionData.schedule && suggestionData.schedule.matin ? "checked" : ""}/> Matin</label>
+              <label class="checkbox-item"><input type="checkbox" id="apres_midi" ${suggestionData && suggestionData.schedule && suggestionData.schedule.apres_midi ? "checked" : ""}/> Après-midi</label>
+              <label class="checkbox-item"><input type="checkbox" id="soir" ${suggestionData && suggestionData.schedule && suggestionData.schedule.soir ? "checked" : ""}/> Soir</label>
+              <label class="checkbox-item"><input type="checkbox" id="nuit" ${suggestionData && suggestionData.schedule && suggestionData.schedule.nuit ? "checked" : ""}/> Nuit</label>
             </div>
           </div>
           <div class="btn-group">
@@ -1176,6 +1178,7 @@
               <i class="fas fa-check-double"></i> Valider
             </button>
           </div>`;
+        aiSuggestionContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
       fetchWithAuth(`${BASE_URL}${SUBMIT_PRESCRIPTION_AI_ENDPOINT}`, {
         method: "POST",
@@ -1195,19 +1198,23 @@
           if (!backendMessage && Array.isArray(responseData) && responseData.length > 0) backendMessage = responseData[0]?.message;
           throw new Error(backendMessage || "Réponse IA invalide ou structure inattendue.");
         }
+        // Now update the suggestion block with the returned data
         if (suggestionData) {
-          if (suggestionData.start_date) {
-            document.getElementById("start_date").value = convertToFrenchDate(suggestionData.start_date);
-          }
-          if (suggestionData.end_date) {
-            document.getElementById("end_date").value = convertToFrenchDate(suggestionData.end_date);
-          }
           if (aiSuggestionContainer) {
             aiSuggestionContainer.innerHTML = `
               <h3><i class="fas fa-lightbulb"></i> Suggestion IA</h3>
-              <div class="input-group"> <label for="medicament">Médicament:</label> <input type="text" id="medicament" value="${suggestionData.medicament || ''}"/> </div>
-              <div class="input-group"> <label for="start_date">Date début (jj/mm/aaaa):</label> <input type="text" class="french-date" id="start_date" placeholder="jj/mm/aaaa"/> </div>
-              <div class="input-group"> <label for="end_date">Date fin (jj/mm/aaaa):</label> <input type="text" class="french-date" id="end_date" placeholder="jj/mm/aaaa"/> </div>
+              <div class="input-group">
+                <label for="medicament">Médicament:</label>
+                <input type="text" id="medicament" value="${suggestionData.medicament || ''}"/>
+              </div>
+              <div class="input-group">
+                <label for="start_date">Date début (jj/mm/aaaa):</label>
+                <input type="text" class="french-date" id="start_date" placeholder="jj/mm/aaaa" value="${convertToFrenchDate(suggestionData.start_date)}"/>
+              </div>
+              <div class="input-group">
+                <label for="end_date">Date fin (jj/mm/aaaa):</label>
+                <input type="text" class="french-date" id="end_date" placeholder="jj/mm/aaaa" value="${convertToFrenchDate(suggestionData.end_date)}"/>
+              </div>
               <div class="input-group">
                 <label>Horaires:</label>
                 <div class="checkbox-wrapper">
@@ -1258,7 +1265,7 @@
       }
       if (messageEl) showMessage(messageEl.id, "", "");
       if (validateBtn) validateBtn.disabled = true;
-      // Convert French dates back to backend format (mm/dd/yyyy)
+      // Convert French dates (dd/mm/yyyy) back to backend format (mm/dd/yyyy)
       const backendSD = convertFrenchToBackendDate(frenchSD);
       const backendED = convertFrenchToBackendDate(frenchED);
       fetchWithAuth(`${BASE_URL}${VALIDATE_PRESCRIPTION_AI_ENDPOINT}`, {
