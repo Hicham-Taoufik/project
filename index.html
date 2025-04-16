@@ -185,28 +185,15 @@
       </div>
     </div>
 
-    <!-- Mode Selection: Global or Individual Dictation -->
-    <div class="mode-selection">
-      <label>
-        <input type="radio" name="dictationMode" value="global" checked>
-        Dictée Globale
-      </label>
-      <label>
-        <input type="radio" name="dictationMode" value="individual">
-        Dictée Individuelle
-      </label>
-    </div>
-
-    <!-- Global Dictation UI (auto-submits on stop) -->
+    <!-- Global Dictation UI (simplified: only mic option, no textarea) -->
     <div id="globalDictationUI">
       <div class="card">
         <div class="card-header">
-          <h2 class="card-title"><i class="fas fa-file-medical-alt"></i> Dictée Complète</h2>
+          <h2 class="card-title"><i class="fas fa-file-medical"></i> Dictée Globale</h2>
         </div>
-        <div class="card-body" id="fullDictationCardBody" style="opacity: 0.5; pointer-events: none;">
-          <div class="input-group">
-            <textarea id="fullDictationInput" placeholder="Enregistrez la dictée complète..." disabled></textarea>
-          </div>
+        <div class="card-body" id="fullDictationCardBody" style="opacity: 0.5; pointer-events: none; text-align: center;">
+          <!-- Removed the textarea. Instead, we display only the mic buttons and a short instruction -->
+          <p>Appuyez sur "Démarrer" pour enregistrer la dictée globale.</p>
           <div class="btn-group">
             <button class="btn btn-outline" id="startFullDictationRecordBtn" onclick="startRecording('fullDictation')" disabled>
               <i class="fas fa-microphone"></i> Démarrer
@@ -1147,8 +1134,6 @@
       if (messageEl) showMessage(messageEl.id, "", "");
       if (aiSuggestionContainer) aiSuggestionContainer.style.display = "none";
       if (submitBtn) submitBtn.disabled = true;
-
-      // Fetch the AI suggestion
       fetchWithAuth(`${BASE_URL}${SUBMIT_PRESCRIPTION_AI_ENDPOINT}`, {
         method: "POST",
         body: JSON.stringify({ ipp: currentIPP, visit_id: currentVisitId, prescription: presc })
@@ -1167,8 +1152,8 @@
           if (!backendMessage && Array.isArray(responseData) && responseData.length > 0) backendMessage = responseData[0]?.message;
           throw new Error(backendMessage || "Réponse IA invalide ou structure inattendue.");
         }
-        // Now that suggestionData is defined, build the suggestion block
-        if (aiSuggestionContainer) {
+        // Build the suggestion block using the returned suggestionData
+        if (aiSuggestionContainer && suggestionData) {
           aiSuggestionContainer.style.display = "block";
           aiSuggestionContainer.innerHTML = `
             <h3><i class="fas fa-lightbulb"></i> Suggestion IA</h3>
@@ -1394,7 +1379,7 @@
 
     // --- getFieldConfig Helper ---
     function getFieldConfig(field) {
-      // Example configuration for transcription endpoints and associated message element IDs.
+      // Configuration for transcription endpoints and associated message element IDs.
       const map = {
         diagnosis: { apiEndpoint: TRANSCRIBE_DIAGNOSIS_ENDPOINT, messageId: 'diagMessage' },
         prescription: { apiEndpoint: TRANSCRIBE_PRESCRIPTION_ENDPOINT, messageId: 'validationMessage' },
