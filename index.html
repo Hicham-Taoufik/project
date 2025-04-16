@@ -421,7 +421,6 @@
   <script>
     // --- Helper: Convert date from mm/dd/yyyy to yyyy-mm-dd ---
     function convertToHtmlDate(aiDateStr) {
-      // Check if valid date format mm/dd/yyyy, e.g., "04/24/2025"
       if (!aiDateStr || !/^\d{2}\/\d{2}\/\d{4}$/.test(aiDateStr)) {
         return "";
       }
@@ -559,7 +558,7 @@
           console.error(`Fetch error for ${url}:`, error); 
           if (!error.message.startsWith('Auth failed')) { 
             const genericMsgEl = document.getElementById('scanResult'); 
-            if(genericMsgEl) showMessage(genericMsgEl.id, `Erreur Comm: ${error.message}`, 'error'); 
+            if (genericMsgEl) showMessage(genericMsgEl.id, `Erreur Comm: ${error.message}`, 'error'); 
           } 
           throw error; 
         }); 
@@ -567,7 +566,7 @@
 
     function logout() { 
       localStorage.removeItem('authToken'); 
-      alert('Déconnecté.'); 
+      alert('Déconnecté.');
       window.location.href = LOGIN_PAGE_URL; 
     }
 
@@ -1077,13 +1076,13 @@
         console.log("Dictée traitée:", responseData);
         const data = responseData.extractedData || responseData;
         if (data) {
-          // Populate fields from full dictation response.
+          // Populate individual fields using all keys from the transcription response.
           document.getElementById("diagnosticInput").value = data.diagnostic || "";
           document.getElementById("notesInput").value = data.notes_supplementaires || "";
           document.getElementById("antecedentsInput").value = data.antecedents || "";
           document.getElementById("treatmentInput").value = data.traitement_en_cours || "";
           document.getElementById("orientationInput").value = data.orientation || "";
-          // Map these additional fields:
+          // Map additional fields:
           document.getElementById("prescriptionInput").value = data.ordonnance_medicale || "";
           document.getElementById("explorationInput").value = data.prescription_exploration || "";
           showMessage("fullDictationMessage", "Dictée traitée et champs mis à jour.", "success");
@@ -1169,9 +1168,6 @@
               <i class="fas fa-check-double"></i> Valider
             </button>
           </div>`;
-        // If suggestionData contains dates in mm/dd/yyyy format, convert them here:
-        // (Assuming suggestionData is already available from the AI response)
-        // You can later fill these inputs if needed by another mechanism.
       }
       fetchWithAuth(`${BASE_URL}${SUBMIT_PRESCRIPTION_AI_ENDPOINT}`, {
         method: "POST",
@@ -1192,7 +1188,6 @@
           throw new Error(backendMessage || "Réponse IA invalide ou structure inattendue.");
         }
         if (suggestionData) {
-          // Auto-populate date inputs if suggestionData has start_date/end_date.
           if (suggestionData.start_date) {
             document.getElementById("start_date").value = convertToHtmlDate(suggestionData.start_date);
           }
@@ -1264,7 +1259,7 @@
       const cvAPI = (dt) => { 
         if (!dt || !/^\d{4}-\d{2}-\d{2}$/.test(dt)) return ''; 
         const p = dt.split('-'); 
-        if (p.length !== 3) return ''; 
+        if(p.length !== 3) return ''; 
         return `${p[1]}/${p[2]}/${p[0]}`; 
       };
       const apiSD = cvAPI(sd),
