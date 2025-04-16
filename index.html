@@ -61,10 +61,10 @@
     .flex-row { display: flex; gap: 25px; margin-bottom: 25px; flex-wrap: wrap; }
     .flex-col { flex: 1; min-width: 320px; }
     label { display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--gray-600); }
-    textarea, input[type="text"], input[type="date"] { width: 100%; padding: 10px 12px; font-size: 0.9rem; border-radius: var(--border-radius); border: 1px solid var(--gray-300); background: white; transition: all 0.2s ease; font-family: 'Inter', sans-serif; }
-    input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.6; cursor: pointer; }
-    textarea:focus, input[type="text"]:focus, input[type="date"]:focus { outline: none; border-color: var(--primary); box-shadow: var(--shadow-focus); }
-    textarea { resize: vertical; min-height: 120px; }
+    textarea, input[type="text"] { width: 100%; padding: 10px 12px; font-size: 0.9rem; border-radius: var(--border-radius); border: 1px solid var(--gray-300); background: white; transition: all 0.2s ease; font-family: 'Inter', sans-serif; }
+    /* Date inputs will be text inputs for French display */
+    input.french-date { width: 100%; padding: 10px 12px; font-size: 0.9rem; border-radius: var(--border-radius); border: 1px solid var(--gray-300); }
+    input.french-date:focus { outline: none; border-color: var(--primary); box-shadow: var(--shadow-focus); }
     .input-group { margin-bottom: 15px; }
     .btn-group { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
     .btn { padding: 8px 14px; font-size: 0.85rem; font-weight: 500; border-radius: var(--border-radius); border: none; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; }
@@ -419,13 +419,21 @@
   <!-- jsQR Library Script -->
   <script src="./jsQR.js"></script>
   <script>
-    // --- Helper: Convert date from mm/dd/yyyy to yyyy-mm-dd ---
-    function convertToHtmlDate(aiDateStr) {
+    // --- Helper: Convert date from mm/dd/yyyy to French format (dd/mm/yyyy) ---
+    function convertToFrenchDate(aiDateStr) {
       if (!aiDateStr || !/^\d{2}\/\d{2}\/\d{4}$/.test(aiDateStr)) {
         return "";
       }
       const [month, day, year] = aiDateStr.split("/");
-      return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+      return `${day}/${month}/${year}`;
+    }
+    // --- Helper: Convert French date (dd/mm/yyyy) to backend format (mm/dd/yyyy) ---
+    function convertFrenchToBackendDate(frenchDateStr) {
+      if (!frenchDateStr || !/^\d{2}\/\d{2}\/\d{4}$/.test(frenchDateStr)) {
+        return "";
+      }
+      const [day, month, year] = frenchDateStr.split("/");
+      return `${month}/${day}/${year}`;
     }
 
     // --- Configuration & Globals ---
@@ -1082,7 +1090,7 @@
           document.getElementById("antecedentsInput").value = data.antecedents || "";
           document.getElementById("treatmentInput").value = data.traitement_en_cours || "";
           document.getElementById("orientationInput").value = data.orientation || "";
-          // Map additional fields:
+          // Additional fields:
           document.getElementById("prescriptionInput").value = data.ordonnance_medicale || "";
           document.getElementById("explorationInput").value = data.prescription_exploration || "";
           showMessage("fullDictationMessage", "Dictée traitée et champs mis à jour.", "success");
@@ -1148,11 +1156,11 @@
           </div>
           <div class="input-group">
             <label for="start_date">Date début:</label>
-            <input type="date" id="start_date"/>
+            <input type="text" class="french-date" id="start_date" placeholder="jj/mm/aaaa"/>
           </div>
           <div class="input-group">
             <label for="end_date">Date fin:</label>
-            <input type="date" id="end_date"/>
+            <input type="text" class="french-date" id="end_date" placeholder="jj/mm/aaaa"/>
           </div>
           <div class="input-group">
             <label>Horaires:</label>
@@ -1189,17 +1197,18 @@
         }
         if (suggestionData) {
           if (suggestionData.start_date) {
-            document.getElementById("start_date").value = convertToHtmlDate(suggestionData.start_date);
+            // Convert mm/dd/yyyy from backend to French dd/mm/yyyy
+            document.getElementById("start_date").value = convertToFrenchDate(suggestionData.start_date);
           }
           if (suggestionData.end_date) {
-            document.getElementById("end_date").value = convertToHtmlDate(suggestionData.end_date);
+            document.getElementById("end_date").value = convertToFrenchDate(suggestionData.end_date);
           }
           if (aiSuggestionContainer) {
             aiSuggestionContainer.innerHTML = `
               <h3><i class="fas fa-lightbulb"></i> Suggestion IA</h3>
               <div class="input-group"> <label for="medicament">Médicament:</label> <input type="text" id="medicament" value="${suggestionData.medicament || ''}"/> </div>
-              <div class="input-group"> <label for="start_date">Date début:</label> <input type="date" id="start_date"/> </div>
-              <div class="input-group"> <label for="end_date">Date fin:</label> <input type="date" id="end_date"/> </div>
+              <div class="input-group"> <label for="start_date">Date début:</label> <input type="text" class="french-date" id="start_date" placeholder="jj/mm/aaaa"/> </div>
+              <div class="input-group"> <label for="end_date">Date fin:</label> <input type="text" class="french-date" id="end_date" placeholder="jj/mm/aaaa"/> </div>
               <div class="input-group">
                 <label>Horaires:</label>
                 <div class="checkbox-wrapper">
@@ -1240,39 +1249,33 @@
 
     function validatePrescription() { 
       const med = document.getElementById("medicament").value,
-            sd = document.getElementById("start_date").value,
-            ed = document.getElementById("end_date").value;
+            frenchSD = document.getElementById("start_date").value, // dd/mm/yyyy
+            frenchED = document.getElementById("end_date").value;     // dd/mm/yyyy
       const validateBtn = document.getElementById('validatePrescBtn'); 
       const messageEl = document.getElementById("validationMessage"); 
-      if (!med || !sd || !ed || !currentIPP || !currentVisitId) { 
+      if (!med || !frenchSD || !frenchED || !currentIPP || !currentVisitId) { 
         if (messageEl) showMessage(messageEl.id, "Champs requis ou patient/visite non chargé.", "warning");
         return;
       }
       if (messageEl) showMessage(messageEl.id, "", "");
       if (validateBtn) validateBtn.disabled = true;
-      const sched = {
-        matin: document.getElementById("matin").checked,
-        apres_midi: document.getElementById("apres_midi").checked,
-        soir: document.getElementById("soir").checked,
-        nuit: document.getElementById("nuit").checked
-      };
-      const cvAPI = (dt) => { 
-        if (!dt || !/^\d{4}-\d{2}-\d{2}$/.test(dt)) return ''; 
-        const p = dt.split('-'); 
-        if(p.length !== 3) return ''; 
-        return `${p[1]}/${p[2]}/${p[0]}`; 
-      };
-      const apiSD = cvAPI(sd),
-            apiED = cvAPI(ed);
+      // Convert French date (dd/mm/yyyy) back to mm/dd/yyyy for the backend
+      const backendSD = convertFrenchToBackendDate(frenchSD);
+      const backendED = convertFrenchToBackendDate(frenchED);
       fetchWithAuth(`${BASE_URL}${VALIDATE_PRESCRIPTION_AI_ENDPOINT}`, {
         method:"POST",
         body: JSON.stringify({
           ipp: currentIPP,
           visit_id: currentVisitId,
           final_prescription: document.getElementById("prescriptionInput").value,
-          start_date: apiSD,
-          end_date: apiED,
-          schedule: sched,
+          start_date: backendSD,
+          end_date: backendED,
+          schedule: {
+            matin: document.getElementById("matin").checked,
+            apres_midi: document.getElementById("apres_midi").checked,
+            soir: document.getElementById("soir").checked,
+            nuit: document.getElementById("nuit").checked
+          },
           medicament_name: med
         })
       })
