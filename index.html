@@ -125,7 +125,6 @@
   </style>
 </head>
 <body>
-  <!-- Body hidden until page loads -->
   <div class="container">
     <div class="header no-print">
       <div class="header-main-content">
@@ -176,7 +175,6 @@
             <div class="empty-state-description">Utilisez le bouton "Scanner QR" ou chargez un patient via l'URL.</div>
           </div>
         </div>
-        <!-- Nurse Data Display -->
         <div id="nurseDataDisplay" class="nurse-data-display" style="display: none; margin-top: 20px; border-top: 1px solid var(--gray-200); padding-top: 15px;">
           <h4><i class="fas fa-user-nurse"></i> Données Infirmières</h4>
           <div id="nurseObservationsDisplay"><p><strong>Observation:</strong> <span>-</span></p></div>
@@ -185,14 +183,13 @@
       </div>
     </div>
 
-    <!-- Global Dictation UI (simplified: only mic option, no textarea) -->
+    <!-- Global Dictation UI (Simplified: Mic Option Only) -->
     <div id="globalDictationUI">
       <div class="card">
         <div class="card-header">
           <h2 class="card-title"><i class="fas fa-file-medical"></i> Dictée Globale</h2>
         </div>
         <div class="card-body" id="fullDictationCardBody" style="opacity: 0.5; pointer-events: none; text-align: center;">
-          <!-- Removed the textarea. Instead, we display only the mic buttons and a short instruction -->
           <p>Appuyez sur "Démarrer" pour enregistrer la dictée globale.</p>
           <div class="btn-group">
             <button class="btn btn-outline" id="startFullDictationRecordBtn" onclick="startRecording('fullDictation')" disabled>
@@ -210,7 +207,6 @@
 
     <!-- Individual Mode UI -->
     <div id="individualModeUI">
-      <!-- Diagnosis & Prescription Row -->
       <div class="flex-row">
         <!-- Diagnostic Card -->
         <div class="flex-col">
@@ -274,7 +270,6 @@
         </div>
       </div>
       
-      <!-- Next Row: Notes & Orientation -->
       <div class="flex-row">
         <!-- Notes Card -->
         <div class="flex-col">
@@ -325,7 +320,6 @@
         </div>
       </div>
       
-      <!-- Next Row: Antécédents, Traitement, Exploration -->
       <div class="flex-row">
         <!-- Antécédents Card -->
         <div class="flex-col">
@@ -400,7 +394,14 @@
         </div>
       </div>
     </div>
-    
+
+    <!-- Submit Everything Button -->
+    <div style="text-align: center; margin: 20px 0;">
+      <button id="submitAllBtn" class="btn btn-success">
+        <i class="fas fa-upload"></i> Soumettre Toutes les Données
+      </button>
+      <div id="validationMessage" class="message"></div>
+    </div>
   </div> <!-- End Container -->
 
   <!-- jsQR Library Script -->
@@ -637,6 +638,54 @@
         return 'Err Format'; 
       } 
     }
+
+    // --- Function to Submit All Data from the UI ---
+    function submitAllData() {
+      // Aggregate data from the individual fields on the dashboard.
+      const data = {
+        ipp: currentIPP,
+        visit_id: currentVisitId,
+        dictation_global: "", // Global dictation not stored here (processed automatically)
+        diagnostic: document.getElementById("diagnosticInput")?.value || "",
+        prescription: document.getElementById("prescriptionInput")?.value || "",
+        notes: document.getElementById("notesInput")?.value || "",
+        orientation: document.getElementById("orientationInput")?.value || "",
+        antecedents: document.getElementById("antecedentsInput")?.value || "",
+        treatment: document.getElementById("treatmentInput")?.value || "",
+        exploration: document.getElementById("explorationInput")?.value || ""
+      };
+
+      // Optionally disable the submit button during submission.
+      document.getElementById("submitAllBtn").disabled = true;
+
+      fetch(`${BASE_URL}/webhook/doctor-submit-all`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem('authToken')}`
+        },
+        body: JSON.stringify(data)
+      })
+      .then(response => response.json())
+      .then(responseData => {
+        console.log("Submission response:", responseData);
+        if (responseData.success) {
+          showMessage("validationMessage", responseData.message, "success");
+        } else {
+          showMessage("validationMessage", responseData.message, "error");
+        }
+      })
+      .catch(error => {
+        console.error("Error submitting all data:", error);
+        showMessage("validationMessage", "Erreur lors de la soumission des données", "error");
+      })
+      .finally(() => {
+        document.getElementById("submitAllBtn").disabled = false;
+      });
+    }
+
+    // --- Attach event listener to "Submit Everything" button ---
+    document.getElementById("submitAllBtn").addEventListener("click", submitAllData);
 
     // --- Enable/Disable Individual Fields ---
     function enableDoctorSections(enable) { 
@@ -1152,7 +1201,6 @@
           if (!backendMessage && Array.isArray(responseData) && responseData.length > 0) backendMessage = responseData[0]?.message;
           throw new Error(backendMessage || "Réponse IA invalide ou structure inattendue.");
         }
-        // Build the suggestion block using the returned suggestionData
         if (aiSuggestionContainer && suggestionData) {
           aiSuggestionContainer.style.display = "block";
           aiSuggestionContainer.innerHTML = `
@@ -1379,7 +1427,6 @@
 
     // --- getFieldConfig Helper ---
     function getFieldConfig(field) {
-      // Configuration for transcription endpoints and associated message element IDs.
       const map = {
         diagnosis: { apiEndpoint: TRANSCRIBE_DIAGNOSIS_ENDPOINT, messageId: 'diagMessage' },
         prescription: { apiEndpoint: TRANSCRIBE_PRESCRIPTION_ENDPOINT, messageId: 'validationMessage' },
