@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -102,6 +103,7 @@
             <!-- Create Form -->
             <form id="createForm" novalidate>
               <div class="form-grid">
+                <!-- form inputs as before -->
                 <div class="input-group">
                   <label for="nom">Nom <span class="required">*</span></label>
                   <input id="nom" name="nom" type="text" placeholder="Nom de famille" required />
@@ -253,7 +255,6 @@
       LOGIN_PAGE_URL: "https://hicham-taoufik.github.io/login/",
       MESSAGE_DISPLAY_TIME: 7000,
       TOAST_DISPLAY_TIME: 4000,
-      // Endpoints
       CREATE_PATIENT_ENDPOINT: "/webhook/create-patient",
       GET_PATIENT_ENDPOINT: "/webhook/get-patient",
       START_VISIT_ENDPOINT: "/webhook/start-visit",
@@ -264,21 +265,17 @@
 
     // --- DOM refs ---
     const DOM = {
-      body: document.body,
       logoutBtn: document.getElementById("logoutBtn"),
       createForm: document.getElementById("createForm"),
       createPatientBtn: document.getElementById("createPatientBtn"),
       createResultDiv: document.getElementById("createResult"),
       messageDiv: document.getElementById("message"),
       getCin: document.getElementById("getCin"),
-      searchBtn: document.getElementById("searchBtn"),
       searchForm: document.getElementById("searchForm"),
       getResult: document.getElementById("getResult"),
       recentList: document.getElementById("recentPatientsList"),
       mutuelleInput: document.getElementById("mutuelle"),
       doctorInput: document.getElementById("doctor"),
-
-      // ID capture
       captureIdButton: document.getElementById("captureIdButton"),
       idCaptureContainer: document.getElementById("idCaptureContainer"),
       idVideo: document.getElementById("idVideo"),
@@ -361,14 +358,13 @@
       }),
     };
 
-    // QR
     const generateQr = ipp => {
       const data = `${CONFIG.QR_TARGET_BASE_URL}?ipp=${encodeURIComponent(ipp)}`;
-      return "https://api.qrserver.com/v1/create-qr-code/?size=180x180&data="+encodeURIComponent(data);
+      return `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(data)}`;
     };
     window.printQRCode = qrUrl => {
       const w=window.open("","_blank","width=400,height=450");
-      if(!w) {alert("Autorisez pop‑ups.");return;}
+      if(!w){alert("Autorisez pop‑ups.");return;}
       w.document.write(`
         <html><head><style>
           body{margin:20px;text-align:center;font-family:sans-serif;}
@@ -471,7 +467,7 @@
             <div class="qr-section">
               <img src="${qrImg}" alt="QR Code"/>
               <div class="qr-buttons no-print" style="margin-top:10px;">
-                <button class="btn btn-secondary btn-sm" 
+                <button class="btn btn-secondary btn-sm"
                   onclick="printQRCode('${qrImg}')">
                   <i class="fas fa-print"></i> Imprimer QR Code
                 </button>
@@ -563,6 +559,7 @@
         DOM.frontPreview.classList.add("hidden");
         DOM.backPreview.classList.add("hidden");
       }
+      capturingFront = true;
     };
     const takePhoto=()=>{
       if(!DOM.idVideo.videoWidth) return updateCaptureMsg("Vidéo non prête","warning");
@@ -594,23 +591,23 @@
             fd.append("data",frontBlob,"front.jpg");
             fd.append("data",backBlob,"back.jpg");
             try{
-              const r=await api.extractId(fd);
-              if(r.success && r.data){
-                const d=r.data;
-                // autofill
-                DOM.createForm.nom.value=d.last_name||"";
-                DOM.createForm.prenom.value=d.first_name||"";
-                DOM.createForm.cin.value=d.id_number||"";
-                if(d.date_of_birth){
-                  const [d1,m1,y1]=d.date_of_birth.split("/");
-                  DOM.createForm.date_naissance.value=`${y1}-${m1.padStart(2,"0")}-${d1.padStart(2,"0")}`;
-                }
-                DOM.createForm.adresse.value=d.address||"";
-                DOM.createForm.ville.value=d.city||"";
-                DOM.createForm.sexe.value=(d.gender==="F"?"F":"M");
-                showToast("Formulaire pré-rempli!","success");
-                updateCaptureMsg("Données extraites","success");
-              } else throw r.message||"Aucune donnée";
+              const resp=await api.extractId(fd);
+              console.log("Raw extract‑ID response:",resp);
+              const d = resp.extractedData || resp.data || {};
+              console.log("Using extracted object:", d);
+              // autofill
+              DOM.createForm.nom.value = d.last_name     || "";
+              DOM.createForm.prenom.value = d.first_name || "";
+              DOM.createForm.cin.value = d.id_number     || "";
+              if(d.date_of_birth){
+                const [day,mo,yr] = d.date_of_birth.split("/");
+                DOM.createForm.date_naissance.value = `${yr}-${mo.padStart(2,"0")}-${day.padStart(2,"0")}`;
+              }
+              DOM.createForm.adresse.value = d.address || "";
+              DOM.createForm.ville.value   = d.city    || "";
+              DOM.createForm.sexe.value    = (d.gender==="F"?"F":"M");
+              showToast("Formulaire pré-rempli!","success");
+              updateCaptureMsg("Données extraites","success");
             }catch(e){
               console.error(e);
               updateCaptureMsg("Erreur extraction","error");
@@ -626,13 +623,11 @@
     document.addEventListener("DOMContentLoaded",()=>{
       if(!localStorage.getItem(CONFIG.TOKEN_KEY)) return logout();
       resetSession();
-      // events
       DOM.createForm.addEventListener("submit",handleCreate);
       DOM.searchForm.addEventListener("submit",handleSearch);
       DOM.captureIdButton.addEventListener("click",startCapture);
       DOM.takePhotoButton.addEventListener("click",takePhoto);
       DOM.cancelCaptureButton.addEventListener("click",()=>stopCapture(true));
-      // dropdowns
       fillMutuelles();
       fillDoctors();
     });
@@ -641,3 +636,4 @@
   </script>
 </body>
 </html>
+```
