@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -91,27 +92,30 @@
     .btn-success:hover { background: var(--success-dark); }
     .btn:disabled { background-color: var(--gray-300); cursor: not-allowed; opacity: 0.7; }
     .status { display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 4px; font-size: 0.8rem; color: var(--gray-600); background: var(--gray-200); margin-left: 10px; }
+    .checkbox-wrapper { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 10px; }
+    .checkbox-item { display: flex; align-items: center; }
+    .checkbox-item input[type="checkbox"] { margin-right: 6px; }
     .ai-suggestion { background: var(--primary-light); border-radius: var(--border-radius); padding: 15px; margin-top: 20px; }
     .ai-suggestion h3 { font-size: 1rem; margin-bottom: 15px; color: var(--primary); display: flex; align-items: center; }
     .ai-suggestion h3 i { margin-right: 8px; }
-    .message { padding: 10px; border-radius: 6px; margin-top: 12px; font-size: 0.9rem; font-weight: 500; display: none; }
+    .message {	padding: 10px; border-radius: 6px; margin-top: 12px; font-size: 0.9rem; font-weight: 500; display: none; }
     .message-success { background: var(--success-light); color: var(--success); }
     .message-warning { background: var(--warning-light); color: var(--warning); }
     .message-error { background: var(--danger-light); color: var(--danger); }
     .message-info, .message-loading { background: var(--primary-light); color: var(--primary); border-left: 4px solid var(--primary); }
     .no-print { @media print { display: none !important; } }
-    #scanner-container { display: none; position: relative; max-width: 300px; margin: 15px auto 0; border: 1px solid var(--gray-300); border-radius: var(--border-radius); overflow: hidden; }
+    #scanner-container { display: none; position: relative; max-width: 300px;	margin: 15px auto 0; border: 1px solid var(--gray-300); border-radius: var(--border-radius); overflow: hidden; }
     #scanner-video { display: block; width: 100%; height: auto; }
     .empty-state { text-align: center; padding: 1.5rem; color: var(--gray-500); }
     .empty-state i { font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.6; display: block; }
     .empty-state-message { font-size: 1rem; font-weight: 500; margin-bottom: 0.25rem; }
     .empty-state-description { font-size: 0.85rem; }
     .nurse-data-display { background-color: var(--gray-100); padding: 1rem; border-radius: var(--border-radius); margin-top: 1rem; border: 1px solid var(--gray-200); }
-    .nurse-data-display h4 { font-size: 0.9rem; margin-bottom: 0.75rem; color: var(--gray-700); border-bottom: 1px solid var(--gray-300); padding-bottom: 0.5rem; display: flex; align-items: center; }
+    .nurse-data-display h4 { font-size: 0.9rem; margin-bottom: 0.75rem; color: var(--gray-700);	border-bottom: 1px solid var(--gray-300); padding-bottom: 0.5rem; display: flex; align-items: center; }
     .nurse-data-display h4 i { margin-right: 8px; color: var(--primary); }
     .nurse-observation { margin-bottom: 10px; line-height: 1.4; }
     .nurse-vitals { margin-top: 8px; }
-    .nurse-vital-line { display: flex; align-items: center; margin-bottom: 5px; }
+    .nurse-vital-line { display: flex; align-items: center;	margin-bottom: 5px; }
     .nurse-vital-line strong { margin-right: 6px; }
     .nurse-vital-date { font-size: 0.85rem; color: var(--gray-500); margin-bottom: 5px; }
     .mode-selection { margin: 20px 0; padding: 10px; background: var(--gray-200); border-radius: var(--border-radius); }
@@ -131,6 +135,15 @@
       .patient-info { grid-template-columns: 1fr; }
       .btn-group { gap: 6px; }
       #scanner-container { max-width: 100%; }
+    }
+    /* ↓ new searchable select style */
+    select.searchable {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid var(--gray-300);
+      border-radius: var(--border-radius);
+      font-size: 1rem;
+      background: white;
     }
   </style>
 </head>
@@ -351,25 +364,26 @@
     </div>
 
     <!-- Tarifs Card -->
-    <div id="tarifsDropdownCard" class="card" style="display:block;">
+    <div id="tarifsDropdownCard" class="card" style="display:none; margin-top:20px;">
       <div class="card-header">
         <h2 class="card-title"><i class="fas fa-list"></i> Sélection Tarifs (Recherche)</h2>
       </div>
       <div class="card-body">
-        <div class="btn-group" style="margin-bottom: 12px;">
-          <button id="startTarifRecordBtn" class="btn btn-outline">
-            <i class="fas fa-microphone"></i> Démarrer Tarifs IA
-          </button>
-          <button id="stopTarifRecordBtn" class="btn btn-outline" disabled>
-            <i class="fas fa-stop-circle"></i> Arrêter
-          </button>
+        <select id="tarifsSelect" class="searchable" multiple></select>
+        <div style="margin-top:10px;">
+          <button id="addAllTarifsBtn" class="btn btn-outline">Sélectionner Tout</button>
+          <button id="removeAllTarifsBtn" class="btn btn-outline">Tout Désélectionner</button>
+        </div>
+        <div class="btn-group" style="margin-top:12px;">
+          <button id="startTarifRecordBtn" class="btn btn-outline"><i class="fas fa-microphone"></i> Démarrer Tarifs IA</button>
+          <button id="stopTarifRecordBtn" class="btn btn-outline" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
           <span id="tarifStatus" class="status"></span>
         </div>
-        <select id="tarifsSelect" multiple></select>
       </div>
     </div>
   </div>
 
+  <!-- Scripts -->
   <script src="./jsQR.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
   <script>
@@ -576,33 +590,32 @@
     document.getElementById('scanQrButton').onclick=async()=>{
       if (!scanning){
         try{
-          updateScanStatus('','info');
+          showMessage('scanResult','','info');
           document.getElementById('scanner-container').style.display='block';
-          updateScanStatus('Recherche caméra...','loading');
+          showMessage('scanResult','Recherche caméra...','loading');
           currentStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
           const vid=document.getElementById('scanner-video');
           vid.srcObject=currentStream; vid.setAttribute('playsinline',true);
           await vid.play();
-          updateScanStatus('Caméra prête. Scannez le code.','info');
+          showMessage('scanResult','Caméra prête. Scannez le code.','info');
           const btn=document.getElementById('scanQrButton');
           btn.innerHTML='<i class="fas fa-stop-circle"></i> Arrêter Scan';
           btn.classList.replace('btn-primary','btn-danger');
           scanning=true;
           scanTimeout=setTimeout(()=>{
-            if(scanning){ updateScanStatus('Aucun code détecté.','warning'); stopScanner(); }
+            if(scanning){ showMessage('scanResult','Aucun code détecté.','warning'); stopScanner(); }
           },30000);
           requestAnimationFrame(tick);
         }catch(err){
           let m=err.message; if(err.name==='NotAllowedError') m='Permission caméra refusée.'; else if(err.name==='NotFoundError') m='Caméra non trouvée.';
-          updateScanStatus(`Err Cam: ${m}`,'error');
+          showMessage('scanResult',`Err Cam: ${m}`,'error');
           stopScanner();
         }
       } else {
         stopScanner();
-        updateScanStatus('Scan arrêté.','info');
+        showMessage('scanResult','Scan arrêté.','info');
       }
     };
-    function updateScanStatus(msg,type='info'){ showMessage('scanResult',msg,type); }
     function stopScanner(){
       clearTimeout(scanTimeout);
       if(currentStream) currentStream.getTracks().forEach(t=>t.stop());
@@ -631,16 +644,16 @@
     }
     function processScannedQrCode(scannedUrl){
       clearTimeout(scanTimeout);
-      updateScanStatus('Code détecté. Traitement...','loading');
+      showMessage('scanResult','Code détecté. Traitement...','loading');
       try{
         const url=new URL(scannedUrl);
         if(scannedUrl.startsWith(QR_TARGET_BASE_URL)){
           const ipp=url.searchParams.get('ipp');
-          if(ipp){ updateScanStatus(`Patient IPP ${ipp} trouvé. Chargement...`,'success'); loadPatient(ipp); }
-          else { updateScanStatus('Erreur: IPP manquant.','error'); clearDoctorUI(); }
-        } else { updateScanStatus('Erreur: QR Code non reconnu.','error'); clearDoctorUI(); }
+          if(ipp){ showMessage('scanResult',`Patient IPP ${ipp} trouvé. Chargement...`,'success'); loadPatient(ipp); }
+          else { showMessage('scanResult','Erreur: IPP manquant.','error'); clearDoctorUI(); }
+        } else { showMessage('scanResult','Erreur: QR Code non reconnu.','error'); clearDoctorUI(); }
       }catch(e){
-        updateScanStatus(`Erreur: Format QR invalide (${e.message}).`,'error');
+        showMessage('scanResult',`Erreur: Format QR invalide (${e.message}).`,'error');
         clearDoctorUI();
       }
     }
@@ -693,7 +706,8 @@
         case 'fullDictation': startBtn=document.getElementById('startFullDictationRecordBtn'); stopBtn=document.getElementById('stopFullDictationRecordBtn'); break;
         default: startBtn=document.getElementById(`start${field.charAt(0).toUpperCase()+field.slice(1)}RecordBtn`); stopBtn=document.getElementById(`stop${field.charAt(0).toUpperCase()+field.slice(1)}RecordBtn`);
       }
-      if(mediaRecorder?.state!=='recording'){
+      if(mediaRecorder?.
+state!=='recording'){
         startBtn.disabled=false; stopBtn.disabled=true;
         document.getElementById(`${field}Status`).innerHTML='';
       }
@@ -828,7 +842,12 @@
           final_prescription:document.getElementById('prescriptionInput').value,
           start_date:convertFrenchToBackendDate(sd),
           end_date:convertFrenchToBackendDate(ed),
-          schedule:{matin:document.getElementById('matin').checked,apres_midi:document.getElementById('apres_midi').checked,soir:document.getElementById('soir').checked,nuit:document.getElementById('nuit').checked},
+          schedule:{
+            matin:document.getElementById('matin').checked,
+            apres_midi:document.getElementById('apres_midi').checked,
+            soir:document.getElementById('soir').checked,
+            nuit:document.getElementById('nuit').checked
+          },
           medicament_name:med
         })
       })
@@ -873,126 +892,67 @@
     }
     document.getElementById('submitAllBtn').addEventListener('click',submitAllData);
 
+    // Tarifs / Choices.js integration
     function initTarifChoices(){
       tarifChoices = new Choices('#tarifsSelect', {
         removeItemButton: true,
         searchPlaceholderValue: 'Rechercher un tarif…',
-        shouldSort: false,
-        callbackOnCreateTemplates: function(template) {
-          return {
-            item: (classNames, data) => template(`
-              <div
-                class="${classNames.item} ${data.highlighted ? classNames.highlightedState : ''}"
-                data-item
-                data-value="${data.value}"
-                ${data.active ? 'aria-selected="true"' : ''}
-                ${data.disabled ? 'aria-disabled="true"' : ''}>
-                ${data.label}
-                <span style="float:right; font-weight:500;">
-                  ${data.customProperties.tarif} ${data.customProperties.devise}
-                </span>
-              </div>
-            `),
-            choice: (classNames, data) => template(`
-              <div
-                class="${classNames.item} ${classNames.itemChoice}"
-                data-select-text="${this.config.itemSelectText}"
-                data-choice
-                data-value="${data.value}"
-                ${data.disabled ? 'data-choice-disabled aria-disabled="true"' : 'data-choice-selectable'}>
-                <span>${data.label}</span>
-                <span style="float:right; color:var(--primary); font-weight:500;">
-                  ${data.customProperties.tarif} ${data.customProperties.devise}
-                </span>
-              </div>
-            `)
-          };
-        }
+        placeholder: true,
+        placeholderValue: 'Sélectionner service(s)…',
+        shouldSort: false
       });
-
-      // programmatic event hooks
-      tarifChoices.passedElement.addEventListener('addItem', evt => {
-        console.log('Tarif ajouté:', evt.detail.value);
+      document.getElementById('addAllTarifsBtn').addEventListener('click', () => {
+        const all = tarifChoices._store.choices.map(c => c.value);
+        tarifChoices.setValue(all);
       });
-      tarifChoices.passedElement.addEventListener('removeItem', evt => {
-        console.log('Tarif retiré:', evt.detail.value);
+      document.getElementById('removeAllTarifsBtn').addEventListener('click', () => {
+        tarifChoices.clearStore();
       });
-
-      loadTarifListChoices();
     }
 
-    function loadTarifListChoices(){
+    function loadTarifList(){
       fetchWithAuth(BASE_URL + TARIFF_LIST_ENDPOINT)
-        .then(list => Array.isArray(list) ? list : list.services || [])
-        .then(tarifList => {
-          const choicesData = tarifList.map(t => ({
-            value: t.code,
-            label: `${t.code} – ${t.libelle || t.libellé}`,
-            customProperties: {
-              tarif: t.tarif,
-              devise: t.devise || 'DH'
-            }
+        .then(data => Array.isArray(data) ? data : [])
+        .then(list => {
+          const choices = list.map(item => ({
+            value: item.code,
+            label: `${item.code} – ${item.libelle} (${item.tarif} ${item.devise||'MAD'})`
           }));
-          tarifChoices.setChoices(choicesData, 'value', 'label', true);
+          tarifChoices.setChoices(choices, 'value', 'label', true);
         })
-        .catch(err => console.error('Err loadTarifList', err));
+        .catch(err => console.error('Err loadTarifList:', err));
     }
 
-    function startTarifRecording(){
-      tarifAudio=[]; document.getElementById('startTarifRecordBtn').disabled=true; document.getElementById('stopTarifRecordBtn').disabled=false;
-      document.getElementById('tarifStatus').innerHTML='<i class="fas fa-microphone-alt fa-beat"></i> REC...';
-      navigator.mediaDevices.getUserMedia({audio:true})
-        .then(s=>{
-          tarifRecorder=new MediaRecorder(s);
-          tarifRecorder.ondataavailable=e=>{ if(e.data.size) tarifAudio.push(e.data); };
-          tarifRecorder.onstop=()=>handleTarifRecordingStop(s);
-          tarifRecorder.start();
-        })
-        .catch(e=>{
-          console.error(e);
-          document.getElementById('tarifStatus').innerHTML='<i class="fas fa-times-circle"></i> Err Micro';
-          document.getElementById('startTarifRecordBtn').disabled=false; document.getElementById('stopTarifRecordBtn').disabled=true;
-        });
-    }
-    function stopTarifRecording(){
-      if(tarifRecorder?.state==='recording') tarifRecorder.stop();
-      document.getElementById('stopTarifRecordBtn').disabled=true;
-      document.getElementById('startTarifRecordBtn').disabled=false;
-    }
-    document.getElementById('startTarifRecordBtn').addEventListener('click',startTarifRecording);
-    document.getElementById('stopTarifRecordBtn').addEventListener('click',stopTarifRecording);
+    document.getElementById('submitAllBtn').addEventListener('click', () => {
+      const ipp = currentIPP, vid = currentVisitId;
+      submitAllData();
+      fetchWithAuth(BASE_URL + EXTRACT_TARIFS_ENDPOINT, {
+        method: 'POST',
+        body: JSON.stringify({ ipp, visit_id: vid })
+      })
+      .then(r => r.json())
+      .then(arr => Array.isArray(arr) ? arr : [])
+      .then(suggestions => {
+        const codes = suggestions.map(x => x.code);
+        tarifChoices.setValue(codes);
+        document.getElementById('tarifsDropdownCard').style.display = 'block';
+      })
+      .catch(err => console.error('Err fetch suggestions:', err));
+    });
 
-    function handleTarifRecordingStop(stream){
-      stream.getTracks().forEach(t=>t.stop());
-      document.getElementById('tarifStatus').innerHTML='<i class="fas fa-spinner fa-spin"></i> Transfert...';
-      const blob=new Blob(tarifAudio,{type:'audio/webm'});
-      const fd=new FormData(); fd.append('audio',blob,'tarif.webm');
-      fetchWithAuth(BASE_URL+EXTRACT_TARIFS_ENDPOINT,{method:'POST',body:fd})
-        .then(res=>Array.isArray(res)?res:res.data||[])
-        .then(arr=>{
-          arr.forEach(sug=>{
-            tarifChoices.setChoiceByValue(sug.code);
-          });
-          document.getElementById('tarifStatus').innerHTML='<i class="fas fa-check"></i> Terminé';
-        })
-        .catch(e=>{
-          console.error(e);
-          document.getElementById('tarifStatus').innerHTML='<i class="fas fa-times-circle"></i> Err';
-        });
-    }
-
-    window.onload = () => {
+    window.addEventListener('load', () => {
       if (!localStorage.getItem('authToken')) {
         window.location.href = LOGIN_PAGE_URL;
         return;
       }
       document.body.classList.add('loaded');
       initTarifChoices();
-      const params = new URLSearchParams(window.location.search);
-      const ipp = params.get('ipp');
-      if (ipp) loadPatient(ipp);
-      else clearDoctorUI();
-    };
+      loadTarifList();
+      const params=new URLSearchParams(window.location.search);
+      const ipp=params.get('ipp');
+      if(ipp) loadPatient(ipp); else clearDoctorUI();
+    });
   </script>
 </body>
 </html>
+```
