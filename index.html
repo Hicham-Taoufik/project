@@ -97,7 +97,8 @@
     .message { padding: 10px; border-radius: 6px; margin-top: 12px; font-size: 0.9rem; font-weight: 500; display: none; }
     .message-success { background: var(--success-light); color: var(--success); }
     .message-warning { background: var(--warning-light); color: var(--warning); }
-    .message-error { background: var(--danger-light); color: var(--danger); }
+    .message-error { background:
+ var(--danger-light); color: var(--danger); }
     .message-info, .message-loading { background: var(--primary-light); color: var(--primary); border-left: 4px solid var(--primary); }
     .no-print { @media print { display: none !important; } }
     #scanner-container { display: none; position: relative; max-width: 300px; margin: 15px auto 0; border: 1px solid var(--gray-300); border-radius: var(--border-radius); overflow: hidden; }
@@ -113,7 +114,8 @@
     .nurse-vitals { margin-top: 8px; }
     .nurse-vital-line { display: flex; align-items: center; margin-bottom: 5px; }
     .nurse-vital-line strong { margin-right: 6px; }
-    .nurse-vital-date { font-size: 0.85rem; color: var(--gray-500); margin-bottom: 5px; }
+    .nurse-vital-date { font-size: 0.85rem; color: var(--
+var(--gray-500); margin-bottom: 5px; }
     .mode-selection { margin: 20px 0; padding: 10px; background: var(--gray-200); border-radius: var(--border-radius); }
     .mode-selection label { margin-right: 15px; font-weight: 600; }
 
@@ -126,7 +128,6 @@
       font-size: 1rem;
       background: white;
     }
-
   </style>
 </head>
 <body>
@@ -344,7 +345,7 @@
       <div id="validationMessage" class="message"></div>
     </div>
 
-    <!-- ↓ new Tarifs card -->
+    <!-- New “Tarifs” card -->
     <div id="tarifsDropdownCard" class="card" style="display:none;">
       <div class="card-header">
         <h2 class="card-title"><i class="fas fa-list"></i> Sélection Tarifs (Recherche)</h2>
@@ -354,7 +355,7 @@
           <button id="startTarifRecordBtn" class="btn btn-outline">
             <i class="fas fa-microphone"></i> Démarrer Tarifs IA
           </button>
-          <button id="stopTarifRecordBtn" class="btn btn-outline" disabled> 
+          <button id="stopTarifRecordBtn" class="btn btn-outline" disabled>
             <i class="fas fa-stop-circle"></i> Arrêter
           </button>
           <span id="tarifStatus" class="status"></span>
@@ -809,20 +810,20 @@
 
     function sendFullDictationAudio(blob) {
       const statusEl = document.getElementById('fullDictationStatus');
-      const fd = new FormData();
+      const fd       = new FormData();
       fd.append('audio', blob, `fullDictation_${currentIPP}_${Date.now()}.webm`);
       fd.append('ipp', currentIPP);
       fd.append('visit_id', currentVisitId);
       fetchWithAuth(BASE_URL + PROCESS_VISIT_DICTATION_ENDPOINT, { method:'POST', body:fd })
         .then(res => {
           const data = res.extractedData || res;
-          document.getElementById('diagnosticInput').value = data.diagnostic || '';
-          document.getElementById('notesInput').value      = data.notes_supplementaires || '';
-          document.getElementById('antecedentsInput').value= data.antecedents || '';
-          document.getElementById('treatmentInput').value  = data.traitement_en_cours || '';
-          document.getElementById('orientationInput').value= data.orientation || '';
-          document.getElementById('prescriptionInput').value = data.ordonnance_medicale || '';
-          document.getElementById('explorationInput').value   = data.prescription_exploration || '';
+          document.getElementById('diagnosticInput').value     = data.diagnostic || '';
+          document.getElementById('notesInput').value          = data.notes_supplementaires || '';
+          document.getElementById('antecedentsInput').value    = data.antecedents || '';
+          document.getElementById('treatmentInput').value      = data.traitement_en_cours || '';
+          document.getElementById('orientationInput').value    = data.orientation || '';
+          document.getElementById('prescriptionInput').value   = data.ordonnance_medicale || '';
+          document.getElementById('explorationInput').value    = data.prescription_exploration || '';
           showMessage('fullDictationMessage','Dictée traitée et champs mis à jour.','success');
         })
         .catch(err => {
@@ -1046,7 +1047,7 @@
 
     function capitalize(s){ return typeof s==='string'? s.charAt(0).toUpperCase()+s.slice(1): ''; }
 
-    // --- Tarifs List Loading & Voice Extraction ---
+    // --- Tarifs List & Voice Extraction ---
     function loadTarifList() {
       fetchWithAuth(BASE_URL + TARIFF_LIST_ENDPOINT)
         .then(r => Array.isArray(r.services) ? r.services : [])
@@ -1057,7 +1058,7 @@
             const code  = item.code;
             const label = item.libelle || item.libellé || '';
             const tarif = item.tarif || '';
-            const opt   = new Option(`${code} – ${label} (${tarif})`, code);
+            const opt   = new Option(`${code} – ${label} (${tarif} MAD)`, code);
             sel.append(opt);
           });
         })
@@ -1065,7 +1066,6 @@
     }
 
     function startTarifRecording() {
-      if (tarifRecorder?.state === 'recording') return;
       tarifAudioChunks = [];
       document.getElementById('tarifStatus').innerHTML = '<i class="fas fa-microphone-alt fa-beat"></i> REC...';
       document.getElementById('startTarifRecordBtn').disabled = true;
@@ -1073,7 +1073,7 @@
       navigator.mediaDevices.getUserMedia({ audio:true })
         .then(stream => {
           tarifRecorder = new MediaRecorder(stream);
-          tarifRecorder.ondataavailable = e => { if (e.data.size > 0) tarifAudioChunks.push(e.data); };
+          tarifRecorder.ondataavailable = e => { if (e.data.size) tarifAudioChunks.push(e.data); };
           tarifRecorder.onstop        = () => handleTarifRecordingStop(stream);
           tarifRecorder.onerror       = err => {
             console.error('Tarif rec err', err);
@@ -1092,7 +1092,7 @@
     }
 
     function stopTarifRecording() {
-      if (tarifRecorder && tarifRecorder.state==='recording') {
+      if (tarifRecorder && tarifRecorder.state === 'recording') {
         tarifRecorder.stop();
       }
       document.getElementById('stopTarifRecordBtn').disabled  = true;
@@ -1100,9 +1100,8 @@
     }
 
     function handleTarifRecordingStop(stream) {
-      stream.getTracks().forEach(t=>t.stop());
-      const statusEl = document.getElementById('tarifStatus');
-      statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Transfert...';
+      stream.getTracks().forEach(t => t.stop());
+      document.getElementById('tarifStatus').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Transfert...';
       const blob = new Blob(tarifAudioChunks, { type:'audio/webm' });
       const fd   = new FormData();
       fd.append('audio', blob, `tarif_${currentIPP}_${Date.now()}.webm`);
@@ -1110,20 +1109,19 @@
       fd.append('visit_id', currentVisitId);
       fetchWithAuth(BASE_URL + EXTRACT_TARIFS_ENDPOINT, { method:'POST', body:fd })
         .then(res => Array.isArray(res) ? res : [res])
-        .then(list => {
+        .then(suggestions => {
           const sel = document.getElementById('tarifsSelect');
-          Array.from(sel.options).forEach(o=>o.selected=false);
-          list.forEach(item => {
-            const code = item.code;
-            const opt = sel.querySelector(`option[value="${code}"]`);
+          Array.from(sel.options).forEach(o => o.selected = false);
+          suggestions.forEach(item => {
+            const opt = sel.querySelector(`option[value="${item.code}"]`);
             if (opt) opt.selected = true;
           });
           document.getElementById('tarifsDropdownCard').style.display = 'block';
-          statusEl.innerHTML = '<i class="fas fa-check"></i> Terminé';
+          document.getElementById('tarifStatus').innerHTML = '<i class="fas fa-check"></i> Terminé';
         })
         .catch(err => {
           console.error('Err extractTarifs', err);
-          statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Err';
+          document.getElementById('tarifStatus').innerHTML = '<i class="fas fa-times-circle"></i> Err';
         });
     }
 
