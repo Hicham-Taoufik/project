@@ -13,10 +13,11 @@
       --primary-dark: #4a62d8;
       --success: #31c971;
       --success-light: #e0fbea;
-      --danger: #ff5a5a;
-      --danger-light: #ffeded;
+      --success-dark: #28a960;
       --warning: #ffb648;
       --warning-light: #fff8ec;
+      --danger: #ff5a5a;
+      --danger-light: #ffeded;
       --gray-100: #f9fafb;
       --gray-200: #f1f3f9;
       --gray-300: #e5e7eb;
@@ -25,201 +26,623 @@
       --gray-600: #6b7280;
       --gray-700: #4b5563;
       --gray-800: #374151;
-      --border-radius: 8px;
       --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
       --shadow-md: 0 4px 6px rgba(0,0,0,0.04);
-      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.05),0 4px 6px -2px rgba(0,0,0,0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.05);
       --shadow-focus: 0 0 0 3px rgba(93,116,242,0.2);
+      --border-radius: 8px;
       --transition-speed: 0.2s;
       font-size: 15px;
     }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:'Inter',sans-serif; background:var(--gray-100); color:var(--gray-800); line-height:1.5; min-height:100vh; visibility:hidden; }
-    body.loaded { visibility:visible; animation:fadeIn 0.3s ease-in; }
-    @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
-    .container { max-width:1200px; margin:0 auto; padding:0 20px; }
-    .header { display:flex; align-items:center; padding:15px 0; margin-bottom:20px; border-bottom:1px solid var(--gray-200); flex-wrap:wrap; gap:10px; }
-    .header-main-content { display:flex; align-items:center; gap:10px; flex-grow:1; }
-    .logo-img { height:35px; margin-right:10px; }
-    .header-title { color:var(--primary); font-size:1.3rem; font-weight:600; }
-    .logout-btn { padding:5px 10px; font-size:0.8rem; border-radius:var(--border-radius); }
-    .card { background:#fff; border-radius:var(--border-radius); box-shadow:var(--shadow-md); margin-bottom:20px; transition:box-shadow var(--transition-speed) ease; }
-    .card:hover { box-shadow:var(--shadow-lg); }
-    .card-header { display:flex; justify-content:space-between; align-items:center; padding:14px 16px; border-bottom:1px solid var(--gray-200); }
-    .card-title { display:flex; align-items:center; font-size:1rem; font-weight:600; color:var(--gray-800); }
-    .card-title i { margin-right:8px; color:var(--primary); }
-    .card-body { padding:16px; }
-    .btn { display:inline-flex; align-items:center; padding:10px 16px; font-size:0.9rem; font-weight:500; border:none; border-radius:var(--border-radius); cursor:pointer; transition:all var(--transition-speed) ease; }
-    .btn i { margin-right:6px; }
-    .btn-primary { background:var(--primary); color:#fff; }
-    .btn-primary:hover { background:var(--primary-dark); }
-    .btn-outline { background:#fff; color:var(--primary); border:1px solid var(--gray-300); }
-    .btn-outline:hover { background:var(--primary-light); }
-    .btn-success { background:var(--success); color:#fff; }
-    .btn-success:hover { background:var(--success-dark); }
-    .message { padding:10px; border-radius:6px; margin-top:12px; font-size:0.9rem; display:none; }
-    .message-info { background:var(--primary-light); color:var(--primary); border-left:4px solid var(--primary); }
-    .message-error { background:var(--danger-light); color:var(--danger); }
-    #scanner-container { display:none; position:relative; max-width:300px; margin:15px auto 0; border:1px solid var(--gray-300); border-radius:var(--border-radius); overflow:hidden; }
-    #scanner-video { width:100%; }
-    .status { display:inline-flex; align-items:center; padding:6px 10px; border-radius:4px; font-size:0.8rem; background:var(--gray-200); margin-left:10px; }
-    /* Tarifs Manuels search */
-    #tarifSearch { width:100%; padding:8px; border:1px solid var(--gray-300); border-radius:4px; margin-bottom:8px; }
-    #tarifList { max-height:200px; overflow-y:auto; border:1px solid var(--gray-300); border-radius:4px; padding:8px; }
-    .checkbox-item { display:flex; align-items:center; margin-bottom:6px; font-size:0.9rem; }
-    .checkbox-item input { margin-right:6px; }
-    table { width:100%; border-collapse:collapse; }
-    th, td { padding:8px; border-bottom:1px solid var(--gray-300); }
-    th { text-align:left; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--gray-100);
+      color: var(--gray-800);
+      line-height: 1.5;
+      min-height: 100vh;
+      padding: 0;
+      visibility: hidden;
+    }
+    body.loaded {
+      visibility: visible;
+      animation: fadeIn 0.3s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      padding: 15px 0;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .header-main-content {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-grow: 1;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+    }
+    .logo-img {
+      height: 35px;
+      width: auto;
+      margin-right: 10px;
+    }
+    .header-title {
+      color: var(--primary);
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin: 0;
+    }
+    .header-logout {
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+    .logout-btn {
+      padding: 5px 10px;
+      font-size: 0.8rem;
+      border-radius: var(--border-radius);
+    }
+    .card {
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+      margin-bottom: 20px;
+      transition: box-shadow var(--transition-speed) ease;
+    }
+    .card:hover {
+      box-shadow: var(--shadow-lg);
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--gray-800);
+      display: flex;
+      align-items: center;
+    }
+    .card-title i {
+      margin-right: 10px;
+      color: var(--primary);
+    }
+    .card-actions {
+      color: white;
+      background: var(--primary);
+      border-radius: var(--border-radius);
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card-body {
+      padding: 16px;
+    }
+    .patient-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+    }
+    .info-group {
+      margin-bottom: 5px;
+    }
+    .info-label {
+      font-size: 0.75rem;
+      color: var(--gray-500);
+      margin-bottom: 4px;
+    }
+    .info-value {
+      font-size: 0.85rem;
+      color: var(--gray-800);
+      font-weight: 500;
+      word-break: break-word;
+    }
+    .flex-row {
+      display: flex;
+      gap: 25px;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+    }
+    .flex-col {
+      flex: 1;
+      min-width: 320px;
+    }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.85rem;
+      color: var(--gray-600);
+    }
+    textarea, input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      border-radius: var(--border-radius);
+      border: 1px solid var(--gray-300);
+      background: white;
+      transition: all 0.2s ease;
+      font-family: 'Inter', sans-serif;
+      min-height: 140px;
+    }
+    input.french-date {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      border-radius: var(--border-radius);
+      border: 1px solid var(--gray-300);
+    }
+    input.french-date:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: var(--shadow-focus);
+    }
+    .input-group {
+      margin-bottom: 15px;
+    }
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 10px 16px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      border-radius: var(--border-radius);
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn i {
+      margin-right: 6px;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+    .btn-danger {
+      background-color: var(--danger);
+      border-color: var(--danger);
+      color: white;
+    }
+    .btn-danger:hover {
+      background-color: #d3483e;
+      border-color: #d3483e;
+    }
+    .btn-outline {
+      background: white;
+      color: var(--primary);
+      border: 1px solid var(--gray-300);
+    }
+    .btn-outline:hover {
+      border-color: var(--primary);
+      background: var(--primary-light);
+    }
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+    .btn-success:hover {
+      background: var(--success-dark);
+    }
+    .btn:disabled {
+      background-color: var(--gray-300);
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      color: var(--gray-600);
+      background: var(--gray-200);
+      margin-left: 10px;
+    }
+    .checkbox-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 10px;
+    }
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+    }
+    .checkbox-item input[type="checkbox"] {
+      margin-right: 6px;
+    }
+    .ai-suggestion {
+      background: var(--primary-light);
+      border-radius: var(--border-radius);
+      padding: 15px;
+      margin-top: 20px;
+    }
+    .ai-suggestion h3 {
+      font-size: 1rem;
+      margin-bottom: 15px;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+    }
+    .ai-suggestion h3 i {
+      margin-right: 8px;
+    }
+    .message {
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 12px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      display: none;
+    }
+    .message-success {
+      background: var(--success-light);
+      color: var(--success);
+    }
+    .message-warning {
+      background: var(--warning-light);
+      color: var(--warning);
+    }
+    .message-error {
+      background: var(--danger-light);
+      color: var(--danger);
+    }
+    .message-info, .message-loading {
+      background: var(--primary-light);
+      color: var(--primary);
+      border-left: 4px solid var(--primary);
+    }
+    .no-print {
+      @media print {
+        display: none !important;
+      }
+    }
+    #scanner-container {
+      display: none;
+      position: relative;
+      max-width: 300px;
+      margin: 15px auto 0;
+      border: 1px solid var(--gray-300);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+    }
+    #scanner-video {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 1.5rem;
+      color: var(--gray-500);
+    }
+    .empty-state i {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      opacity: 0.6;
+      display: block;
+    }
+    .empty-state-message {
+      font-size: 1rem;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+    .empty-state-description {
+      font-size: 0.85rem;
+    }
+    .nurse-data-display {
+      background-color: var(--gray-100);
+      padding: 1rem;
+      border-radius: var(--border-radius);
+      margin-top: 1rem;
+      border: 1px solid var(--gray-200);
+    }
+    .nurse-data-display h4 {
+      font-size: 0.9rem;
+      margin-bottom: 0.75rem;
+      color: var(--gray-700);
+      border-bottom: 1px solid var(--gray-300);
+      padding-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+    }
+    .nurse-data-display h4 i {
+      margin-right: 8px;
+      color: var(--primary);
+    }
+    .nurse-observation {
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+    .nurse-vitals {
+      margin-top: 8px;
+    }
+    .nurse-vital-line {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+    .nurse-vital-line strong {
+      margin-right: 6px;
+    }
+    .nurse-vital-date {
+      font-size: 0.85rem;
+      color: var(--gray-500);
+      margin-bottom: 5px;
+    }
+    .mode-selection {
+      margin: 20px 0;
+      padding: 10px;
+      background: var(--gray-200);
+      border-radius: var(--border-radius);
+    }
+    .mode-selection label {
+      margin-right: 15px;
+      font-weight: 600;
+    }
+    @media (max-width: 768px) {
+      .flex-row {
+        flex-direction: column;
+        gap: 20px;
+      }
+      .patient-info {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (max-width: 480px) {
+      .header {
+        padding: 12px 0;
+        justify-content: center;
+      }
+      .header-main-content {
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 10px;
+      }
+      .header-logout {
+        width: 100%;
+      }
+      .logout-btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .header-title {
+        font-size: 1.1rem;
+      }
+      .card-body {
+        padding: 12px;
+      }
+      .btn {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+      }
+      .patient-info {
+        grid-template-columns: 1fr;
+      }
+      .btn-group {
+        gap: 6px;
+      }
+      #scanner-container {
+        max-width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Header -->
     <div class="header no-print">
       <div class="header-main-content">
-        <img src="./clinique-nakhil-logo-horizontal.webp" alt="Logo" class="logo-img"/>
+        <div class="logo">
+          <img src="./clinique-nakhil-logo-horizontal.webp" alt="MediClinic Logo" class="logo-img">
+        </div>
         <h1 class="header-title">Médecin</h1>
       </div>
-      <button onclick="logout()" class="btn btn-outline logout-btn no-print"><i class="fas fa-sign-out-alt"></i> Déconnexion</button>
+      <div class="header-logout">
+        <button onclick="logout()" class="btn btn-outline logout-btn no-print">
+          <i class="fas fa-sign-out-alt"></i> Déconnexion
+        </button>
+      </div>
     </div>
 
-    <!-- QR Scanner -->
     <div class="card no-print">
       <div class="card-header">
         <h2 class="card-title"><i class="fas fa-qrcode"></i> Scanner Patient</h2>
+        <div class="card-actions"><i class="fas fa-camera"></i></div>
       </div>
       <div class="card-body">
-        <button id="scanQrButton" class="btn btn-primary"><i class="fas fa-qrcode"></i> Scanner QR</button>
+        <div class="btn-group">
+          <button id="scanQrButton" class="btn btn-primary">
+            <i class="fas fa-qrcode"></i> Scanner QR
+          </button>
+        </div>
         <div id="scanner-container"><video id="scanner-video" playsinline></video></div>
-        <div id="scanResult" class="message message-info"></div>
+        <div id="scanResult" class="message message-info" style="margin-top:10px;"></div>
       </div>
     </div>
 
-    <!-- Patient Info -->
     <div class="card">
       <div class="card-header">
         <h2 class="card-title"><i class="fas fa-user-circle"></i> Infos Patient & Visite</h2>
+        <div class="card-actions"><i class="fas fa-notes-medical"></i></div>
       </div>
       <div class="card-body">
         <div id="patientInfo" class="patient-info">
-          <div class="empty-state" style="grid-column:1/-1; text-align:center;">
+          <div class="empty-state" style="grid-column:1/-1;">
             <i class="fas fa-qrcode"></i>
             <div class="empty-state-message">Prêt à scanner</div>
-            <div class="empty-state-description">Scan QR ou chargement URL</div>
+            <div class="empty-state-description">Scan QR ou chargez via URL</div>
           </div>
         </div>
         <div id="nurseDataDisplay" class="nurse-data-display" style="display:none;"></div>
       </div>
     </div>
 
-    <!-- Dictée Globale -->
     <div id="globalDictationUI" class="card">
       <div class="card-header">
         <h2 class="card-title"><i class="fas fa-file-medical"></i> Dictée Globale</h2>
       </div>
-      <div class="card-body" id="fullDictationCardBody" style="opacity:0.5; pointer-events:none; text-align:center;">
+      <div class="card-body" id="fullDictationCardBody" style="opacity:0.5;pointer-events:none;text-align:center;">
         <p>Appuyez sur “Démarrer” pour enregistrer</p>
-        <button id="startFullDictationRecordBtn" class="btn btn-outline" onclick="startRecording('fullDictation')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
-        <button id="stopFullDictationRecordBtn" class="btn btn-outline" onclick="stopRecording('fullDictation')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
-        <span id="fullDictationStatus" class="status"></span>
+        <div class="btn-group">
+          <button class="btn btn-outline" id="startFullDictationRecordBtn" onclick="startRecording('fullDictation')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
+          <button class="btn btn-outline" id="stopFullDictationRecordBtn" onclick="stopRecording('fullDictation')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
+          <span id="fullDictationStatus" class="status"></span>
+        </div>
         <div id="fullDictationMessage" class="message"></div>
       </div>
     </div>
 
-    <!-- Individual Mode (Diagnostic, Antécédents, etc.) -->
     <div id="individualModeUI">
-      <!-- Row Diagnostic & Antécédents -->
-      <div style="display:flex; gap:20px; flex-wrap:wrap; margin-bottom:20px;">
-        <div style="flex:1; min-width:300px;">
+      <!-- Diagnostic & Antécédents -->
+      <div class="flex-row">
+        <div class="flex-col">
           <div class="card">
-            <div class="card-header"><h2 class="card-title"><i class="fas fa-stethoscope"></i> Diagnostic</h2></div>
-            <div class="card-body" id="diagCardBody" style="opacity:0.5; pointer-events:none;">
-              <textarea id="diagnosticInput" placeholder="Diagnostic..." disabled style="width:100%; padding:12px; border:1px solid var(--gray-300); border-radius:var(--border-radius);"></textarea>
-              <button id="startDiagRecordBtn" class="btn btn-outline" onclick="startRecording('diagnosis')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
-              <button id="stopDiagRecordBtn" class="btn btn-outline" onclick="stopRecording('diagnosis')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
-              <span id="diagnosisStatus" class="status"></span>
-              <button id="submitDiagBtn" class="btn btn-success" onclick="submitDiagnostic()" disabled style="margin-top:10px;"><i class="fas fa-check-circle"></i> Enregistrer</button>
+            <div class="card-header">
+              <h2 class="card-title"><i class="fas fa-stethoscope"></i> Diagnostic</h2>
+              <div class="card-actions"><i class="fas fa-notes-medical"></i></div>
+            </div>
+            <div class="card-body" id="diagCardBody" style="opacity:0.5;pointer-events:none;">
+              <div class="input-group"><textarea id="diagnosticInput" placeholder="Entrez le diagnostic..." disabled></textarea></div>
+              <div class="btn-group">
+                <button class="btn btn-outline" id="startDiagRecordBtn" onclick="startRecording('diagnosis')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
+                <button class="btn btn-outline" id="stopDiagRecordBtn" onclick="stopRecording('diagnosis')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
+                <span id="diagnosisStatus" class="status"></span>
+              </div>
+              <div class="btn-group"><button class="btn btn-success" id="submitDiagBtn" onclick="submitDiagnostic()" disabled><i class="fas fa-check-circle"></i> Enregistrer</button></div>
               <div id="diagMessage" class="message"></div>
             </div>
           </div>
         </div>
-        <div style="flex:1; min-width:300px;">
+        <div class="flex-col">
           <div class="card">
-            <div class="card-header"><h2 class="card-title"><i class="fas fa-history"></i> Antécédents</h2></div>
-            <div class="card-body" id="antecedentsCardBody" style="opacity:0.5; pointer-events:none;">
-              <textarea id="antecedentsInput" placeholder="Antécédents..." disabled style="width:100%; padding:12px; border:1px solid var(--gray-300); border-radius:var(--border-radius);"></textarea>
-              <button id="startAntecedentsRecordBtn" class="btn btn-outline" onclick="startRecording('antecedents')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
-              <button id="stopAntecedentsRecordBtn" class="btn btn-outline" onclick="stopRecording('antecedents')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
-              <span id="antecedentsStatus" class="status"></span>
+            <div class="card-header">
+              <h2 class="card-title"><i class="fas fa-history"></i> Antécédents</h2>
+            </div>
+            <div class="card-body" id="antecedentsCardBody" style="opacity:0.5;pointer-events:none;">
+              <div class="input-group"><textarea id="antecedentsInput" placeholder="Entrez les antécédents..." disabled></textarea></div>
+              <div class="btn-group">
+                <button class="btn btn-outline" id="startAntecedentsRecordBtn" onclick="startRecording('antecedents')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
+                <button class="btn btn-outline" id="stopAntecedentsRecordBtn" onclick="stopRecording('antecedents')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
+                <span id="antecedentsStatus" class="status"></span>
+              </div>
               <div id="antecedentsMessage" class="message"></div>
             </div>
           </div>
         </div>
       </div>
-      <!-- Row Prescription & Conseils -->
-      <div style="display:flex; gap:20px; flex-wrap:wrap; margin-bottom:20px;">
-        <div style="flex:1; min-width:300px;">
+
+      <!-- Prescription & Conseils -->
+      <div class="flex-row">
+        <div class="flex-col">
           <div class="card">
-            <div class="card-header"><h2 class="card-title"><i class="fas fa-prescription-bottle-alt"></i> Prescription</h2></div>
-            <div class="card-body" id="prescCardBody" style="opacity:0.5; pointer-events:none;">
-              <textarea id="prescriptionInput" placeholder="Prescription..." disabled style="width:100%; padding:12px; border:1px solid var(--gray-300); border-radius:var(--border-radius);"></textarea>
-              <button id="startPrescRecordBtn" class="btn btn-outline" onclick="startRecording('prescription')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
-              <button id="stopPrescRecordBtn" class="btn btn-outline" onclick="stopRecording('prescription')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
-              <span id="prescriptionStatus" class="status"></span>
-              <button id="submitPrescBtn" class="btn btn-primary" onclick="submitPrescription()" disabled style="margin-top:10px;"><i class="fas fa-robot"></i> Soumettre IA</button>
+            <div class="card-header">
+              <h2 class="card-title"><i class="fas fa-prescription-bottle-alt"></i> Prescription</h2>
+              <div class="card-actions"><i class="fas fa-pills"></i></div>
+            </div>
+            <div class="card-body" id="prescCardBody" style="opacity:0.5;pointer-events:none;">
+              <div class="input-group"><textarea id="prescriptionInput" placeholder="Entrez la prescription..." disabled></textarea></div>
+              <div class="btn-group">
+                <button class="btn btn-outline" id="startPrescRecordBtn" onclick="startRecording('prescription')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
+                <button class="btn btn-outline" id="stopPrescRecordBtn" onclick="stopRecording('prescription')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
+                <span id="prescriptionStatus" class="status"></span>
+              </div>
+              <div class="btn-group"><button class="btn btn-primary" id="submitPrescBtn" onclick="submitPrescription()" disabled><i class="fas fa-robot"></i> Soumettre IA</button></div>
               <div id="aiSuggestion" class="ai-suggestion" style="display:none;"></div>
               <div id="validationMessage" class="message"></div>
             </div>
           </div>
         </div>
-        <div style="flex:1; min-width:300px;">
+        <div class="flex-col">
           <div class="card">
-            <div class="card-header"><h2 class="card-title"><i class="fas fa-lightbulb"></i> Conseils</h2></div>
-            <div class="card-body" id="treatmentCardBody" style="opacity:0.5; pointer-events:none;">
-              <textarea id="treatmentInput" placeholder="Conseils..." disabled style="width:100%; padding:12px; border:1px solid var(--gray-300); border-radius:var(--border-radius);"></textarea>
-              <button id="startTreatmentRecordBtn" class="btn btn-outline" onclick="startRecording('treatment')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
-              <button id="stopTreatmentRecordBtn" class="btn btn-outline" onclick="stopRecording('treatment')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
-              <span id="treatmentStatus" class="status"></span>
+            <div class="card-header">
+              <h2 class="card-title"><i class="fas fa-lightbulb"></i> Conseils</h2>
+            </div>
+            <div class="card-body" id="treatmentCardBody" style="opacity:0.5;pointer-events:none;">
+              <div class="input-group"><textarea id="treatmentInput" placeholder="Entrez les conseils..." disabled></textarea></div>
+              <div class="btn-group">
+                <button class="btn btn-outline" id="startTreatmentRecordBtn" onclick="startRecording('treatment')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
+                <button class="btn btn-outline" id="stopTreatmentRecordBtn" onclick="stopRecording('treatment')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
+                <span id="treatmentStatus" class="status"></span>
+              </div>
               <div id="treatmentMessage" class="message"></div>
             </div>
           </div>
         </div>
       </div>
-      <!-- Row Notes, Orientation, Exploration -->
-      <div style="display:flex; gap:20px; flex-wrap:wrap; margin-bottom:20px;">
-        <div style="flex:1; min-width:300px;">
+
+      <!-- Notes, Orientation & Exploration -->
+      <div class="flex-row">
+        <div class="flex-col">
           <div class="card">
             <div class="card-header"><h2 class="card-title"><i class="fas fa-file-alt"></i> Notes</h2></div>
-            <div class="card-body" id="notesCardBody" style="opacity:0.5; pointer-events:none;">
-              <textarea id="notesInput" placeholder="Notes..." disabled style="width:100%; padding:12px; border:1px solid var(--gray-300); border-radius:var(--border-radius);"></textarea>
-              <button id="startNotesRecordBtn" class="btn btn-outline" onclick="startRecording('notes')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
-              <button id="stopNotesRecordBtn" class="btn btn-outline" onclick="stopRecording('notes')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
-              <span id="notesStatus" class="status"></span>
+            <div class="card-body" id="notesCardBody" style="opacity:0.5;pointer-events:none;">
+              <div class="input-group"><textarea id="notesInput" placeholder="Entrez les notes..." disabled></textarea></div>
+              <div class="btn-group">
+                <button class="btn btn-outline" id="startNotesRecordBtn" onclick="startRecording('notes')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
+                <button class="btn btn-outline" id="stopNotesRecordBtn" onclick="stopRecording('notes')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
+                <span id="notesStatus" class="status"></span>
+              </div>
               <div id="notesMessage" class="message"></div>
             </div>
           </div>
         </div>
-        <div style="flex:1; min-width:300px;">
+        <div class="flex-col">
           <div class="card">
             <div class="card-header"><h2 class="card-title"><i class="fas fa-map-signs"></i> Orientation</h2></div>
-            <div class="card-body" id="orientationCardBody" style="opacity:0.5; pointer-events:none;">
-              <textarea id="orientationInput" placeholder="Orientation..." disabled style="width:100%; padding:12px; border:1px solid var(--gray-300); border-radius:var(--border-radius);"></textarea>
-              <button id="startOrientationRecordBtn" class="btn btn-outline" onclick="startRecording('orientation')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
-              <button id="stopOrientationRecordBtn" class="btn btn-outline" onclick="stopRecording('orientation')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
-              <span id="orientationStatus" class="status"></span>
+            <div class="card-body" id="orientationCardBody" style="opacity:0.5;pointer-events:none;">
+              <div class="input-group"><textarea id="orientationInput" placeholder="Entrez l'orientation..." disabled></textarea></div>
+              <div class="btn-group">
+                <button class="btn btn-outline" id="startOrientationRecordBtn" onclick="startRecording('orientation')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
+                <button class="btn btn-outline" id="stopOrientationRecordBtn" onclick="stopRecording('orientation')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
+                <span id="orientationStatus" class="status"></span>
+              </div>
               <div id="orientationMessage" class="message"></div>
             </div>
           </div>
         </div>
-        <div style="flex:1; min-width:300px;">
+        <div class="flex-col">
           <div class="card">
             <div class="card-header"><h2 class="card-title"><i class="fas fa-microscope"></i> Exploration</h2></div>
-            <div class="card-body" id="explorationCardBody" style="opacity:0.5; pointer-events:none;">
-              <textarea id="explorationInput" placeholder="Exploration..." disabled style="width:100%; padding:12px; border:1px solid var(--gray-300); border-radius:var(--border-radius);"></textarea>
-              <button id="startExplorationRecordBtn" class="btn btn-outline" onclick="startRecording('exploration')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
-              <button id="stopExplorationRecordBtn" class="btn btn-outline" onclick="stopRecording('exploration')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
-              <span id="explorationStatus" class="status"></span>
+            <div class="card-body" id="explorationCardBody" style="opacity:0.5;pointer-events:none;">
+              <div class="input-group"><textarea id="explorationInput" placeholder="Entrez l'exploration..." disabled></textarea></div>
+              <div class="btn-group">
+                <button class="btn btn-outline" id="startExplorationRecordBtn" onclick="startRecording('exploration')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
+                <button class="btn btn-outline" id="stopExplorationRecordBtn" onclick="stopRecording('exploration')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
+                <span id="explorationStatus" class="status"></span>
+              </div>
               <div id="explorationMessage" class="message"></div>
             </div>
           </div>
@@ -227,48 +650,40 @@
       </div>
     </div>
 
-    <!-- Submit All & Trigger Tarifs -->
     <div style="text-align:center; margin:20px 0;">
-      <button id="submitAllBtn" class="btn btn-success"><i class="fas fa-upload"></i> Soumettre Toutes les Données</button>
-      <div id="submitMessage" class="message message-info"></div>
+      <button id="submitAllBtn" class="btn btn-success">
+        <i class="fas fa-upload"></i> Soumettre Toutes les Données
+      </button>
+      <div id="validationMessage" class="message"></div>
     </div>
 
-    <!-- Tarifs Vocal Approach -->
-    <div id="tarifsVocalCard" class="card">
-      <div class="card-header">
-        <h2 class="card-title"><i class="fas fa-microphone"></i> Tarifs Vocal</h2>
-      </div>
-      <div class="card-body">
-        <button id="startTarifRecordBtn" class="btn btn-outline"><i class="fas fa-microphone"></i> Démarrer</button>
-        <button id="stopTarifRecordBtn" class="btn btn-outline" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
-        <span id="tarifRecordStatus" class="status"></span>
-        <div id="tarifRecordMessage" class="message message-info"></div>
-      </div>
-    </div>
-
-    <!-- Tarifs Sélectionnés (common display) -->
+    <!-- Approach 1: Table of AI‑selected tarifs -->
     <div id="tarifsCard" class="card" style="display:none;">
       <div class="card-header">
         <h2 class="card-title"><i class="fas fa-list"></i> Tarifs Sélectionnés</h2>
       </div>
       <div class="card-body">
-        <table>
+        <table style="width:100%; border-collapse:collapse;">
           <thead>
-            <tr><th>Code</th><th>Libellé</th><th style="text-align:right;">Tarif</th></tr>
+            <tr>
+              <th style="text-align:left; padding:8px; border-bottom:1px solid var(--gray-300);">Code</th>
+              <th style="text-align:left; padding:8px; border-bottom:1px solid var(--gray-300);">Libellé</th>
+              <th style="text-align:right; padding:8px; border-bottom:1px solid var(--gray-300);">Tarif</th>
+            </tr>
           </thead>
           <tbody id="tarifsTableBody"></tbody>
         </table>
       </div>
     </div>
 
-    <!-- Tarifs Manuels (searchable) -->
-    <div id="manualTarifsCard" class="card" style="display:none;">
+    <!-- Approach 2: Searchable dropdown of all tarifs -->
+    <div id="tarifsDropdownCard" class="card" style="margin-top:20px; display:none;">
       <div class="card-header">
-        <h2 class="card-title"><i class="fas fa-list"></i> Tarifs Manuels</h2>
+        <h2 class="card-title"><i class="fas fa-search"></i> Choix Manuel des Tarifs</h2>
       </div>
       <div class="card-body">
-        <input id="tarifSearch" placeholder="Rechercher un code…" />
-        <div id="tarifList"></div>
+        <label for="tarifsSelect"><i class="fas fa-list-ul"></i> Tarifs disponibles</label>
+        <select id="tarifsSelect" class="form-select" multiple></select>
       </div>
     </div>
 
@@ -277,316 +692,129 @@
   <script src="./jsQR.js"></script>
   <script>
     const BASE_URL = 'https://workflows.aphelionxinnovations.com';
-    const GET_PATIENT_DATA_ENDPOINT = '/webhook/doctor/get-visit-details';
-    const SUBMIT_ALL_ENDPOINT = '/webhook/doctor-submit-all';
-    const EXTRACT_TARIFS_ENDPOINT = '/webhook/extract-tarifs';
-    const TRANSCRIBE_TARIFS_SPEECH_ENDPOINT = '/webhook/transcribe-extract-tarifs';
-    const FETCH_ALL_TARIFS_ENDPOINT = '/webhook/fetch-all-tarifs';
-
+    const LOGIN_PAGE_URL = 'https://hicham-taoufik.github.io/login/';
+    const QR_TARGET_BASE_URL = 'app://medilink/patient';
+    const GET_PATIENT_ENDPOINT = '/webhook/doctor/get-visit-details';
+    const EXTRACT_TARIFS_ENDPOINT = '/webhook/transcribe-extract-tarifs';
     let currentIPP = null, currentVisitId = null;
     let mediaRecorder, audioChunks = [], recordingField = null;
-    let tarifMediaRecorder, tarifAudioChunks = [], tarifRecording = false;
-    let allTarifs = [];
-
     function fetchWithAuth(url, opts={}) {
       const token = localStorage.getItem('authToken');
-      if(!token) { window.location.href='https://hicham-taoufik.github.io/login/'; throw 'No token'; }
-      opts.headers = {...opts.headers, 'Authorization':`Bearer ${token}`};
-      if(opts.body && !(opts.body instanceof FormData)) opts.headers['Content-Type']='application/json';
-      return fetch(url, opts).then(r=> {
-        if(r.status===401||r.status===403) { localStorage.removeItem('authToken'); window.location.href='https://hicham-taoufik.github.io/login/'; }
+      if(!token){ alert('Session expirée'); location=LOGIN_PAGE_URL; return Promise.reject(); }
+      opts.headers = {...opts.headers, Authorization:`Bearer ${token}`};
+      if(opts.body&&! (opts.body instanceof FormData)) opts.headers['Content-Type']='application/json';
+      return fetch(url,opts).then(r=>{
+        if(r.status===401||r.status===403){ localStorage.removeItem('authToken'); alert('Session invalide'); location=LOGIN_PAGE_URL; throw '';
+        }
         if(!r.ok) return r.text().then(t=>{throw t});
-        const ct = r.headers.get('content-type')||'';
-        return ct.includes('application/json')? r.json() : r.text();
+        return r.json().catch(()=>null);
       });
     }
-
-    function showMessage(id,msg,type='info') {
-      const el = document.getElementById(id);
-      el.textContent = msg;
-      el.className = 'message ' + (type==='error'?'message-error':'message-info');
-      el.style.display = msg? 'block':'none';
+    function logout(){ localStorage.removeItem('authToken'); alert('Déconnecté'); location=LOGIN_PAGE_URL; }
+    function showMessage(id,msg,type='info'){
+      const el=document.getElementById(id);
+      el.innerHTML=msg?`<i class="fas fa-${type==='error'?'times-circle':type==='success'?'check-circle':'info-circle'}"></i> ${msg}`:'';
+      el.className='message '+(type==='error'?'message-error':type==='success'?'message-success':type==='warning'?'message-warning':'message-info');
+      el.style.display=msg?'block':'none';
     }
-
-    function logout() {
-      localStorage.removeItem('authToken');
-      window.location.href='https://hicham-taoufik.github.io/login/';
-    }
-
-    function sanitize(str){const d=document.createElement('div');d.textContent=str||'';return d.innerHTML;}
-    function formatDate(s,withTime=false){if(!s) return '-';const d=new Date(s);if(isNaN(d))return 'Date Invalide';let opt={year:'numeric',month:'2-digit',day:'2-digit'};if(withTime){opt.hour='2-digit';opt.minute='2-digit'};return d.toLocaleString('fr-FR',opt);}
-
-    function enableDoctorSections(e) {
-      const ids = ['diagCardBody','prescCardBody','notesCardBody','orientationCardBody','antecedentsCardBody','treatmentCardBody','explorationCardBody'];
-      ids.forEach(id=>{
-        const el = document.getElementById(id);
-        el.style.opacity = e? '1':'0.5';
-        el.style.pointerEvents = e? 'auto':'none';
+    function renderTarifs(list){
+      const tb=document.getElementById('tarifsTableBody'); tb.innerHTML='';
+      list.forEach(i=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td style="padding:8px;border-bottom:1px solid var(--gray-200)">${i.code}</td><td style="padding:8px;border-bottom:1px solid var(--gray-200)">${i.libellé||i.libelle}</td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--gray-200)">${i.tarif}</td>`;
+        tb.appendChild(tr);
       });
-    }
-    function enableFullDictation(e) {
-      const el = document.getElementById('fullDictationCardBody');
-      el.style.opacity = e? '1':'0.5';
-      el.style.pointerEvents = e? 'auto':'none';
-    }
-
-    function clearDoctorUI() {
-      currentIPP=null;currentVisitId=null;
-      document.getElementById('patientInfo').innerHTML=`<div class="empty-state" style="grid-column:1/-1;text-align:center;"><i class="fas fa-qrcode"></i><div class="empty-state-message">Prêt à scanner</div><div class="empty-state-description">Utilisez 'Scanner QR'</div></div>`;
-      document.getElementById('nurseDataDisplay').style.display='none';
-      enableDoctorSections(false);enableFullDictation(false);
-    }
-
-    function displayNurseData(obs,vits){
-      const c=document.getElementById('nurseDataDisplay');
-      let html=`<h4><i class="fas fa-user-nurse"></i> Données Infirmières</h4>`;
-      html+=`<div><strong>Observation:</strong> ${sanitize(obs.observation_text)||'-'}</div>`;
-      html+=`<div><strong>Signes Vitaux:</strong>`;
-      if(vits.temperature!=null) html+=`<div>Temp: ${vits.temperature}°C</div>`;
-      if(vits.tension_systolic!=null) html+=`<div>TA: ${vits.tension_systolic}/${vits.tension_diastolic}</div>`;
-      html+=`</div>`;
-      c.innerHTML=html; c.style.display='block';
-    }
-
-    function loadPatient(ipp) {
-      fetchWithAuth(BASE_URL+GET_PATIENT_DATA_ENDPOINT+'?ipp='+ipp).then(r=>{
-        if(!r.success) throw r.message;
-        currentIPP = ipp; currentVisitId = r.visitId;
-        const p=r.patientData;
-        document.getElementById('patientInfo').innerHTML=`
-          <div><strong>Nom:</strong> ${sanitize(p.nom)}</div>
-          <div><strong>Prénom:</strong> ${sanitize(p.prenom)}</div>
-          <div><strong>IPP:</strong> ${sanitize(ipp)}</div>
-          <div><strong>Visite:</strong> ${sanitize(r.visitId)}</div>
-        `;
-        displayNurseData(r.nurseObservations||{}, r.vitalSigns||{});
-        enableDoctorSections(true); enableFullDictation(true);
-      }).catch(e=>{
-        console.error(e); clearDoctorUI();
-      });
-    }
-
-    function startRecording(field){
-      if(!currentIPP||!currentVisitId){alert('Chargez un patient');return;}
-      audioChunks=[];recordingField=field;
-      navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
-        const mr = new MediaRecorder(stream);
-        mediaRecorder=mr;
-        mr.ondataavailable=e=>audioChunks.push(e.data);
-        mr.onstop=()=>handleRecordingStop(stream,field);
-        mr.start(); document.getElementById(field+'Status').textContent='REC...';
-        document.getElementById('start'+capitalize(field)+'RecordBtn').disabled=true;
-        document.getElementById('stop'+capitalize(field)+'RecordBtn').disabled=false;
-      });
-    }
-    function stopRecording(field){
-      if(mediaRecorder&&mediaRecorder.state==='recording') mediaRecorder.stop();
-    }
-    function handleRecordingStop(stream,field){
-      stream.getTracks().forEach(t=>t.stop());
-      const blob=new Blob(audioChunks,{type:'audio/webm'});
-      if(field==='fullDictation') sendFullDictation(blob);
-      else sendAudioField(blob,field);
-      document.getElementById(field+'Status').textContent='';
-    }
-
-    function sendAudioField(blob,field){
-      const cfg = {
-        diagnosis:'/webhook/transcribe-diagnosis',
-        prescription:'/webhook/transcribe-prescription',
-        notes:'/webhook/transcribe-notes',
-        orientation:'/webhook/transcribe-orientation',
-        antecedents:'/webhook/transcribe-antecedents',
-        treatment:'/webhook/transcribe-treatment',
-        exploration:'/webhook/transcribe-exploration'
-      }[field];
-      const fd = new FormData();
-      fd.append('audio',blob);
-      fd.append('ipp',currentIPP);
-      fd.append('visit_id',currentVisitId);
-      fetchWithAuth(BASE_URL+cfg,{method:'POST',body:fd}).then(r=>{
-        const txt=r.transcript||r[0]?.transcript;
-        const mapId = {'diagnosis':'diagnosticInput','prescription':'prescriptionInput','notes':'notesInput','orientation':'orientationInput','antecedents':'antecedentsInput','treatment':'treatmentInput','exploration':'explorationInput'}[field];
-        document.getElementById(mapId).value=txt;
-      }).catch(console.error);
-    }
-
-    function sendFullDictation(blob){
-      const fd=new FormData();
-      fd.append('audio',blob);
-      fd.append('ipp',currentIPP);
-      fd.append('visit_id',currentVisitId);
-      fetchWithAuth(BASE_URL+'/webhook/process-visit-dictation',{method:'POST',body:fd}).then(r=>{
-        document.getElementById('diagnosticInput').value=r.diagnostic||'';
-        document.getElementById('notesInput').value=r.notes_supplementaires||'';
-        document.getElementById('antecedentsInput').value=r.antecedents||'';
-        document.getElementById('treatmentInput').value=r.traitement_en_cours||'';
-        document.getElementById('orientationInput').value=r.orientation||'';
-        document.getElementById('prescriptionInput').value=r.ordonnance_medicale||'';
-        document.getElementById('explorationInput').value=r.prescription_exploration||'';
-      }).catch(console.error);
-    }
-
-    function submitDiagnostic(){
-      const d=document.getElementById('diagnosticInput').value;
-      fetchWithAuth(BASE_URL+'/webhook/doctor-submit-diagnostic',{method:'POST',body:JSON.stringify({ipp:currentIPP,visit_id:currentVisitId,diagnostic:d})})
-      .then(()=>showMessage('diagMessage','OK'))
-      .catch(e=>showMessage('diagMessage',e,'error'));
-    }
-
-    function submitPrescription(){
-      const presc=document.getElementById('prescriptionInput').value;
-      fetchWithAuth(BASE_URL+'/webhook/doctor-submit-prescription',{method:'POST',body:JSON.stringify({ipp:currentIPP,visit_id:currentVisitId,prescription:presc})})
-      .then(r=>{ displayAISuggestion(r); })
-      .catch(e=>showMessage('validationMessage',e,'error'));
-    }
-
-    function displayAISuggestion(r){
-      let data = Array.isArray(r)?r[0].output:r.suggestion;
-      const c=document.getElementById('aiSuggestion');
-      c.innerHTML=`
-        <h3><i class="fas fa-lightbulb"></i> Suggestion IA</h3>
-        <label>Médicament<input id="medicament" value="${data.medicament||''}"/></label>
-        <label>Date début<input id="start_date" class="french-date" value="${data.start_date||''}"/></label>
-        <label>Date fin<input id="end_date" class="french-date" value="${data.end_date||''}"/></label>
-        <button class="btn btn-success" onclick="validatePrescription()">Valider</button>
-      `;
-      c.style.display='block';
-    }
-
-    function validatePrescription(){
-      const med=document.getElementById('medicament').value;
-      const sd=document.getElementById('start_date').value;
-      const ed=document.getElementById('end_date').value;
-      fetchWithAuth(BASE_URL+'/webhook/doctor-validate-prescription',{method:'POST',body:JSON.stringify({
-        ipp:currentIPP,visit_id:currentVisitId,medicament_name:med,
-        start_date:sd,end_date:ed,schedule:{}
-      })}).then(()=>showMessage('validationMessage','Validé'))
-      .catch(e=>showMessage('validationMessage',e,'error'));
-    }
-
-    function capitalize(s){return s.charAt(0).toUpperCase()+s.slice(1);}
-
-    // QR scanning
-    let scanning=false, currentStream=null, scanTimeout=null;
-    document.getElementById('scanQrButton').onclick=async()=>{
-      if(!scanning){
-        try{
-          currentStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
-          document.getElementById('scanner-video').srcObject=currentStream;
-          await document.getElementById('scanner-video').play();
-          scanning=true;
-          scanTimeout=setTimeout(()=>stopScanner(),30000);
-          requestAnimationFrame(tick);
-        }catch(e){ console.error(e); }
-      } else stopScanner();
-    };
-    function stopScanner(){
-      scanning=false; clearTimeout(scanTimeout);
-      if(currentStream) currentStream.getTracks().forEach(t=>t.stop());
-      document.getElementById('scanner-container').style.display='none';
-      document.getElementById('scanQrButton').innerHTML='<i class="fas fa-qrcode"></i> Scanner QR';
-    }
-    function tick(){
-      if(!scanning) return;
-      const video=document.getElementById('scanner-video');
-      const canvas=document.createElement('canvas');
-      canvas.width=video.videoWidth; canvas.height=video.videoHeight;
-      const ctx=canvas.getContext('2d');
-      ctx.drawImage(video,0,0);
-      const img=ctx.getImageData(0,0,canvas.width,canvas.height);
-      const code=window.jsQR(img.data,img.width,img.height);
-      if(code){ stopScanner(); processScannedQr(code.data); }
-      else requestAnimationFrame(tick);
-    }
-    function processScannedQr(url){
-      try{
-        const u=new URL(url);
-        if(u.searchParams.get('ipp')) loadPatient(u.searchParams.get('ipp'));
-      }catch(e){ console.error(e); }
-    }
-
-    // Submit all & get tarifs
-    document.getElementById('submitAllBtn').onclick=()=>{
-      const data={ ipp:currentIPP, visit_id:currentVisitId,
-        diagnostic:document.getElementById('diagnosticInput').value,
-        prescription:document.getElementById('prescriptionInput').value,
-        notes:document.getElementById('notesInput').value,
-        orientation:document.getElementById('orientationInput').value,
-        antecedents:document.getElementById('antecedentsInput').value,
-        treatment:document.getElementById('treatmentInput').value,
-        exploration:document.getElementById('explorationInput').value
-      };
-      fetchWithAuth(BASE_URL+SUBMIT_ALL_ENDPOINT,{method:'POST',body:JSON.stringify(data)})
-      .then(r=>fetchTarifs(data))
-      .catch(e=>showMessage('submitMessage',e,'error'));
-    };
-
-    function fetchTarifs(params){
-      fetchWithAuth(BASE_URL+EXTRACT_TARIFS_ENDPOINT,{method:'POST',body:JSON.stringify(params)})
-      .then(list=>renderSelectedTarifs(list))
-      .catch(e=>showMessage('submitMessage',e,'error'));
-    }
-
-    function renderSelectedTarifs(list){
-      const tbody=document.getElementById('tarifsTableBody');
-      tbody.innerHTML='';
-      list.forEach(t=>tbody.insertAdjacentHTML('beforeend',`<tr><td>${t.code}</td><td>${t.libellé||t.libelle}</td><td style="text-align:right;">${t.tarif} DH</td></tr>`));
       document.getElementById('tarifsCard').style.display='block';
     }
+    function populateDropdown(list){
+      const sel=document.getElementById('tarifsSelect');
+      sel.innerHTML='';
+      list.forEach(i=>{
+        const o=new Option(`${i.code} — ${i.libellé||i.libelle} (${i.tarif})`, JSON.stringify(i), false, list.some(x=>x.selected&&x.code===i.code));
+        sel.append(o);
+      });
+      sel.style.display='block';
+      document.getElementById('tarifsDropdownCard').style.display='block';
+    }
+    async function fetchTarifsApproaches(){
+      const payload={ipp:currentIPP,visit_id:currentVisitId,fullText:document.getElementById('fullDictationCardBody')?document.getElementById('diagnosticInput').value+' '+document.getElementById('prescriptionInput').value+' '+document.getElementById('notesInput').value:''};
+      try{
+        const resp=await fetchWithAuth(BASE_URL+EXTRACT_TARIFS_ENDPOINT,{method:'POST',body:JSON.stringify(payload)});
+        const list=Array.isArray(resp)?resp:resp?.output||[];
+        renderTarifs(list);
+        populateDropdown(list.map(i=>({...i,selected:true})));
+      }catch(e){
+        console.error(e);
+        showMessage('validationMessage','Erreur tarifs: '+e,'error');
+      }
+    }
+    function submitAllData(){
+      document.getElementById('submitAllBtn').disabled=true;
+      Promise.resolve().then(()=>fetchTarifsApproaches()).finally(()=>document.getElementById('submitAllBtn').disabled=false);
+    }
+    document.getElementById('submitAllBtn').addEventListener('click', submitAllData);
 
-    // Tarifs Vocal
-    document.getElementById('startTarifRecordBtn').onclick=()=>startTarifRecording();
-    document.getElementById('stopTarifRecordBtn').onclick=()=>stopTarifRecording();
-
-    function startTarifRecording(){
-      tarifAudioChunks=[]; tarifRecording=true;
-      navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
-        tarifMediaRecorder=new MediaRecorder(stream);
-        tarifMediaRecorder.ondataavailable=e=>tarifAudioChunks.push(e.data);
-        tarifMediaRecorder.onstop=()=>handleTarifRecordingStop(stream);
-        tarifMediaRecorder.start();
-        document.getElementById('startTarifRecordBtn').disabled=true;
-        document.getElementById('stopTarifRecordBtn').disabled=false;
-        document.getElementById('tarifRecordStatus').textContent='Enregistrement...';
+    function enableSection(enable){
+      ['startFullDictationRecordBtn','stopFullDictationRecordBtn','startDiagRecordBtn','stopDiagRecordBtn','submitDiagBtn','startPrescRecordBtn','stopPrescRecordBtn','submitPrescBtn'].forEach(id=>{
+        const el=document.getElementById(id);
+        if(el) el.disabled=!enable;
       });
     }
-    function stopTarifRecording(){
-      if(tarifMediaRecorder&&tarifMediaRecorder.state==='recording') tarifMediaRecorder.stop();
+    function clearUI(){
+      currentIPP=null;currentVisitId=null;
+      document.getElementById('patientInfo').innerHTML=`<div class="empty-state" style="grid-column:1/-1"><i class="fas fa-qrcode"></i><div class="empty-state-message">Prêt à scanner</div><div class="empty-state-description">Utilisez le bouton "Scanner QR".</div></div>`;
+      enableSection(false);
     }
-    function handleTarifRecordingStop(stream){
-      stream.getTracks().forEach(t=>t.stop());
-      document.getElementById('tarifRecordStatus').textContent='';
-      const blob=new Blob(tarifAudioChunks,{type:'audio/webm'});
-      fetchWithAuth(BASE_URL+TRANSCRIBE_TARIFS_SPEECH_ENDPOINT,{method:'POST',body: (()=>{const f=new FormData();f.append('audio',blob);f.append('ipp',currentIPP);f.append('visit_id',currentVisitId);return f;})()})
-      .then(list=>renderSelectedTarifs(list))
-      .catch(e=>showMessage('tarifRecordMessage',e,'error'));
+    function displayPatient(p,vitals,obs){
+      const c=document.getElementById('patientInfo');
+      c.innerHTML=`<div class="info-group"><div class="info-label">Nom</div><div class="info-value">${p.nom||'-'}</div></div><div class="info-group"><div class="info-label">IPP</div><div class="info-value">${currentIPP}</div></div>`;
+      enableSection(true);
     }
-
-    // Manual tarifs fetch
-    fetch(FETCH_ALL_TARIFS_ENDPOINT).then(r=>r.json()).then(arr=>{
-      allTarifs=arr;
-      const listDiv=document.getElementById('tarifList');
-      arr.forEach(t=>{
-        const lbl=document.createElement('label');
-        lbl.className='checkbox-item';
-        lbl.innerHTML=`<input type="checkbox" value="${t.code}"/> ${t.code} – ${t.libellé||t.libelle} (${t.tarif} DH)`;
-        listDiv.appendChild(lbl);
-      });
-      document.getElementById('manualTarifsCard').style.display='block';
-    });
-
-    document.getElementById('tarifSearch').addEventListener('input',e=>{
-      const q=e.target.value.toLowerCase();
-      document.querySelectorAll('#tarifList .checkbox-item').forEach(lbl=>{
-        lbl.style.display=lbl.textContent.toLowerCase().includes(q)?'flex':'none';
-      });
-    });
-
+    async function loadPatient(ipp){
+      clearUI(); try{
+        const r=await fetchWithAuth(`${BASE_URL+GET_PATIENT_ENDPOINT}?ipp=${ipp}`);
+        currentIPP=ipp;currentVisitId=r.visitId;
+        displayPatient(r.patientData,r.vitalSigns,r.nurseObservations);
+      }catch(e){
+        console.error(e);
+        showMessage('scanResult','Erreur chargement patient','error');
+      }
+    }
+    // QR scanner:
+    const scanBtn=document.getElementById('scanQrButton'), videoEl=document.getElementById('scanner-video'), scanRes=document.getElementById('scanResult');
+    let scanning=false, streamRef=null, scanTO=null;
+    scanBtn.onclick=async()=>{
+      if(!scanning){
+        try{
+          document.getElementById('scanner-container').style.display='block';
+          streamRef=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+          videoEl.srcObject=streamRef;await videoEl.play();
+          scanBtn.innerHTML='<i class="fas fa-stop-circle"></i> Arrêter Scan';scanBtn.classList.replace('btn-primary','btn-danger');scanning=true;
+          scanTO=setTimeout(()=>{ stopScan(); showMessage('scanResult','Aucun code détecté','warning'); },30000);
+          requestAnimationFrame(tick);
+        }catch(e){ console.error(e); showMessage('scanResult','Erreur caméra','error'); stopScan(); }
+      } else { stopScan(); showMessage('scanResult','Scan arrêté','info'); }
+    };
+    function stopScan(){
+      scanning=false; clearTimeout(scanTO);
+      if(streamRef) streamRef.getTracks().forEach(t=>t.stop());
+      videoEl.srcObject=null;document.getElementById('scanner-container').style.display='none';
+      scanBtn.innerHTML='<i class="fas fa-qrcode"></i> Scanner QR';scanBtn.classList.replace('btn-danger','btn-primary');
+    }
+    function tick(){
+      if(!scanning||videoEl.readyState<2) return void requestAnimationFrame(tick);
+      const c=document.createElement('canvas');c.width=videoEl.videoWidth;c.height=videoEl.videoHeight;
+      const ctx=c.getContext('2d');ctx.drawImage(videoEl,0,0);
+      try{
+        const im=ctx.getImageData(0,0,c.width,c.height), code=jsQR(im.data,im.width,im.height,{inversionAttempts:'dontInvert'});
+        if(code){ stopScan(); loadPatient(new URL(code.data).searchParams.get('ipp')); }
+        else requestAnimationFrame(tick);
+      }catch(e){ console.error(e); requestAnimationFrame(tick); }
+    }
     window.onload=()=>{
-      if(!localStorage.getItem('authToken')) logout();
+      if(!localStorage.getItem('authToken')) return location=LOGIN_PAGE_URL;
       document.body.classList.add('loaded');
-      const ipp=new URLSearchParams(window.location.search).get('ipp');
+      const ipp=new URLSearchParams(location.search).get('ipp');
       if(ipp) loadPatient(ipp);
     };
   </script>
