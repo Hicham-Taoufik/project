@@ -360,7 +360,8 @@
       <div id="validationMessage" class="message"></div>
     </div>
     <!-- ↓ new Tarifs card -->
-    <div id="tarifsDropdownCard" class="card" style="display:none; margin-top:20px;">
+    <!-- REMOVED style="display:none;" -->
+    <div id="tarifsDropdownCard" class="card" style="margin-top:20px;">
       <div class="card-header">
         <h2 class="card-title"><i class="fas fa-list"></i> Sélection Tarifs (Recherche)</h2>
       </div>
@@ -392,7 +393,7 @@
         fullCard.style.pointerEvents = 'auto';
         document.getElementById("startFullDictationRecordBtn").disabled = false;
         // stop button starts disabled until recording starts
-        document.getElementById("stopFullDictationRecordBtn").disabled = true; 
+        document.getElementById("stopFullDictationRecordBtn").disabled = true;
       } else {
         fullCard.style.opacity = '0.5';
         fullCard.style.pointerEvents = 'none';
@@ -735,8 +736,8 @@
         if (antecedentsCardBody) { antecedentsCardBody.style.opacity = '1'; antecedentsCardBody.style.pointerEvents = 'auto'; }
         if (treatmentCardBody) { treatmentCardBody.style.opacity = '1'; treatmentCardBody.style.pointerEvents = 'auto'; }
         if (explorationCardBody) { explorationCardBody.style.opacity = '1'; explorationCardBody.style.pointerEvents = 'auto'; }
-         // Tarifs card is initially hidden and shown by JS later
-        // if (tarifsDropdownCard) tarifsDropdownCard.style.opacity = '1'; tarifsDropdownCard.style.pointerEvents = 'auto';
+         // Tarifs card is now shown when sections are enabled
+         if (tarifsDropdownCard) tarifsDropdownCard.style.display = 'block';
 
 
         elementsToToggle.forEach(el => { if (el) el.disabled = false; });
@@ -755,7 +756,8 @@
         if (antecedentsCardBody) { antecedentsCardBody.style.opacity = '0.5'; antecedentsCardBody.style.pointerEvents = 'none'; }
         if (treatmentCardBody) { treatmentCardBody.style.opacity = '0.5'; treatmentCardBody.style.pointerEvents = 'none'; }
         if (explorationCardBody) { explorationCardBody.style.opacity = '0.5'; explorationCardBody.style.pointerEvents = 'none'; }
-        if (tarifsDropdownCard) tarifsDropdownCard.style.display = 'none'; // Hide tarifs card when no patient
+        // Tarifs card is hidden when no patient is loaded
+        if (tarifsDropdownCard) tarifsDropdownCard.style.display = 'none';
 
 
         elementsToToggle.forEach(el => { if (el) el.disabled = true; });
@@ -796,7 +798,7 @@
       });
       if (aiSuggestionDiv) aiSuggestionDiv.style.display = 'none';
        if (document.getElementById('tarifsDropdownCard')) { // Check if the tarifs card exists
-            document.getElementById('tarifsDropdownCard').style.display = 'none';
+            document.getElementById('tarifsDropdownCard').style.display = 'none'; // Always hide when UI is cleared
         }
         if (tarifChoices) {
              tarifChoices.clearStore(); // Clear previous patient's list and selection
@@ -992,7 +994,7 @@
       stopBtn.disabled = true; // Keep disabled until stream is ready
       navigator.mediaDevices.getUserMedia({audio:true})
         .then(stream => {
-          currentStream = stream; // Keep track of the stream to stop it later
+          currentStream = stream; // Store stream to stop it later
           mediaRecorder = new MediaRecorder(stream);
           mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
           mediaRecorder.onstop = () => handleRecordingStop(); // No need to pass stream, it's in currentStream
@@ -1263,7 +1265,8 @@
                  const codes = suggestions.map(x => x.code).filter(code => code); // Ensure code exists
                  console.log("Setting suggested tarif codes:", codes);
                  tarifChoices.setValue(codes); // Select the suggested tariffs
-                 if (tarifsDropdownCard) tarifsDropdownCard.style.display = 'block'; // Show the card
+                 // The card is already visible if a patient is loaded, no need to explicitly show it here.
+                 // if (tarifsDropdownCard) tarifsDropdownCard.style.display = 'block'; // Show the card
              } else {
                   console.error("tarifChoices not initialized.");
              }
@@ -1324,9 +1327,10 @@
                 const tarifCodes = data.tarifs.map(t => t.code || t).filter(code => code); // Map to codes, handle potential direct codes
                 console.log("Setting suggested tarif codes from full dictation:", tarifCodes);
                 tarifChoices.setValue(tarifCodes);
-                if (document.getElementById('tarifsDropdownCard')) {
-                     document.getElementById('tarifsDropdownCard').style.display = 'block';
-                 }
+                // The card is already visible if a patient is loaded, no need to explicitly show it here.
+                // if (document.getElementById('tarifsDropdownCard')) {
+                //      document.getElementById('tarifsDropdownCard').style.display = 'block';
+                //  }
            }
 
         } else {
@@ -1776,40 +1780,7 @@
     // and it will run AFTER the original `submitAllData` completes.
     // However, the original `submitAllData` already sets the button to disabled and uses a finally block to re-enable it.
     // This new listener also modifies the button state. This could lead to conflicts.
-    // A robust solution would be to combine them. But following the prompt *exactly*, I will append the new listener.
-    // **Further Correction:** The prompt says "Append the following, making sure it sits after all your existing functions".
-    // This includes the original `submitAllData` function definition. The new block starts with `const origSubmitAll = submitAllData;`.
-    // This means the new block intends to capture the *latest* definition of `submitAllData`.
-    // The original code includes `document.getElementById("submitAllBtn").addEventListener("click", submitAllData);`.
-    // When the new block is appended, this line exists BEFORE the new block.
-    // The new block THEN defines `origSubmitAll` and adds a *new* event listener.
-    // This would result in *two* event listeners on the same button: the original one calling the original `submitAllData`,
-    // and the new one calling the *same* original `submitAllData` first (`origSubmitAll()`), and *then* running the new logic.
-    // This is definitely incorrect. The intent must be to *replace* the original listener or integrate the logic.
-    // Given the `origSubmitAll` pattern, the *most likely* intent is to replace the original listener with one that does both.
-    // I will comment out the original listener definition and include the new one at the end of the script block.
-
-    // Original listener (will be commented out below):
-    // document.getElementById("submitAllBtn").addEventListener("click", submitAllData);
-
-
-    // ─── 4) Setup the voice‑to‑tarifs recorder ───────────
-    // This was partially handled in the general recording functions above.
-    // This section defines the specific event listeners for the tarif buttons.
-    let tarifRecorder; // This is defined in the new global block now.
-    let tarifChunks = []; // This is defined in the new global block now.
-
-    document.getElementById('startTarifRecordBtn')?.addEventListener('click', () => {
-        if (!currentIPP || !currentVisitId) {
-           alert("Chargez un patient et sa visite.");
-           return;
-       }
-       startRecording('tarifs'); // Use the generic startRecording function
-    });
-
-    document.getElementById('stopTarifRecordBtn')?.addEventListener('click', () => {
-        stopRecording('tarifs'); // Use the generic stopRecording function
-    });
+    // For robustness, this fetch should probably happen independently or be merged. But following the prompt structure exactly...
 
 
     // The actual logic for sending tarif audio is integrated into handleRecordingStop and a new sendTarifAudioToAI function.
@@ -1858,10 +1829,6 @@
             // submitAllData is already defined when this listener is added.
             const origSubmitAll = submitAllData; // This is the original function defined above
 
-            // Remove any potentially existing listener added earlier in the script
-            // This line was present BEFORE the new block. We move the listener definition.
-            // document.getElementById("submitAllBtn").removeEventListener("click", submitAllData); // This won't work reliably if the handler isn't the *same* function instance.
-
             // Add the new combined listener
             submitAllBtn.addEventListener('click', () => {
               console.log("Submit All button clicked. Starting combined logic.");
@@ -1909,19 +1876,19 @@
                     if (codes.length > 0) {
                         console.log("Setting suggested tarif codes (post submit):", codes);
                         tarifChoices.setValue(codes); // Select the suggested tariffs
-                        // Show the tarifs card if suggestions are found
+                        // Show the tarifs card if suggestions are found (redundant if already shown by enableDoctorSections, but safe)
                          const tarifsDropdownCard = document.getElementById('tarifsDropdownCard');
                          if (tarifsDropdownCard) {
                              tarifsDropdownCard.style.display = 'block';
                              console.log("Tarifs card shown.");
                              // Optional: Scroll to the tarifs card
-                             tarifsDropdownCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                             // tarifsDropdownCard.scrollIntoView({ behavior: 'smooth', block: 'start' }); // Maybe too aggressive
                          }
                     } else {
                          console.log("No tarif suggestions received.");
                          // Optionally clear selection if no suggestions were returned? Depends on desired behaviour.
                          // tarifChoices.removeActiveItemsByRequireValue(true);
-                         // Optionally hide the card if no suggestions are ever found after submit?
+                         // Optionally hide the card if no suggestions are ever found after submit? (Probably not desired, user might select manually)
                      }
 
                  } else {
