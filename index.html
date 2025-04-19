@@ -775,6 +775,7 @@
         elementsToToggle.forEach(el => { if (el) el.disabled = false; });
         recordButtons.forEach(btn => { if (btn) btn.disabled = false; });
         // Stop buttons should remain disabled until recording starts
+        // FIX: Changed 'stopBtn' to 'btn' inside the forEach loop
         stopButtons.forEach(btn => { if (btn) btn.disabled = true; });
         if (submitAllButton) submitAllButton.disabled = false;
 
@@ -794,7 +795,8 @@
 
         elementsToToggle.forEach(el => { if (el) el.disabled = true; });
         recordButtons.forEach(btn => { if (btn) btn.disabled = true; });
-        stopButtons.forEach(btn => { if (btn) stopBtn.disabled = true; });
+        // FIX: Changed 'stopBtn' to 'btn' inside the forEach loop
+        stopButtons.forEach(btn => { if (btn) btn.disabled = true; });
         if (submitAllButton) submitAllButton.disabled = true;
 
 
@@ -1237,7 +1239,7 @@
         .finally(() => {
            // The start button is re-enabled in handleRecordingStop
            // Ensure the stop button is disabled
-           let stopBtn;
+           let stopBtn; // Re-declare stopBtn here to be safe within the finally block scope
             if (field === 'fullDictation') {
                 stopBtn = document.getElementById('stopFullDictationRecordBtn');
             } else if (field === 'tarifs') {
