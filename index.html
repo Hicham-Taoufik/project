@@ -6,15 +6,11 @@
   <title>Dashboard - Médecin</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
-
-  <!-- Choices.js CSS for searchable multi-select -->
   <link
     rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"
   />
-
   <style>
-    /* --- Base CSS --- */
     :root {
       --primary: #5d74f2;
       --primary-light: #ebeffe;
@@ -208,7 +204,6 @@
 
     <!-- Individual Mode -->
     <div id="individualModeUI">
-      <!-- Row 1: Diagnostic & Antécédents -->
       <div class="flex-row">
         <!-- Diagnostic -->
         <div class="flex-col">
@@ -229,6 +224,7 @@
             </div>
           </div>
         </div>
+
         <!-- Antécédents -->
         <div class="flex-col">
           <div class="card">
@@ -248,7 +244,6 @@
         </div>
       </div>
 
-      <!-- Row 2: Prescription & Conseils -->
       <div class="flex-row">
         <!-- Prescription -->
         <div class="flex-col">
@@ -270,6 +265,7 @@
             </div>
           </div>
         </div>
+
         <!-- Conseils -->
         <div class="flex-col">
           <div class="card">
@@ -289,7 +285,6 @@
         </div>
       </div>
 
-      <!-- Row 3: Notes, Orientation & Exploration -->
       <div class="flex-row">
         <!-- Notes -->
         <div class="flex-col">
@@ -308,6 +303,7 @@
             </div>
           </div>
         </div>
+
         <!-- Orientation -->
         <div class="flex-col">
           <div class="card">
@@ -321,10 +317,11 @@
                 <button class="btn btn-outline" id="stopOrientationRecordBtn" onclick="stopRecording('orientation')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
                 <span id="orientationStatus" class="status"></span>
               </div>
-              <div id="orientationMessage" class="message"></div>  
+              <div id="orientationMessage" class="message"></div>
             </div>
           </div>
         </div>
+
         <!-- Exploration -->
         <div class="flex-col">
           <div class="card">
@@ -343,8 +340,7 @@
           </div>
         </div>
       </div>
-
-    </div> <!-- end individualModeUI -->
+    </div>
 
     <!-- Submit All -->
     <div style="text-align:center; margin:20px 0;">
@@ -360,7 +356,6 @@
         <h2 class="card-title"><i class="fas fa-list"></i> Sélection Tarifs (Recherche)</h2>
       </div>
       <div class="card-body">
-        <!-- voice recording controls for tarifs -->
         <div class="btn-group" style="margin-bottom: 12px;">
           <button id="startTarifRecordBtn" class="btn btn-outline">
             <i class="fas fa-microphone"></i> Démarrer Tarifs IA
@@ -370,28 +365,30 @@
           </button>
           <span id="tarifStatus" class="status"></span>
         </div>
-
-        <!-- Choices.js-powered multi-select -->
         <select id="tarifsSelect" multiple></select>
       </div>
     </div>
+  </div>
 
-  </div> <!-- end container -->
-
-  <!-- External scripts -->
   <script src="./jsQR.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-
   <script>
-    // --- Helper & Auth ---
     function fetchWithAuth(url, options = {}) {
       const token = localStorage.getItem('authToken');
-      if (!token) { localStorage.removeItem('authToken'); window.location.href = LOGIN_PAGE_URL; throw new Error('No token'); }
+      if (!token) {
+        localStorage.removeItem('authToken');
+        window.location.href = LOGIN_PAGE_URL;
+        throw new Error('No token');
+      }
       const headers = { ...options.headers, 'Authorization': `Bearer ${token}` };
       if (options.body && !(options.body instanceof FormData)) headers['Content-Type'] = 'application/json';
       else if (options.body instanceof FormData) delete headers['Content-Type'];
       return fetch(url, { ...options, headers }).then(async response => {
-        if (response.status === 401 || response.status === 403) { localStorage.removeItem('authToken'); window.location.href = LOGIN_PAGE_URL; throw new Error('Auth'); }
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem('authToken');
+          window.location.href = LOGIN_PAGE_URL;
+          throw new Error('Auth');
+        }
         if (!response.ok) {
           const text = await response.text();
           throw new Error(text || response.statusText);
@@ -419,8 +416,6 @@
         setTimeout(() => { if (el.innerHTML.includes(message)) el.style.display='none'; }, 5000);
       }
     }
-
-    // --- Date Helpers ---
     function convertToFrenchDate(aiDateStr) {
       if (!aiDateStr.match(/^\d{2}\/\d{2}\/\d{4}$/)) return '';
       const [m,d,y] = aiDateStr.split('/');
@@ -440,7 +435,6 @@
       return d.toLocaleString('fr-FR', opts);
     }
 
-    // --- Globals & Endpoints ---
     const BASE_URL = 'https://workflows.aphelionxinnovations.com';
     const LOGIN_PAGE_URL = 'https://hicham-taoufik.github.io/login/';
     const QR_TARGET_BASE_URL = 'app://medilink/patient';
@@ -466,7 +460,6 @@
     let tarifRecorder, tarifAudio=[];
     let tarifChoices;
 
-    // --- Enable/Disable Sections ---
     function enableFullDictationSection(enable) {
       const full = document.getElementById('fullDictationCardBody');
       if (enable && currentIPP && currentVisitId) {
@@ -506,7 +499,6 @@
         });
     }
 
-    // --- Clear UI ---
     function clearDoctorUI() {
       currentIPP=null; currentVisitId=null;
       document.getElementById('patientInfo').innerHTML=`
@@ -528,7 +520,6 @@
       } catch(e){}
     }
 
-    // --- Display Nurse Data ---
     function displayNurseData(observations, vitals){
       const c = document.getElementById('nurseDataDisplay');
       if ((!observations?.observation_text) && (!vitals?.timestamp)) {
@@ -550,7 +541,6 @@
         <div class="nurse-vitals">${vitHTML||'<div class="nurse-vital-line">Aucun enregistré.</div>'}</div>`;
     }
 
-    // --- Load Patient ---
     function loadPatient(ipp){
       currentIPP=ipp;
       const pi=document.getElementById('patientInfo');
@@ -583,8 +573,6 @@
         });
     }
 
-    // --- QR Scanner ---
-    function updateScanStatus(msg, type='info'){ showMessage('scanResult', msg, type); }
     document.getElementById('scanQrButton').onclick=async()=>{
       if (!scanning){
         try{
@@ -614,6 +602,7 @@
         updateScanStatus('Scan arrêté.','info');
       }
     };
+    function updateScanStatus(msg,type='info'){ showMessage('scanResult',msg,type); }
     function stopScanner(){
       clearTimeout(scanTimeout);
       if(currentStream) currentStream.getTracks().forEach(t=>t.stop());
@@ -656,7 +645,6 @@
       }
     }
 
-    // --- Audio Recording & Transcription ---
     function startRecording(field){
       if(!currentIPP||!currentVisitId){ alert('Chargez un patient et sa visite.'); return; }
       if(mediaRecorder?.state==='recording') return;
@@ -669,7 +657,6 @@
         case 'fullDictation': startBtn=document.getElementById('startFullDictationRecordBtn'); stopBtn=document.getElementById('stopFullDictationRecordBtn'); break;
         default: startBtn=document.getElementById(`start${field.charAt(0).toUpperCase()+field.slice(1)}RecordBtn`); stopBtn=document.getElementById(`stop${field.charAt(0).toUpperCase()+field.slice(1)}RecordBtn`);
       }
-      if(!statusEl||!startBtn||!stopBtn) return;
       statusEl.innerHTML='<i class="fas fa-circle-notch fa-spin"></i> Début...';
       statusEl.style.display='inline-flex';
       startBtn.disabled=true; stopBtn.disabled=false;
@@ -833,15 +820,18 @@
       const ed=document.getElementById('end_date').value;
       if(!med||!sd||!ed||!currentIPP||!currentVisitId){ showMessage('validationMessage','Champs manquants.','warning'); return; }
       document.getElementById('validatePrescBtn').disabled=true;
-      fetchWithAuth(BASE_URL+VALIDATE_PRESCRIPTION_AI_ENDPOINT,{method:'POST',body:JSON.stringify({
-        ipp:currentIPP,
-        visit_id:currentVisitId,
-        final_prescription:document.getElementById('prescriptionInput').value,
-        start_date:convertFrenchToBackendDate(sd),
-        end_date:convertFrenchToBackendDate(ed),
-        schedule:{matin:document.getElementById('matin').checked,apres_midi:document.getElementById('apres_midi').checked,soir:document.getElementById('soir').checked,nuit:document.getElementById('nuit').checked},
-        medicament_name:med
-      })})
+      fetchWithAuth(BASE_URL+VALIDATE_PRESCRIPTION_AI_ENDPOINT,{
+        method:'POST',
+        body:JSON.stringify({
+          ipp:currentIPP,
+          visit_id:currentVisitId,
+          final_prescription:document.getElementById('prescriptionInput').value,
+          start_date:convertFrenchToBackendDate(sd),
+          end_date:convertFrenchToBackendDate(ed),
+          schedule:{matin:document.getElementById('matin').checked,apres_midi:document.getElementById('apres_midi').checked,soir:document.getElementById('soir').checked,nuit:document.getElementById('nuit').checked},
+          medicament_name:med
+        })
+      })
         .then(()=>{
           showMessage('validationMessage','Prescription validée.','success');
           document.getElementById('aiSuggestion').style.display='none';
@@ -862,7 +852,6 @@
       }[field];
     }
 
-    // --- Submit All Data ---
     function submitAllData(){
       const payload={
         ipp:currentIPP,
@@ -884,7 +873,6 @@
     }
     document.getElementById('submitAllBtn').addEventListener('click',submitAllData);
 
-    // --- Tarifs: Initialize Choices.js & Load ---
     function initTarifChoices(){
       tarifChoices = new Choices('#tarifsSelect', {
         removeItemButton: true,
@@ -892,7 +880,6 @@
         shouldSort: false,
         callbackOnCreateTemplates: function(template) {
           return {
-            // selected tags
             item: (classNames, data) => template(`
               <div
                 class="${classNames.item} ${data.highlighted ? classNames.highlightedState : ''}"
@@ -906,8 +893,6 @@
                 </span>
               </div>
             `),
-
-            // dropdown choices
             choice: (classNames, data) => template(`
               <div
                 class="${classNames.item} ${classNames.itemChoice}"
@@ -924,6 +909,15 @@
           };
         }
       });
+
+      // programmatic event hooks
+      tarifChoices.passedElement.addEventListener('addItem', evt => {
+        console.log('Tarif ajouté:', evt.detail.value);
+      });
+      tarifChoices.passedElement.addEventListener('removeItem', evt => {
+        console.log('Tarif retiré:', evt.detail.value);
+      });
+
       loadTarifListChoices();
     }
 
@@ -944,7 +938,6 @@
         .catch(err => console.error('Err loadTarifList', err));
     }
 
-    // --- Tarifs: Voice Extraction ---
     function startTarifRecording(){
       tarifAudio=[]; document.getElementById('startTarifRecordBtn').disabled=true; document.getElementById('stopTarifRecordBtn').disabled=false;
       document.getElementById('tarifStatus').innerHTML='<i class="fas fa-microphone-alt fa-beat"></i> REC...';
@@ -988,7 +981,6 @@
         });
     }
 
-    // --- Window onload ---
     window.onload = () => {
       if (!localStorage.getItem('authToken')) {
         window.location.href = LOGIN_PAGE_URL;
