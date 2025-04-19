@@ -343,8 +343,8 @@
       <div id="validationMessage" class="message"></div>
     </div>
 
-    <!-- Tarifs Card -->
-    <div id="tarifsDropdownCard" class="card" style="display:none;">
+    <!-- Tarifs Card (always visible) -->
+    <div id="tarifsDropdownCard" class="card">
       <div class="card-header">
         <h2 class="card-title"><i class="fas fa-list"></i> Sélection Tarifs (Recherche)</h2>
       </div>
@@ -1028,7 +1028,7 @@
         .then(list=>{
           tarifList=list;
           const sel=document.getElementById('tarifsSelect');
-          sel.innerHTML=''; 
+          sel.innerHTML='';
           list.forEach(item=>{
             const code=item.code;
             const label=item.libelle||item.libellé||'';
@@ -1089,7 +1089,6 @@
             const opt=sel.querySelector(`option[value="${item.code}"]`);
             if(opt) opt.selected=true;
           });
-          document.getElementById('tarifsDropdownCard').style.display='block';
           updateSelectedTarifs();
           document.getElementById('tarifStatus').innerHTML='<i class="fas fa-check"></i> Terminé';
         })
