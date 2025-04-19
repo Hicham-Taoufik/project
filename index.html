@@ -321,7 +321,7 @@
                 <button class="btn btn-outline" id="stopOrientationRecordBtn" onclick="stopRecording('orientation')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
                 <span id="orientationStatus" class="status"></span>
               </div>
-              <div id="orientationMessage" class="message"></div>
+              <div id="orientationMessage" class="message"></div>  
             </div>
           </div>
         </div>
@@ -343,7 +343,8 @@
           </div>
         </div>
       </div>
-    </div>
+
+    </div> <!-- end individualModeUI -->
 
     <!-- Submit All -->
     <div style="text-align:center; margin:20px 0;">
@@ -375,7 +376,7 @@
       </div>
     </div>
 
-  </div>
+  </div> <!-- end container -->
 
   <!-- External scripts -->
   <script src="./jsQR.js"></script>
@@ -462,7 +463,7 @@
     let currentVisitId = null;
     let mediaRecorder, audioChunks = [], recordingField = null;
     let scanning=false, currentStream=null, scanTimeout=null;
-    let tarifRecorder, tarifAudio=[]; 
+    let tarifRecorder, tarifAudio=[];
     let tarifChoices;
 
     // --- Enable/Disable Sections ---
@@ -891,36 +892,35 @@
         shouldSort: false,
         callbackOnCreateTemplates: function(template) {
           return {
-            item: (classNames, data) => {
-              return template(`
-                <div class="${classNames.item} ${data.highlighted ? classNames.highlightedState : ''}"
-                  data-item
-                  data-id="${data.id}"
-                  data-value="${data.value}"
-                  ${data.active ? 'aria-selected="true"' : ''}
-                  ${data.disabled ? 'aria-disabled="true"' : ''}>
-                  ${data.label}
-                  <span style="float:right; font-weight:500;">
-                    ${data.customProperties.tarif} ${data.customProperties.devise}
-                  </span>
-                </div>
-              `);
-            },
-            option: (classNames, data) => {
-              return template(`
-                <div class="${classNames.item} ${classNames.itemChoice}"
-                  data-select-text="${this.config.itemSelectText}"
-                  data-choice
-                  data-id="${data.id}"
-                  data-value="${data.value}"
-                  ${data.disabled ? 'data-choice-disabled aria-disabled="true"' : 'data-choice-selectable'}>
-                  <span>${data.label}</span>
-                  <span style="float:right; color:var(--primary); font-weight:500;">
-                    ${data.customProperties.tarif} ${data.customProperties.devise}
-                  </span>
-                </div>
-              `);
-            }
+            // selected tags
+            item: (classNames, data) => template(`
+              <div
+                class="${classNames.item} ${data.highlighted ? classNames.highlightedState : ''}"
+                data-item
+                data-value="${data.value}"
+                ${data.active ? 'aria-selected="true"' : ''}
+                ${data.disabled ? 'aria-disabled="true"' : ''}>
+                ${data.label}
+                <span style="float:right; font-weight:500;">
+                  ${data.customProperties.tarif} ${data.customProperties.devise}
+                </span>
+              </div>
+            `),
+
+            // dropdown choices
+            choice: (classNames, data) => template(`
+              <div
+                class="${classNames.item} ${classNames.itemChoice}"
+                data-select-text="${this.config.itemSelectText}"
+                data-choice
+                data-value="${data.value}"
+                ${data.disabled ? 'data-choice-disabled aria-disabled="true"' : 'data-choice-selectable'}>
+                <span>${data.label}</span>
+                <span style="float:right; color:var(--primary); font-weight:500;">
+                  ${data.customProperties.tarif} ${data.customProperties.devise}
+                </span>
+              </div>
+            `)
           };
         }
       });
@@ -978,9 +978,7 @@
         .then(res=>Array.isArray(res)?res:res.data||[])
         .then(arr=>{
           arr.forEach(sug=>{
-            const opt = tarifChoices.getValue(true).find(o=>o.value===sug.code) ? null
-              : tarifChoices.getChoiceByValue(sug.code);
-            if(opt) tarifChoices.setChoiceByValue(sug.code);
+            tarifChoices.setChoiceByValue(sug.code);
           });
           document.getElementById('tarifStatus').innerHTML='<i class="fas fa-check"></i> Terminé';
         })
