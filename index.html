@@ -141,6 +141,38 @@
       font-size: 1rem;
       background: white;
     }
+
+    /* --- Custom Choices.js Rendering Styles --- */
+    /* This styles the list items in the dropdown */
+    .choices__list.choices__list--dropdown .choices__item {
+        display: flex; /* Use flexbox to align description and price */
+        justify-content: space-between; /* Space out description and price */
+        align-items: center; /* Vertically align items */
+        padding: 10px; /* Add padding inside list items */
+        word-break: break-word; /* Prevent long descriptions from overflowing */
+    }
+
+    /* Style for the price/currency badge */
+    .choices__list.choices__list--dropdown .choices__item .price-badge {
+        flex-shrink: 0; /* Prevent the badge from shrinking */
+        margin-left: 10px; /* Add space between text and badge */
+        padding: 4px 8px; /* Padding inside the badge */
+        background-color: var(--primary); /* Blue background */
+        color: white; /* White text */
+        border-radius: 12px; /* Pill shape */
+        font-size: 0.8rem; /* Smaller font size */
+        font-weight: 600; /* Bold text */
+        white-space: nowrap; /* Prevent the badge text from wrapping */
+    }
+
+    /* Style for the highlighted item in the dropdown */
+     .choices__list.choices__list--dropdown .choices__item--highlighted {
+         background-color: var(--primary-light); /* Use a light primary color for highlight */
+     }
+     .choices__list.choices__list--dropdown .choices__item--highlighted .price-badge {
+          background-color: var(--primary-dark); /* Darker blue for badge when item is highlighted */
+     }
+
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
@@ -359,11 +391,11 @@
       </button>
       <div id="validationMessage" class="message"></div>
     </div>
-    <!-- ↓ new Tarifs card -->
-    <!-- REMOVED style="display:none;" -->
+    <!-- ↓ new Tarifs card - Title changed, display: none removed -->
     <div id="tarifsDropdownCard" class="card" style="margin-top:20px;">
       <div class="card-header">
-        <h2 class="card-title"><i class="fas fa-list"></i> Sélection Tarifs (Recherche)</h2>
+        <!-- Title changed from Sélection Tarifs (Recherche) to Services -->
+        <h2 class="card-title"><i class="fas fa-list"></i> Services</h2>
       </div>
       <div class="card-body">
         <select id="tarifsSelect" class="searchable" multiple></select>
@@ -762,7 +794,7 @@
 
         elementsToToggle.forEach(el => { if (el) el.disabled = true; });
         recordButtons.forEach(btn => { if (btn) btn.disabled = true; });
-        stopButtons.forEach(btn => { if (btn) btn.disabled = true; });
+        stopButtons.forEach(btn => { if (btn) stopBtn.disabled = true; });
         if (submitAllButton) submitAllButton.disabled = true;
 
 
@@ -1697,13 +1729,46 @@
       }
       tarifChoices = new Choices(tarifsSelectElement, {
         removeItemButton: true,
-        searchPlaceholderValue: 'Rechercher un tarif…',
+        searchPlaceholderValue: 'Rechercher un service…', // Changed placeholder text slightly
         placeholder: true,
         placeholderValue: 'Sélectionner service(s)…',
         shouldSort: false, // Keep the order from the backend/suggestion
         searchResultLimit: 100, // Increase limit if needed
         renderChoiceLimit: 100, // Increase limit if needed
-        allowHTML: true // Allow HTML in labels for formatting
+        allowHTML: true, // REQUIRED to render custom HTML in options
+        // --- Custom Renderer for Dropdown Options ---
+        renderChoice: (choice, classNames) => {
+            // choice object contains { value, label, id, groupId, disabled, elementId, selected, customProperties }
+            // In loadTarifList, we will put price and currency in customProperties
+            const priceText = sanitizeInput(choice.customProperties?.tarif || 'N/A');
+            const currencyText = sanitizeInput(choice.customProperties?.devise || 'MAD');
+            const labelText = sanitizeInput(choice.label || 'Service inconnu');
+
+            return `
+                <div class="${classNames.item} ${classNames.itemChoice} ${choice.disabled ? classNames.itemDisabled : ''}" data-select-text="${this.config.itemSelectText}" data-choice-id="${choice.id}" data-value="${choice.value}" ${choice.disabled ? 'aria-disabled="true"' : 'data-choice-selectable'}>
+                    <span>${labelText}</span>
+                    <span class="price-badge">${priceText} ${currencyText}</span>
+                </div>
+            `;
+        }
+         // Optional: Customize how selected tags look (items above the input)
+         /*
+        , renderItem: (item, classNames) => {
+             // item object contains { value, label, id, active, disabled }
+             // We might need to store the price/currency here too if we want it in the selected tag.
+             // For now, we'll keep the default tag rendering which uses the 'label'
+             return `
+                 <div class="${classNames.item} ${
+                 item.active ? classNames.itemSelectable : classNames.itemDisabled
+                 } ${classNames.itemChoice}"
+                 data-id="${item.id}"
+                 data-value="${item.value}"
+                 ${item.disabled ? 'aria-disabled="true"' : 'data-choice-remove'}>
+                 ${sanitizeInput(item.label)}
+                 </div>
+             `;
+         }
+         */
       });
       document.getElementById('addAllTarifsBtn')
         ?.addEventListener('click', () => {
@@ -1737,16 +1802,20 @@
           }
           const choices = list.map(item => ({
             // Ensure item properties exist before mapping
-            value: item.code || item.id, // Use code or id as value
-            label: `${sanitizeInput(item.code || item.id || '')} – ${sanitizeInput(item.libelle || item.name || 'Sans libellé')} (${sanitizeInput(item.tarif || '0')} ${sanitizeInput(item.devise||'MAD')})`,
+            value: item.code || item.id, // Use code or id as value (this is the internal value stored)
+            label: sanitizeInput(item.libelle || item.name || 'Sans libellé'), // ONLY the description for the main label
+            customProperties: { // Store price and currency here for custom rendering
+                 tarif: item.tarif || '0',
+                 devise: item.devise || 'MAD'
+            },
             disabled: false // Assume items are selectable
           })).filter(choice => choice.value); // Filter out choices without a value
 
            // Clear previous options before setting new ones
            tarifChoices.clearChoices();
-           // Set the new choices, sort them by label
+           // Set the new choices, sort them by label (the description)
            tarifChoices.setChoices(choices.sort((a, b) => a.label.localeCompare(b.label)), 'value', 'label', true);
-           console.log("Tarif list populated in Choices.js");
+           console.log("Tarif list populated in Choices.js with custom rendering data.");
 
         })
         .catch(err => {
@@ -1763,24 +1832,27 @@
     }
 
     // ─── 3) Hook into your “Soumettre Toutes les Données” ─
-    // Rename original submitAllData to avoid conflict if needed, but prompt suggests appending
-    // Let's assume the new listener replaces the old one or is added *in addition* to the old one.
-    // The prompt implies the *entire* new JS block is appended, including this listener setup.
-    // So the original submitAllData will be called first, THEN the new logic runs.
-    // This is slightly odd, as the new logic also modifies UI related to submitAllBtn.
-    // A better approach would be to *modify* the existing submitAllData function or replace its listener entirely.
-    // Following the *exact* instruction to append, we'll append the new listener.
-    // This means the original submitAllData() function will run first, then this new click handler.
-    // This is likely unintended behavior. Let's assume the user *meant* to replace the listener or integrate.
-    // I will INTEGRATE the new logic into the existing submitAllData function instead of adding a second listener,
-    // as having two listeners for the same button, where the second one depends on the first, is error-prone.
-    // **Correction:** The prompt says "Hook into your 'Soumettre Toutes les Données'". This implies
-    // adding *additional* logic that happens *after* the original submit. The structure `const origSubmitAll = submitAllData;`
-    // and `origSubmitAll()` confirms this intent. The new listener should indeed be appended,
-    // and it will run AFTER the original `submitAllData` completes.
-    // However, the original `submitAllData` already sets the button to disabled and uses a finally block to re-enable it.
-    // This new listener also modifies the button state. This could lead to conflicts.
-    // For robustness, this fetch should probably happen independently or be merged. But following the prompt structure exactly...
+    // The logic for this listener is placed within the window.onload function below
+    // to ensure it is added after all other initializations.
+
+
+    // ─── 4) Setup the voice‑to‑tarifs recorder ───────────
+    // This was partially handled in the general recording functions above.
+    // This section defines the specific event listeners for the tarif buttons.
+    let tarifRecorder; // This is defined in the new global block now.
+    let tarifChunks = []; // This is defined in the new global block now.
+
+    document.getElementById('startTarifRecordBtn')?.addEventListener('click', () => {
+        if (!currentIPP || !currentVisitId) {
+           alert("Chargez un patient et sa visite.");
+           return;
+       }
+       startRecording('tarifs'); // Use the generic startRecording function
+    });
+
+    document.getElementById('stopTarifRecordBtn')?.addEventListener('click', () => {
+        stopRecording('tarifs'); // Use the generic stopRecording function
+    });
 
 
     // The actual logic for sending tarif audio is integrated into handleRecordingStop and a new sendTarifAudioToAI function.
@@ -1814,13 +1886,6 @@
       }
 
        // Add the new event listener for the "Soumettre Toutes les Données" button
-       // This replaces or adds to the original listener.
-       // Based on the "Hook into" instruction and `origSubmitAll` variable name
-       // in the provided snippet, the intent is likely to ADD functionality.
-       // However, having two listeners on the same button is problematic for state management.
-       // The most robust solution is a single listener that combines the logic.
-       // I will remove the original listener definition (`document.getElementById("submitAllBtn").addEventListener("click", submitAllData);`)
-       // from its original place and place the new listener block here as instructed.
        // This makes the new listener the *only* listener, and it calls the original function first.
 
        const submitAllBtn = document.getElementById('submitAllBtn');
