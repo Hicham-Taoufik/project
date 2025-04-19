@@ -7,31 +7,31 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
   <style>
-    :root {
-      --primary: #5d74f2;
-      --primary-light: #ebeffe;
-      --primary-dark: #4a62d8;
-      --success: #31c971;
-      --success-light: #e0fbea;
-      --success-dark: #28a960;
-      --warning: #ffb648;
-      --warning-light: #fff8ec;
-      --danger: #ff5a5a;
-      --danger-light: #ffeded;
-      --gray-100: #f9fafb;
-      --gray-200: #f1f3f9;
-      --gray-300: #e5e7eb;
-      --gray-400: #d1d5db;
-      --gray-500: #9ca3af;
-      --gray-600: #6b7280;
-      --gray-700: #4b5563;
-      --gray-800: #374151;
-      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-      --shadow-md: 0 4px 6px rgba(0,0,0,0.04);
-      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.05);
-      --shadow-focus: 0 0 0 3px rgba(93,116,242,0.2);
-      --border-radius: 8px;
-      --transition-speed: 0.2s;
+    :root { 
+      --primary: #5d74f2; 
+      --primary-light: #ebeffe; 
+      --primary-dark: #4a62d8; 
+      --success: #31c971; 
+      --success-light: #e0fbea; 
+      --success-dark: #28a960; 
+      --warning: #ffb648; 
+      --warning-light: #fff8ec; 
+      --danger: #ff5a5a; 
+      --danger-light: #ffeded; 
+      --gray-100: #f9fafb; 
+      --gray-200: #f1f3f9; 
+      --gray-300: #e5e7eb; 
+      --gray-400: #d1d5db; 
+      --gray-500: #9ca3af; 
+      --gray-600: #6b7280; 
+      --gray-700: #4b5563; 
+      --gray-800: #374151; 
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05); 
+      --shadow-md: 0 4px 6px rgba(0,0,0,0.04); 
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.05); 
+      --shadow-focus: 0 0 0 3px rgba(93,116,242,0.2); 
+      --border-radius: 8px; 
+      --transition-speed: 0.2s; 
       font-size: 15px;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -41,86 +41,156 @@
     .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
     .header { display: flex; align-items: center; padding: 15px 0; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid var(--gray-200); }
     .header-main-content { display: flex; align-items: center; gap: 10px; flex-grow: 1; }
+    .logo { display: flex; align-items: center; }
     .logo-img { height: 35px; width: auto; margin-right: 10px; }
     .header-title { color: var(--primary); font-size: 1.3rem; font-weight: 600; margin: 0; }
+    .header-logout { margin-left: auto; flex-shrink: 0; }
     .logout-btn { padding: 5px 10px; font-size: 0.8rem; border-radius: var(--border-radius); }
     .card { background: white; border-radius: var(--border-radius); box-shadow: var(--shadow-md); overflow: hidden; margin-bottom: 20px; transition: box-shadow var(--transition-speed) ease; }
     .card:hover { box-shadow: var(--shadow-lg); }
     .card-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--gray-200); }
     .card-title { font-size: 1rem; font-weight: 600; color: var(--gray-800); display: flex; align-items: center; }
     .card-title i { margin-right: 10px; color: var(--primary); }
+    .card-actions { color: white; background: var(--primary); border-radius: var(--border-radius); width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
     .card-body { padding: 16px; }
     .patient-info { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+    .info-group { margin-bottom: 5px; }
     .info-label { font-size: 0.75rem; color: var(--gray-500); margin-bottom: 4px; }
     .info-value { font-size: 0.85rem; color: var(--gray-800); font-weight: 500; word-break: break-word; }
     .flex-row { display: flex; gap: 25px; margin-bottom: 25px; flex-wrap: wrap; }
     .flex-col { flex: 1; min-width: 320px; }
-    textarea, input[type="text"] { width: 100%; padding: 12px; font-size: 1rem; border-radius: var(--border-radius); border: 1px solid var(--gray-300); background: white; transition: all 0.2s ease; font-family: 'Inter', sans-serif; min-height: 140px; }
+    label { display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--gray-600); }
+    textarea, input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      border-radius: var(--border-radius);
+      border: 1px solid var(--gray-300);
+      background: white;
+      transition: all 0.2s ease;
+      font-family: 'Inter', sans-serif;
+      min-height: 140px;
+    }
     input.french-date { width: 100%; padding: 10px 12px; font-size: 0.95rem; border-radius: var(--border-radius); border: 1px solid var(--gray-300); }
+    input.french-date:focus { outline: none; border-color: var(--primary); box-shadow: var(--shadow-focus); }
+    .input-group { margin-bottom: 15px; }
     .btn-group { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
     .btn { padding: 10px 16px; font-size: 0.9rem; font-weight: 500; border-radius: var(--border-radius); border: none; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; }
     .btn i { margin-right: 6px; }
     .btn-primary { background: var(--primary); color: white; }
     .btn-primary:hover { background: var(--primary-dark); }
-    .btn-danger { background-color: var(--danger); color: white; }
-    .btn-danger:hover { background-color: #d3483e; }
+    .btn-danger { background-color: var(--danger); border-color: var(--danger); color: white; }
+    .btn-danger:hover { background-color: #d3483e; border-color: #d3483e; }
     .btn-outline { background: white; color: var(--primary); border: 1px solid var(--gray-300); }
-    .btn-outline:hover { background: var(--primary-light); border-color: var(--primary); }
+    .btn-outline:hover { border-color: var(--primary); background: var(--primary-light); }
     .btn-success { background: var(--success); color: white; }
     .btn-success:hover { background: var(--success-dark); }
     .btn:disabled { background-color: var(--gray-300); cursor: not-allowed; opacity: 0.7; }
     .status { display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 4px; font-size: 0.8rem; color: var(--gray-600); background: var(--gray-200); margin-left: 10px; }
+    .checkbox-wrapper { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 10px; }
+    .checkbox-item { display: flex; align-items: center; }
+    .checkbox-item input[type="checkbox"] { margin-right: 6px; }
     .ai-suggestion { background: var(--primary-light); border-radius: var(--border-radius); padding: 15px; margin-top: 20px; }
+    .ai-suggestion h3 { font-size: 1rem; margin-bottom: 15px; color: var(--primary); display: flex; align-items: center; }
+    .ai-suggestion h3 i { margin-right: 8px; }
     .message { padding: 10px; border-radius: 6px; margin-top: 12px; font-size: 0.9rem; font-weight: 500; display: none; }
     .message-success { background: var(--success-light); color: var(--success); }
     .message-warning { background: var(--warning-light); color: var(--warning); }
     .message-error { background: var(--danger-light); color: var(--danger); }
-    .message-info { background: var(--primary-light); color: var(--primary); border-left: 4px solid var(--primary); }
+    .message-info, .message-loading { background: var(--primary-light); color: var(--primary); border-left: 4px solid var(--primary); }
+    .no-print { @media print { display: none !important; } }
     #scanner-container { display: none; position: relative; max-width: 300px; margin: 15px auto 0; border: 1px solid var(--gray-300); border-radius: var(--border-radius); overflow: hidden; }
-    #scanner-video { width: 100%; height: auto; }
+    #scanner-video { display: block; width: 100%; height: auto; }
     .empty-state { text-align: center; padding: 1.5rem; color: var(--gray-500); }
+    .empty-state i { font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.6; display: block; }
+    .empty-state-message { font-size: 1rem; font-weight: 500; margin-bottom: 0.25rem; }
+    .empty-state-description { font-size: 0.85rem; }
     .nurse-data-display { background-color: var(--gray-100); padding: 1rem; border-radius: var(--border-radius); margin-top: 1rem; border: 1px solid var(--gray-200); }
-    @media (max-width: 768px) { .flex-row { flex-direction: column; } }
-    @media (max-width: 480px) { .patient-info { grid-template-columns: 1fr; } }
+    .nurse-data-display h4 { font-size: 0.9rem; margin-bottom: 0.75rem; color: var(--gray-700); border-bottom: 1px solid var(--gray-300); padding-bottom: 0.5rem; display: flex; align-items: center; }
+    .nurse-data-display h4 i { margin-right: 8px; color: var(--primary); }
+    .nurse-observation { margin-bottom: 10px; line-height: 1.4; }
+    .nurse-vitals { margin-top: 8px; }
+    .nurse-vital-line { display: flex; align-items: center; margin-bottom: 5px; }
+    .nurse-vital-line strong { margin-right: 6px; }
+    .nurse-vital-date { font-size: 0.85rem; color: var(--gray-500); margin-bottom: 5px; }
+    .mode-selection { margin: 20px 0; padding: 10px; background: var(--gray-200); border-radius: var(--border-radius); }
+    .mode-selection label { margin-right: 15px; font-weight: 600; }
+    @media (max-width: 768px) { 
+      .flex-row { flex-direction: column; gap: 20px; } 
+      .patient-info { grid-template-columns: 1fr 1fr; } 
+    }
+    @media (max-width: 480px) { 
+      .header { padding: 12px 0; justify-content:center; } 
+      .header-main-content { width:100%; justify-content:center; margin-bottom:10px; } 
+      .header-logout { width:100%; } 
+      .logout-btn { width:100%; justify-content:center; } 
+      .header-title { font-size:1.1rem; } 
+      .card-body { padding:12px; } 
+      .btn { padding:8px 12px; font-size:0.8rem; } 
+      .patient-info { grid-template-columns:1fr; } 
+      .btn-group { gap:6px; } 
+      #scanner-container { max-width:100%; } 
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header no-print">
       <div class="header-main-content">
-        <img src="./clinique-nakhil-logo-horizontal.webp" alt="Logo" class="logo-img">
-        <h1 class="header-title">Médecin Dashboard</h1>
+        <div class="logo">
+          <img src="./clinique-nakhil-logo-horizontal.webp" alt="MediClinic Logo" class="logo-img">
+        </div>
+        <h1 class="header-title">Médecin</h1>
       </div>
-      <button onclick="logout()" class="btn btn-outline logout-btn no-print"><i class="fas fa-sign-out-alt"></i> Déconnexion</button>
+      <div class="header-logout">
+        <button onclick="logout()" class="btn btn-outline logout-btn no-print">
+          <i class="fas fa-sign-out-alt"></i> Déconnexion
+        </button>
+      </div>
     </div>
 
     <div class="card no-print">
-      <div class="card-header"><h2 class="card-title"><i class="fas fa-qrcode"></i> Scanner Patient</h2></div>
+      <div class="card-header">
+        <h2 class="card-title"><i class="fas fa-qrcode"></i> Scanner Patient</h2>
+        <div class="card-actions"><i class="fas fa-camera"></i></div>
+      </div>
       <div class="card-body">
         <div class="btn-group">
-          <button id="scanQrButton" class="btn btn-primary"><i class="fas fa-qrcode"></i> Scanner QR</button>
+          <button id="scanQrButton" class="btn btn-primary">
+            <i class="fas fa-qrcode"></i> Scanner QR
+          </button>
         </div>
         <div id="scanner-container"><video id="scanner-video" playsinline></video></div>
-        <div id="scanResult" class="message message-info"></div>
+        <div id="scanResult" class="message message-info" style="margin-top:10px;"></div>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-header"><h2 class="card-title"><i class="fas fa-user-circle"></i> Infos Patient & Visite</h2></div>
+      <div class="card-header">
+        <h2 class="card-title"><i class="fas fa-user-circle"></i> Infos Patient & Visite</h2>
+        <div class="card-actions"><i class="fas fa-notes-medical"></i></div>
+      </div>
       <div class="card-body">
         <div id="patientInfo" class="patient-info">
-          <div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-qrcode"></i><div>Prêt à scanner</div></div>
+          <div class="empty-state" style="grid-column:1/-1;">
+            <i class="fas fa-qrcode"></i>
+            <div class="empty-state-message">Prêt à scanner</div>
+            <div class="empty-state-description">Scan QR ou chargez via URL</div>
+          </div>
         </div>
         <div id="nurseDataDisplay" class="nurse-data-display" style="display:none;"></div>
       </div>
     </div>
 
-    <div class="card"><div class="card-header"><h2 class="card-title"><i class="fas fa-file-medical"></i> Dictée Globale</h2></div>
+    <div id="globalDictationUI" class="card">
+      <div class="card-header">
+        <h2 class="card-title"><i class="fas fa-file-medical"></i> Dictée Globale</h2>
+      </div>
       <div class="card-body" id="fullDictationCardBody" style="opacity:0.5;pointer-events:none;text-align:center;">
         <p>Appuyez sur “Démarrer” pour enregistrer</p>
         <div class="btn-group">
-          <button id="startFullDictationRecordBtn" class="btn btn-outline" onclick="startRecording('fullDictation')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
-          <button id="stopFullDictationRecordBtn" class="btn btn-outline" onclick="stopRecording('fullDictation')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
+          <button class="btn btn-outline" id="startFullDictationRecordBtn" onclick="startRecording('fullDictation')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
+          <button class="btn btn-outline" id="stopFullDictationRecordBtn" onclick="stopRecording('fullDictation')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
           <span id="fullDictationStatus" class="status"></span>
         </div>
         <div id="fullDictationMessage" class="message"></div>
@@ -131,27 +201,32 @@
       <div class="flex-row">
         <div class="flex-col">
           <div class="card">
-            <div class="card-header"><h2 class="card-title"><i class="fas fa-stethoscope"></i> Diagnostic</h2></div>
+            <div class="card-header">
+              <h2 class="card-title"><i class="fas fa-stethoscope"></i> Diagnostic</h2>
+              <div class="card-actions"><i class="fas fa-notes-medical"></i></div>
+            </div>
             <div class="card-body" id="diagCardBody" style="opacity:0.5;pointer-events:none;">
-              <textarea id="diagnosticInput" placeholder="Entrez le diagnostic..." disabled></textarea>
+              <div class="input-group"><textarea id="diagnosticInput" placeholder="Entrez le diagnostic..." disabled></textarea></div>
               <div class="btn-group">
-                <button id="startDiagRecordBtn" class="btn btn-outline" onclick="startRecording('diagnosis')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
-                <button id="stopDiagRecordBtn" class="btn btn-outline" onclick="stopRecording('diagnosis')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
+                <button class="btn btn-outline" id="startDiagRecordBtn" onclick="startRecording('diagnosis')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
+                <button class="btn btn-outline" id="stopDiagRecordBtn" onclick="stopRecording('diagnosis')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
                 <span id="diagnosisStatus" class="status"></span>
               </div>
-              <button id="submitDiagBtn" class="btn btn-success" onclick="submitDiagnostic()" disabled><i class="fas fa-check-circle"></i> Enregistrer</button>
+              <div class="btn-group"><button class="btn btn-success" id="submitDiagBtn" onclick="submitDiagnostic()" disabled><i class="fas fa-check-circle"></i> Enregistrer</button></div>
               <div id="diagMessage" class="message"></div>
             </div>
           </div>
         </div>
         <div class="flex-col">
           <div class="card">
-            <div class="card-header"><h2 class="card-title"><i class="fas fa-history"></i> Antécédents</h2></div>
+            <div class="card-header">
+              <h2 class="card-title"><i class="fas fa-history"></i> Antécédents</h2>
+            </div>
             <div class="card-body" id="antecedentsCardBody" style="opacity:0.5;pointer-events:none;">
-              <textarea id="antecedentsInput" placeholder="Entrez les antécédents..." disabled></textarea>
+              <div class="input-group"><textarea id="antecedentsInput" placeholder="Entrez les antécédents..." disabled></textarea></div>
               <div class="btn-group">
-                <button id="startAntecedentsRecordBtn" class="btn btn-outline" onclick="startRecording('antecedents')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
-                <button id="stopAntecedentsRecordBtn" class="btn btn-outline" onclick="stopRecording('antecedents')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
+                <button class="btn btn-outline" id="startAntecedentsRecordBtn" onclick="startRecording('antecedents')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
+                <button class="btn btn-outline" id="stopAntecedentsRecordBtn" onclick="stopRecording('antecedents')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
                 <span id="antecedentsStatus" class="status"></span>
               </div>
               <div id="antecedentsMessage" class="message"></div>
@@ -163,15 +238,18 @@
       <div class="flex-row">
         <div class="flex-col">
           <div class="card">
-            <div class="card-header"><h2 class="card-title"><i class="fas fa-prescription-bottle-alt"></i> Prescription</h2></div>
+            <div class="card-header">
+              <h2 class="card-title"><i class="fas fa-prescription-bottle-alt"></i> Prescription</h2>
+              <div class="card-actions"><i class="fas fa-pills"></i></div>
+            </div>
             <div class="card-body" id="prescCardBody" style="opacity:0.5;pointer-events:none;">
-              <textarea id="prescriptionInput" placeholder="Entrez la prescription..." disabled></textarea>
+              <div class="input-group"><textarea id="prescriptionInput" placeholder="Entrez la prescription..." disabled></textarea></div>
               <div class="btn-group">
-                <button id="startPrescRecordBtn" class="btn btn-outline" onclick="startRecording('prescription')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
-                <button id="stopPrescRecordBtn" class="btn btn-outline" onclick="stopRecording('prescription')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
+                <button class="btn btn-outline" id="startPrescRecordBtn" onclick="startRecording('prescription')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
+                <button class="btn btn-outline" id="stopPrescRecordBtn" onclick="stopRecording('prescription')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
                 <span id="prescriptionStatus" class="status"></span>
               </div>
-              <button id="submitPrescBtn" class="btn btn-primary" onclick="submitPrescription()" disabled><i class="fas fa-robot"></i> Soumettre IA</button>
+              <div class="btn-group"><button class="btn btn-primary" id="submitPrescBtn" onclick="submitPrescription()" disabled><i class="fas fa-robot"></i> Soumettre IA</button></div>
               <div id="aiSuggestion" class="ai-suggestion" style="display:none;"></div>
               <div id="validationMessage" class="message"></div>
             </div>
@@ -179,12 +257,14 @@
         </div>
         <div class="flex-col">
           <div class="card">
-            <div class="card-header"><h2 class="card-title"><i class="fas fa-lightbulb"></i> Conseils</h2></div>
+            <div class="card-header">
+              <h2 class="card-title"><i class="fas fa-lightbulb"></i> Conseils</h2>
+            </div>
             <div class="card-body" id="treatmentCardBody" style="opacity:0.5;pointer-events:none;">
-              <textarea id="treatmentInput" placeholder="Entrez les conseils..." disabled></textarea>
+              <div class="input-group"><textarea id="treatmentInput" placeholder="Entrez les conseils..." disabled></textarea></div>
               <div class="btn-group">
-                <button id="startTreatmentRecordBtn" class="btn btn-outline" onclick="startRecording('treatment')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
-                <button id="stopTreatmentRecordBtn" class="btn btn-outline" onclick="stopRecording('treatment')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
+                <button class="btn btn-outline" id="startTreatmentRecordBtn" onclick="startRecording('treatment')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
+                <button class="btn btn-outline" id="stopTreatmentRecordBtn" onclick="stopRecording('treatment')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
                 <span id="treatmentStatus" class="status"></span>
               </div>
               <div id="treatmentMessage" class="message"></div>
@@ -196,12 +276,14 @@
       <div class="flex-row">
         <div class="flex-col">
           <div class="card">
-            <div class="card-header"><h2 class="card-title"><i class="fas fa-file-alt"></i> Notes</h2></div>
+            <div class="card-header">
+              <h2 class="card-title"><i class="fas fa-file-alt"></i> Notes</h2>
+            </div>
             <div class="card-body" id="notesCardBody" style="opacity:0.5;pointer-events:none;">
-              <textarea id="notesInput" placeholder="Entrez les notes..." disabled></textarea>
+              <div class="input-group"><textarea id="notesInput" placeholder="Entrez les notes..." disabled></textarea></div>
               <div class="btn-group">
-                <button id="startNotesRecordBtn" class="btn btn-outline" onclick="startRecording('notes')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
-                <button id="stopNotesRecordBtn" class="btn btn-outline" onclick="stopRecording('notes')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
+                <button class="btn btn-outline" id="startNotesRecordBtn" onclick="startRecording('notes')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
+                <button class="btn btn-outline" id="stopNotesRecordBtn" onclick="stopRecording('notes')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
                 <span id="notesStatus" class="status"></span>
               </div>
               <div id="notesMessage" class="message"></div>
@@ -210,12 +292,14 @@
         </div>
         <div class="flex-col">
           <div class="card">
-            <div class="card-header"><h2 class="card-title"><i class="fas fa-map-signs"></i> Orientation</h2></div>
+            <div class="card-header">
+              <h2 class="card-title"><i class="fas fa-map-signs"></i> Orientation</h2>
+            </div>
             <div class="card-body" id="orientationCardBody" style="opacity:0.5;pointer-events:none;">
-              <textarea id="orientationInput" placeholder="Entrez l'orientation..." disabled></textarea>
+              <div class="input-group"><textarea id="orientationInput" placeholder="Entrez l'orientation..." disabled></textarea></div>
               <div class="btn-group">
-                <button id="startOrientationRecordBtn" class="btn btn-outline" onclick="startRecording('orientation')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
-                <button id="stopOrientationRecordBtn" class="btn btn-outline" onclick="stopRecording('orientation')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
+                <button class="btn btn-outline" id="startOrientationRecordBtn" onclick="startRecording('orientation')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
+                <button class="btn btn-outline" id="stopOrientationRecordBtn" onclick="stopRecording('orientation')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
                 <span id="orientationStatus" class="status"></span>
               </div>
               <div id="orientationMessage" class="message"></div>
@@ -224,12 +308,14 @@
         </div>
         <div class="flex-col">
           <div class="card">
-            <div class="card-header"><h2 class="card-title"><i class="fas fa-microscope"></i> Exploration</h2></div>
+            <div class="card-header">
+              <h2 class="card-title"><i class="fas fa-microscope"></i> Exploration</h2>
+            </div>
             <div class="card-body" id="explorationCardBody" style="opacity:0.5;pointer-events:none;">
-              <textarea id="explorationInput" placeholder="Entrez l'exploration..." disabled></textarea>
+              <div class="input-group"><textarea id="explorationInput" placeholder="Entrez l'exploration..." disabled></textarea></div>
               <div class="btn-group">
-                <button id="startExplorationRecordBtn" class="btn btn-outline" onclick="startRecording('exploration')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
-                <button id="stopExplorationRecordBtn" class="btn btn-outline" onclick="stopRecording('exploration')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
+                <button class="btn btn-outline" id="startExplorationRecordBtn" onclick="startRecording('exploration')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
+                <button class="btn btn-outline" id="stopExplorationRecordBtn" onclick="stopRecording('exploration')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
                 <span id="explorationStatus" class="status"></span>
               </div>
               <div id="explorationMessage" class="message"></div>
@@ -240,12 +326,16 @@
     </div>
 
     <div style="text-align:center; margin:20px 0;">
-      <button id="submitAllBtn" class="btn btn-success"><i class="fas fa-upload"></i> Soumettre Toutes les Données</button>
+      <button id="submitAllBtn" class="btn btn-success">
+        <i class="fas fa-upload"></i> Soumettre Toutes les Données
+      </button>
       <div id="validationMessage" class="message"></div>
     </div>
 
     <div id="tarifsCard" class="card" style="display:none;">
-      <div class="card-header"><h2 class="card-title"><i class="fas fa-list"></i> Tarifs Sélectionnés</h2></div>
+      <div class="card-header">
+        <h2 class="card-title"><i class="fas fa-list"></i> Tarifs Sélectionnés</h2>
+      </div>
       <div class="card-body">
         <table style="width:100%; border-collapse:collapse;">
           <thead>
@@ -268,93 +358,51 @@
     const LOGIN_PAGE_URL = 'https://hicham-taoufik.github.io/login/';
     const QR_TARGET_BASE_URL = 'app://medilink/patient';
     const GET_PATIENT_DATA_ENDPOINT = "/webhook/doctor/get-visit-details";
-    const UPDATE_DIAGNOSIS_ENDPOINT = "/webhook/doctor-submit-diagnostic";
+    const SUBMIT_ALL_ENDPOINT = "/webhook/doctor-submit-all";
+    const PROCESS_DICTATION_ENDPOINT = "/webhook/process-visit-dictation";
+    const EXTRACT_TARIFS_ENDPOINT = "/webhook/transcribe-extract-tarifs";
     const TRANSCRIBE_DIAGNOSIS_ENDPOINT = "/webhook/transcribe-diagnosis";
     const TRANSCRIBE_PRESCRIPTION_ENDPOINT = "/webhook/transcribe-prescription";
-    const SUBMIT_PRESCRIPTION_AI_ENDPOINT = "/webhook/doctor-submit-prescription";
     const VALIDATE_PRESCRIPTION_AI_ENDPOINT = "/webhook/doctor-validate-prescription";
     const TRANSCRIBE_NOTES_ENDPOINT = "/webhook/transcribe-notes";
     const TRANSCRIBE_ORIENTATION_ENDPOINT = "/webhook/transcribe-orientation";
     const TRANSCRIBE_ANTECEDENTS_ENDPOINT = "/webhook/transcribe-antecedents";
     const TRANSCRIBE_TREATMENT_ENDPOINT = "/webhook/transcribe-treatment";
     const TRANSCRIBE_EXPLORATION_ENDPOINT = "/webhook/transcribe-exploration";
-    const PROCESS_VISIT_DICTATION_ENDPOINT = "/webhook/process-visit-dictation";
-    const EXTRACT_TARIFS_ENDPOINT = "/webhook/extract-tarifs";
 
-    let currentIPP = null;
-    let currentVisitId = null;
-    let mediaRecorder, audioChunks = [], recordingField = null;
+    let currentIPP = null, currentVisitId = null, mediaRecorder, audioChunks = [], recordingField = null;
     let scanning = false, currentStream = null, scanTimeout = null;
-
-    const patientInfoDiv = document.getElementById('patientInfo');
-    const nurseDataDisplayDiv = document.getElementById('nurseDataDisplay');
-    const scanButton = document.getElementById('scanQrButton');
-    const scannerContainer = document.getElementById('scanner-container');
-    const video = document.getElementById('scanner-video');
-    const aiSuggestionDiv = document.getElementById('aiSuggestion');
 
     function fetchWithAuth(url, options = {}) {
       const token = localStorage.getItem('authToken');
-      if (!token) {
-        alert('Session expirée.');
-        window.location.href = LOGIN_PAGE_URL;
-        return Promise.reject(new Error('Token non trouvé.'));
-      }
+      if (!token) { localStorage.removeItem('authToken'); window.location.href = LOGIN_PAGE_URL; throw new Error('No token'); }
       const headers = { ...options.headers, 'Authorization': `Bearer ${token}` };
-      if (options.body && !(options.body instanceof FormData)) {
-        headers['Content-Type'] = 'application/json';
-      }
-      return fetch(url, { ...options, headers })
-        .then(async res => {
-          if (res.status === 401 || res.status === 403) {
-            localStorage.removeItem('authToken');
-            alert('Session invalide.');
-            window.location.href = LOGIN_PAGE_URL;
-            throw new Error('Auth failed');
-          }
-          if (!res.ok) {
-            const text = await res.text();
-            throw new Error(text || res.statusText);
-          }
-          const ct = res.headers.get('content-type') || '';
-          return ct.includes('application/json') ? res.json() : res.text();
-        });
+      if (options.body && !(options.body instanceof FormData)) headers['Content-Type'] = 'application/json';
+      return fetch(url, { ...options, headers }).then(async res => {
+        if (res.status === 401 || res.status === 403) { localStorage.removeItem('authToken'); window.location.href = LOGIN_PAGE_URL; throw new Error('Auth'); }
+        if (!res.ok) throw new Error(await res.text());
+        const ct = res.headers.get('content-type')||'';
+        return ct.includes('application/json') ? res.json() : res.text();
+      });
     }
 
     function logout() {
       localStorage.removeItem('authToken');
-      alert('Déconnecté.');
       window.location.href = LOGIN_PAGE_URL;
     }
 
     function showMessage(id, msg, type='info') {
       const el = document.getElementById(id);
       if (!el) return;
-      const icons = {
-        info: 'fas fa-info-circle',
-        success: 'fas fa-check-circle',
-        warning: 'fas fa-exclamation-triangle',
-        error: 'fas fa-times-circle',
-        loading: 'fas fa-spinner fa-spin'
-      };
-      el.innerHTML = msg ? `<i class="${icons[type]}"></i> ${msg}` : '';
+      const icons = { info:'fas fa-info-circle', success:'fas fa-check-circle', warning:'fas fa-exclamation-triangle', error:'fas fa-times-circle', loading:'fas fa-spinner fa-spin' };
+      el.innerHTML = msg ? `<i class="${icons[type]||icons.info}"></i> ${msg}` : '';
       el.className = 'message';
-      if (type === 'success') el.classList.add('message-success');
-      if (type === 'warning') el.classList.add('message-warning');
-      if (type === 'error') el.classList.add('message-error');
-      if (type === 'info') el.classList.add('message-info');
+      el.classList.add(type==='success'?'message-success': type==='warning'?'message-warning': type==='error'?'message-error':'message-info');
       el.style.display = msg ? 'block' : 'none';
-      if ((type === 'success' || type === 'warning') && msg && id !== 'scanResult') {
-        setTimeout(() => { if (el.innerHTML.includes(msg)) el.style.display = 'none'; }, 5000);
-      }
+      if ((type==='success'||type==='warning') && msg) setTimeout(() => { el.style.display = 'none'; }, 5000);
     }
 
-    function sanitizeInput(input) {
-      const d = document.createElement('div');
-      d.textContent = input || '';
-      return d.innerHTML;
-    }
-
+    function sanitize(input) { const d = document.createElement('div'); d.textContent = input||''; return d.innerHTML; }
     function formatDate(str, withTime=false) {
       if (!str) return '-';
       const d = new Date(str);
@@ -371,7 +419,7 @@
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td style="padding:8px; border-bottom:1px solid var(--gray-200);">${item.code}</td>
-          <td style="padding:8px; border-bottom:1px solid var(--gray-200);">${item.libellé || item.libelle}</td>
+          <td style="padding:8px; border-bottom:1px solid var(--gray-200);">${item.libellé||item.libelle}</td>
           <td style="padding:8px; text-align:right; border-bottom:1px solid var(--gray-200);">${item.tarif}</td>
         `;
         tbody.appendChild(tr);
@@ -385,246 +433,262 @@
           method: 'POST',
           body: JSON.stringify(params)
         });
-        const list = Array.isArray(resp) ? resp : resp.data || [];
+        const list = Array.isArray(resp) ? resp : resp.data||[];
         renderTarifs(list);
       } catch (err) {
-        console.error('Tarifs fetch failed:', err);
         showMessage('validationMessage', `Erreur tarifs: ${err.message}`, 'error');
       }
     }
 
-    function submitAllData() {
+    function submitAll() {
       const data = {
         ipp: currentIPP,
         visit_id: currentVisitId,
-        dictation_global: "",
-        diagnostic: document.getElementById("diagnosticInput").value || "",
-        prescription: document.getElementById("prescriptionInput").value || "",
-        notes: document.getElementById("notesInput").value || "",
-        orientation: document.getElementById("orientationInput").value || "",
-        antecedents: document.getElementById("antecedentsInput").value || "",
-        treatment: document.getElementById("treatmentInput").value || "",
-        exploration: document.getElementById("explorationInput").value || ""
+        diagnostic: document.getElementById('diagnosticInput').value||'',
+        prescription: document.getElementById('prescriptionInput').value||'',
+        notes: document.getElementById('notesInput').value||'',
+        orientation: document.getElementById('orientationInput').value||'',
+        antecedents: document.getElementById('antecedentsInput').value||'',
+        treatment: document.getElementById('treatmentInput').value||'',
+        exploration: document.getElementById('explorationInput').value||''
       };
-      const btn = document.getElementById("submitAllBtn");
+      const btn = document.getElementById('submitAllBtn');
       btn.disabled = true;
-      fetchWithAuth(`${BASE_URL}/webhook/doctor-submit-all`, {
-        method: "POST",
-        body: JSON.stringify(data)
-      })
-      .then(res => {
-        if (res.success) {
-          showMessage("validationMessage", res.message, "success");
-          return fetchTarifs({ ipp: currentIPP, visit_id: currentVisitId });
-        } else {
-          throw new Error(res.message);
+      fetchWithAuth(BASE_URL + SUBMIT_ALL_ENDPOINT, { method: 'POST', body: JSON.stringify(data) })
+        .then(res => {
+          showMessage('validationMessage', res.message, res.success ? 'success' : 'error');
+          if (res.success) fetchTarifs({ ipp: currentIPP, visit_id: currentVisitId });
+        })
+        .catch(e => showMessage('validationMessage', e.message, 'error'))
+        .finally(() => btn.disabled = false);
+    }
+
+    document.getElementById('submitAllBtn').addEventListener('click', submitAll);
+
+    function enableSections(enable) {
+      const ids = ['diagCardBody','prescCardBody','notesCardBody','orientationCardBody','antecedentsCardBody','treatmentCardBody','explorationCardBody'];
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.style.opacity = enable ? '1' : '0.5';
+          el.style.pointerEvents = enable ? 'auto' : 'none';
         }
-      })
-      .catch(err => {
-        console.error("Error submitting all data:", err);
-        showMessage("validationMessage", err.message, "error");
-      })
-      .finally(() => { btn.disabled = false; });
-    }
-    document.getElementById("submitAllBtn").addEventListener("click", submitAllData);
-
-    function enableFullDictationSection(enable) {
-      const fullCard = document.getElementById("fullDictationCardBody");
-      if (enable && currentIPP && currentVisitId) {
-        fullCard.style.opacity = '1'; fullCard.style.pointerEvents = 'auto';
-        document.getElementById("startFullDictationRecordBtn").disabled = false;
-        document.getElementById("stopFullDictationRecordBtn").disabled = false;
-      } else {
-        fullCard.style.opacity = '0.5'; fullCard.style.pointerEvents = 'none';
-        document.getElementById("startFullDictationRecordBtn").disabled = true;
-        document.getElementById("stopFullDictationRecordBtn").disabled = true;
-      }
+      });
+      const inputs = document.querySelectorAll('#diagCardBody textarea, #diagCardBody button, #prescCardBody textarea, #prescCardBody button, #notesCardBody textarea, #notesCardBody button, #orientationCardBody textarea, #orientationCardBody button, #antecedentsCardBody textarea, #antecedentsCardBody button, #treatmentCardBody textarea, #treatmentCardBody button, #explorationCardBody textarea, #explorationCardBody button, #aiSuggestion input, #aiSuggestion button');
+      inputs.forEach(i => i.disabled = !enable);
+      if (!enable) document.getElementById('aiSuggestion').style.display = 'none';
     }
 
-    function enableDoctorSections(enable) {
-      const bodies = ['diagCardBody','prescCardBody','notesCardBody','orientationCardBody','antecedentsCardBody','treatmentCardBody','explorationCardBody'];
-      const elems = document.querySelectorAll(
-        '#diagCardBody textarea, #diagCardBody button,' +
-        '#prescCardBody textarea, #prescCardBody button,' +
-        '#notesCardBody textarea, #notesCardBody button,' +
-        '#orientationCardBody textarea, #orientationCardBody button,' +
-        '#antecedentsCardBody textarea, #antecedentsCardBody button,' +
-        '#treatmentCardBody textarea, #treatmentCardBody button,' +
-        '#explorationCardBody textarea, #explorationCardBody button,' +
-        '#aiSuggestion input, #aiSuggestion button'
-      );
-      if (enable && currentIPP && currentVisitId) {
-        bodies.forEach(id => {
-          const el = document.getElementById(id);
-          el.style.opacity='1'; el.style.pointerEvents='auto';
-        });
-        elems.forEach(e => e.disabled = false);
-      } else {
-        bodies.forEach(id => {
-          const el = document.getElementById(id);
-          el.style.opacity='0.5'; el.style.pointerEvents='none';
-        });
-        elems.forEach(e => e.disabled = true);
-        ['diagnosticInput','prescriptionInput','notesInput','orientationInput','antecedentsInput','treatmentInput','explorationInput'].forEach(id => {
-          document.getElementById(id).value = '';
-        });
-        aiSuggestionDiv.style.display = 'none';
-      }
-    }
-
-    function clearDoctorUI() {
+    function clearUI() {
       currentIPP = null; currentVisitId = null;
-      patientInfoDiv.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-qrcode"></i><div>Prêt à scanner</div></div>`;
-      nurseDataDisplayDiv.style.display = 'none';
-      enableDoctorSections(false);
-      enableFullDictationSection(false);
-      history.replaceState({},'', window.location.pathname);
-    }
-
-    function displayNurseData(obs, vitals) {
-      const c = document.getElementById('nurseDataDisplay');
-      if ((!obs.observation_text) && (!vitals.timestamp)) { c.style.display='none'; return; }
-      let obsStr = obs.observation_date_time ? `(${formatDate(obs.observation_date_time,true)})` : '';
-      let obsText = obs.observation_text || '-';
-      let vitHTML = '';
-      if (vitals.timestamp) {
-        const d = formatDate(vitals.timestamp,true);
-        const lines = [];
-        if (vitals.temperature != null) lines.push(`<div class="nurse-vital-line"><i class="fas fa-thermometer-half"></i> Température: ${vitals.temperature}°C</div>`);
-        if (vitals.tension_systolic != null && vitals.tension_diastolic != null) lines.push(`<div class="nurse-vital-line"><i class="fas fa-heartbeat"></i> TA: ${vitals.tension_systolic}/${vitals.tension_diastolic} mmHg</div>`);
-        if (vitals.heart_rate != null) lines.push(`<div class="nurse-vital-line"><i class="fas fa-heart"></i> FC: ${vitals.heart_rate}/min</div>`);
-        if (vitals.spo2 != null) lines.push(`<div class="nurse-vital-line"><i class="fas fa-lungs"></i> SpO₂: ${vitals.spo2}%</div>`);
-        vitHTML = `<div class="nurse-vital-date">MàJ: ${d}</div>` + lines.join('');
-      }
-      c.style.display = 'block';
-      c.innerHTML = `<h4><i class="fas fa-user-nurse"></i> Données Infirmières</h4>
-        <div><strong>Obs ${obsStr}:</strong> ${obsText}</div>
-        <div><strong>Signes Vitaux:</strong> ${vitHTML || 'Aucun enregistré.'}</div>`;
+      document.getElementById('patientInfo').innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-qrcode"></i><div class="empty-state-message">Prêt à scanner</div><div class="empty-state-description">Utilisez le bouton "Scanner QR".</div></div>';
+      document.getElementById('nurseDataDisplay').style.display = 'none';
+      ['diagnosticInput','prescriptionInput','notesInput','orientationInput','antecedentsInput','treatmentInput','explorationInput'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      document.getElementById('aiSuggestion').style.display = 'none';
+      enableSections(false);
     }
 
     function loadPatient(ipp) {
-      patientInfoDiv.innerHTML = `<div style="text-align:center;"><i class="fas fa-spinner fa-spin"></i> Chargement...</div>`;
-      nurseDataDisplayDiv.style.display = 'none';
-      enableDoctorSections(false);
-      enableFullDictationSection(false);
-      fetchWithAuth(`${BASE_URL}${GET_PATIENT_DATA_ENDPOINT}?ipp=${ipp}`)
+      clearUI();
+      const pi = document.getElementById('patientInfo');
+      pi.innerHTML = '<div style="grid-column:1/-1;text-align:center;"><i class="fas fa-spinner fa-spin"></i> Chargement...</div>';
+      fetchWithAuth(BASE_URL + GET_PATIENT_DATA_ENDPOINT + '?ipp=' + ipp)
         .then(r => {
-          if (!r.success || !r.patientData) throw new Error(r.message || 'Données invalides');
           currentIPP = ipp; currentVisitId = r.visitId;
-          const p = r.patientData;
-          patientInfoDiv.innerHTML = `
-            <div><strong>Nom:</strong> ${sanitizeInput(p.nom)}</div>
-            <div><strong>Prénom:</strong> ${sanitizeInput(p.prenom)}</div>
-            <div><strong>IPP:</strong> ${sanitizeInput(currentIPP)}</div>
-            <div><strong>Visite ID:</strong> ${sanitizeInput(currentVisitId)}</div>
-            <div><strong>CIN:</strong> ${sanitizeInput(p.cin)}</div>
-            <div><strong>Téléphone:</strong> ${sanitizeInput(p.telephone)}</div>
-            <div><strong>Naissance:</strong> ${formatDate(p.date_naissance)}</div>
-            <div><strong>Sexe:</strong> ${p.sexe==='M'?'Homme':'Femme'}</div>`;
-          displayNurseData(r.nurseObservations||{}, r.vitalSigns||{});
-          enableDoctorSections(true);
-          enableFullDictationSection(true);
+          const p = r.patientData, o = r.nurseObservations||{}, v = r.vitalSigns||{};
+          pi.innerHTML = `
+            <div class="info-group"><div class="info-label">Nom</div><div class="info-value">${sanitize(p.nom)}</div></div>
+            <div class="info-group"><div class="info-label">Prénom</div><div class="info-value">${sanitize(p.prenom)}</div></div>
+            <div class="info-group"><div class="info-label">IPP</div><div class="info-value">${sanitize(currentIPP)}</div></div>
+            <div class="info-group"><div class="info-label">Visite ID</div><div class="info-value">${sanitize(currentVisitId)}</div></div>
+            <div class="info-group"><div class="info-label">CIN</div><div class="info-value">${sanitize(p.cin)}</div></div>
+            <div class="info-group"><div class="info-label">Téléphone</div><div class="info-value">${sanitize(p.telephone)}</div></div>
+            <div class="info-group"><div class="info-label">Adresse</div><div class="info-value">${sanitize(p.adresse)}</div></div>
+            <div class="info-group"><div class="info-label">Mutuelle</div><div class="info-value">${sanitize(p.mutuelle||'Aucune')}</div></div>
+            <div class="info-group"><div class="info-label">Naissance</div><div class="info-value">${formatDate(p.date_naissance)}</div></div>
+            <div class="info-group"><div class="info-label">Sexe</div><div class="info-value">${p.sexe==='M'?'Homme':p.sexe==='F'?'Femme':'-'}</div></div>
+          `;
+          enableSections(true);
         })
         .catch(e => {
-          console.error(e);
-          patientInfoDiv.innerHTML = `<div class="message message-error">Erreur: ${e.message}</div>`;
-          clearDoctorUI();
+          showMessage('scanResult', 'Erreur: ' + e.message, 'error');
+          clearUI();
         });
     }
 
+    document.getElementById('scanQrButton').onclick = async function() {
+      if (!scanning) {
+        try {
+          document.getElementById('scanner-container').style.display = 'block';
+          currentStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+          const video = document.getElementById('scanner-video');
+          video.srcObject = currentStream;
+          await video.play();
+          this.innerHTML = '<i class="fas fa-stop-circle"></i> Arrêter Scan';
+          this.classList.replace('btn-primary','btn-danger');
+          scanning = true;
+          scanTimeout = setTimeout(() => { stopScanner(); showMessage('scanResult','Aucun code détecté.','warning'); }, 30000);
+          tick();
+        } catch (e) {
+          showMessage('scanResult','Erreur caméra: '+e.message,'error');
+        }
+      } else {
+        stopScanner();
+        showMessage('scanResult','Scan arrêté.','info');
+      }
+    };
+
+    function stopScanner() {
+      clearTimeout(scanTimeout);
+      if (currentStream) currentStream.getTracks().forEach(t => t.stop());
+      document.getElementById('scanner-container').style.display = 'none';
+      const btn = document.getElementById('scanQrButton');
+      btn.innerHTML = '<i class="fas fa-qrcode"></i> Scanner QR';
+      btn.classList.replace('btn-danger','btn-primary');
+      scanning = false;
+    }
+
+    function tick() {
+      if (!scanning) return;
+      const video = document.getElementById('scanner-video');
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0);
+        const code = jsQR(ctx.getImageData(0, 0, canvas.width, canvas.height).data, canvas.width, canvas.height);
+        if (code) {
+          processScannedQrCode(code.data);
+        } else {
+          requestAnimationFrame(tick);
+        }
+      } else {
+        requestAnimationFrame(tick);
+      }
+    }
+
+    function processScannedQrCode(data) {
+      stopScanner();
+      try {
+        const url = new URL(data);
+        if (!data.startsWith(QR_TARGET_BASE_URL)) throw new Error('QR non reconnu');
+        const ipp = url.searchParams.get('ipp');
+        if (!ipp) throw new Error('IPP manquant');
+        loadPatient(ipp);
+      } catch (e) {
+        showMessage('scanResult','Erreur QR: '+e.message,'error');
+      }
+    }
+
     function startRecording(field) {
-      if (!currentIPP || !currentVisitId) { alert("Chargez un patient d'abord."); return; }
+      if (!currentIPP || !currentVisitId) { alert("Chargez un patient et sa visite."); return; }
       if (mediaRecorder && mediaRecorder.state === 'recording') return;
       audioChunks = []; recordingField = field;
-      const statusEl = document.getElementById(field+"Status");
+      const statusEl = document.getElementById(field+'Status');
       let startBtn, stopBtn;
       if (field === 'diagnosis') { startBtn = document.getElementById('startDiagRecordBtn'); stopBtn = document.getElementById('stopDiagRecordBtn'); }
       else if (field === 'prescription') { startBtn = document.getElementById('startPrescRecordBtn'); stopBtn = document.getElementById('stopPrescRecordBtn'); }
       else if (field === 'fullDictation') { startBtn = document.getElementById('startFullDictationRecordBtn'); stopBtn = document.getElementById('stopFullDictationRecordBtn'); }
       else { startBtn = document.getElementById(`start${field.charAt(0).toUpperCase()+field.slice(1)}RecordBtn`); stopBtn = document.getElementById(`stop${field.charAt(0).toUpperCase()+field.slice(1)}RecordBtn`); }
-      statusEl.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Préparation...`; statusEl.style.display='inline-flex';
+      statusEl.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Start...'; statusEl.style.display = 'inline-flex';
       startBtn.disabled = true; stopBtn.disabled = false;
       navigator.mediaDevices.getUserMedia({ audio: true })
         .then(stream => {
           mediaRecorder = new MediaRecorder(stream);
-          mediaRecorder.ondataavailable = e => { if (e.data.size>0) audioChunks.push(e.data); };
-          mediaRecorder.onstop = () => { handleRecordingStop(stream); };
-          mediaRecorder.onerror = e => { console.error(e.error); statusEl.innerHTML='<i class="fas fa-times-circle"></i> Err'; startBtn.disabled=false; stopBtn.disabled=true; stream.getTracks().forEach(t=>t.stop()); };
+          mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+          mediaRecorder.onstop = () => handleRecordingStop(stream);
+          mediaRecorder.onerror = e => {
+            statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Err Rec.'; startBtn.disabled = false; stopBtn.disabled = true; recordingField = null; stream.getTracks().forEach(t => t.stop());
+          };
           mediaRecorder.start();
-          statusEl.innerHTML = `<i class="fas fa-microphone-alt fa-beat"></i> Enregistrement...`;
+          statusEl.innerHTML = '<i class="fas fa-microphone-alt fa-beat"></i> REC...';
         })
         .catch(err => {
-          console.error(err); statusEl.innerHTML='<i class="fas fa-exclamation-triangle"></i> Micro indisponible'; startBtn.disabled=false; stopBtn.disabled=true;
+          statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Err micro'; alert("Err micro: " + err.message); startBtn.disabled = false; stopBtn.disabled = true; recordingField = null;
         });
     }
 
     function stopRecording(field) {
-      if (mediaRecorder && mediaRecorder.state==='recording') mediaRecorder.stop();
+      if (mediaRecorder && mediaRecorder.state === 'recording' && recordingField === field) {
+        mediaRecorder.stop();
+        document.getElementById(field+'Status').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Arrêt...';
+      }
     }
 
     function handleRecordingStop(stream) {
-      const field = recordingField;
-      const statusEl = document.getElementById(field+"Status");
-      const startBtn = document.getElementById(field==='diagnosis'?'startDiagRecordBtn':field==='prescription'?'startPrescRecordBtn':field==='fullDictation'?'startFullDictationRecordBtn':`start${field.charAt(0).toUpperCase()+field.slice(1)}RecordBtn`);
-      const stopBtn = document.getElementById(field==='diagnosis'?'stopDiagRecordBtn':field==='prescription'?'stopPrescRecordBtn':field==='fullDictation'?'stopFullDictationRecordBtn':`stop${field.charAt(0).toUpperCase()+field.slice(1)}RecordBtn`);
-      stopBtn.disabled = true;
-      if (audioChunks.length===0) {
-        statusEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Aucun son'; startBtn.disabled=false; stream.getTracks().forEach(t=>t.stop());
+      const field = recordingField; recordingField = null;
+      const statusEl = document.getElementById(field+'Status');
+      let startBtn;
+      if (field === 'diagnosis') startBtn = document.getElementById('startDiagRecordBtn');
+      else if (field === 'prescription') startBtn = document.getElementById('startPrescRecordBtn');
+      else if (field === 'fullDictation') startBtn = document.getElementById('startFullDictationRecordBtn');
+      else startBtn = document.getElementById(`start${field.charAt(0).toUpperCase()+field.slice(1)}RecordBtn`);
+      if (audioChunks.length === 0) {
+        statusEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Vide'; startBtn.disabled = false;
+        setTimeout(() => { statusEl.innerHTML = ''; }, 4000);
+        stream.getTracks().forEach(t => t.stop());
         return;
       }
-      const blob = new Blob(audioChunks, { type:'audio/webm' });
-      audioChunks = [];
-      if (field==='fullDictation') sendFullDictationAudio(blob);
+      const blob = new Blob(audioChunks, { type: 'audio/webm' }); audioChunks = [];
+      if (field === 'fullDictation') sendFullDictationAudio(blob);
       else sendAudioToAI(blob, field);
-      stream.getTracks().forEach(t=>t.stop());
+      stream.getTracks().forEach(t => t.stop());
     }
 
     function getFieldConfig(field) {
       const map = {
-        diagnosis: { endpoint: TRANSCRIBE_DIAGNOSIS_ENDPOINT, msgId: 'diagMessage', textarea: 'diagnosticInput' },
-        prescription: { endpoint: TRANSCRIBE_PRESCRIPTION_ENDPOINT, msgId: 'validationMessage', textarea: 'prescriptionInput' },
-        notes: { endpoint: TRANSCRIBE_NOTES_ENDPOINT, msgId: 'notesMessage', textarea: 'notesInput' },
-        orientation: { endpoint: TRANSCRIBE_ORIENTATION_ENDPOINT, msgId: 'orientationMessage', textarea: 'orientationInput' },
-        antecedents: { endpoint: TRANSCRIBE_ANTECEDENTS_ENDPOINT, msgId: 'antecedentsMessage', textarea: 'antecedentsInput' },
-        treatment: { endpoint: TRANSCRIBE_TREATMENT_ENDPOINT, msgId: 'treatmentMessage', textarea: 'treatmentInput' },
-        exploration: { endpoint: TRANSCRIBE_EXPLORATION_ENDPOINT, msgId: 'explorationMessage', textarea: 'explorationInput' }
+        diagnosis: { apiEndpoint: TRANSCRIBE_DIAGNOSIS_ENDPOINT, messageId: 'diagMessage' },
+        prescription: { apiEndpoint: TRANSCRIBE_PRESCRIPTION_ENDPOINT, messageId: 'validationMessage' },
+        notes: { apiEndpoint: TRANSCRIBE_NOTES_ENDPOINT, messageId: 'notesMessage' },
+        orientation: { apiEndpoint: TRANSCRIBE_ORIENTATION_ENDPOINT, messageId: 'orientationMessage' },
+        antecedents: { apiEndpoint: TRANSCRIBE_ANTECEDENTS_ENDPOINT, messageId: 'antecedentsMessage' },
+        treatment: { apiEndpoint: TRANSCRIBE_TREATMENT_ENDPOINT, messageId: 'treatmentMessage' },
+        exploration: { apiEndpoint: TRANSCRIBE_EXPLORATION_ENDPOINT, messageId: 'explorationMessage' }
       };
       return map[field];
     }
 
     function sendAudioToAI(blob, field) {
-      const cfg = getFieldConfig(field);
-      const statusEl = document.getElementById(field+"Status");
+      const config = getFieldConfig(field);
+      const statusEl = document.getElementById(field+'Status');
+      let startBtn;
+      if (field === 'diagnosis') startBtn = document.getElementById('startDiagRecordBtn');
+      else if (field === 'prescription') startBtn = document.getElementById('startPrescRecordBtn');
+      else startBtn = document.getElementById(`start${field.charAt(0).toUpperCase()+field.slice(1)}RecordBtn`);
+      statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi...';
       const fd = new FormData();
       fd.append("audio", blob, `${field}_${currentIPP}_${Date.now()}.webm`);
       fd.append("ipp", currentIPP);
       fd.append("visit_id", currentVisitId);
-      statusEl.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Transcription...`;
-      fetchWithAuth(BASE_URL + cfg.endpoint, { method:'POST', body: fd })
+      fetchWithAuth(BASE_URL + config.apiEndpoint, { method: "POST", body: fd })
         .then(r => {
-          let obj = Array.isArray(r) ? r[0] : r;
-          if (obj.success && obj.transcript) {
-            document.getElementById(cfg.textarea).value = obj.transcript;
+          let obj;
+          if (Array.isArray(r) && r.length > 0) obj = r[0];
+          else obj = r;
+          if (obj.success && typeof obj.transcript === 'string') {
+            const mapField = { diagnosis: 'diagnosticInput', prescription: 'prescriptionInput', notes: 'notesInput', orientation: 'orientationInput', antecedents: 'antecedentsInput', treatment: 'treatmentInput', exploration: 'explorationInput' };
+            document.getElementById(mapField[field]).value = obj.transcript;
             statusEl.innerHTML = '<i class="fas fa-check"></i> OK';
-          } else {
-            throw new Error(obj.message || 'Erreur transcription');
-          }
+            setTimeout(() => { statusEl.innerHTML = ''; }, 4000);
+          } else throw new Error(obj.message || 'Échec transcription');
         })
         .catch(e => {
-          console.error(e);
+          showMessage(config.messageId, `Err Transc: ${e.message}`, 'error');
           statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Err';
-          showMessage(cfg.msgId, `Erreur: ${e.message}`, 'error');
-        });
+        })
+        .finally(() => { startBtn.disabled = false; });
     }
 
     function sendFullDictationAudio(blob) {
       const statusEl = document.getElementById("fullDictationStatus");
-      statusEl.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Traitement...`;
+      statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement...';
       const fd = new FormData();
       fd.append("audio", blob, `fullDictation_${currentIPP}_${Date.now()}.webm`);
       fd.append("ipp", currentIPP);
       fd.append("visit_id", currentVisitId);
-      fetchWithAuth(BASE_URL + PROCESS_VISIT_DICTATION_ENDPOINT, { method:'POST', body: fd })
+      fetchWithAuth(BASE_URL + PROCESS_DICTATION_ENDPOINT, { method: "POST", body: fd })
         .then(r => {
           const d = r.extractedData || r;
           document.getElementById("diagnosticInput").value = d.diagnostic || "";
@@ -634,165 +698,90 @@
           document.getElementById("orientationInput").value = d.orientation || "";
           document.getElementById("prescriptionInput").value = d.ordonnance_medicale || "";
           document.getElementById("explorationInput").value = d.prescription_exploration || "";
-          showMessage("fullDictationMessage", "Dictée traitée.", "success");
+          showMessage("fullDictationMessage", "Dictée traitée et champs mis à jour.", "success");
         })
-        .catch(e => {
-          console.error(e);
-          showMessage("fullDictationMessage", `Erreur: ${e.message}`, "error");
-        })
+        .catch(e => showMessage("fullDictationMessage", `Erreur: ${e.message}`, "error"))
         .finally(() => { statusEl.innerHTML = ''; });
     }
 
     function submitDiagnostic() {
-      const val = document.getElementById("diagnosticInput").value;
-      const btn = document.getElementById("submitDiagBtn");
-      if (!val || !currentIPP) { showMessage("diagMessage","Champ vide","warning"); return; }
+      const diag = document.getElementById("diagnosticInput").value;
+      const btn = document.getElementById('submitDiagBtn');
+      if (!diag || !currentIPP || !currentVisitId) { showMessage("diagMessage", "Diagnostic vide ou patient/visite non chargé.", "warning"); return; }
       btn.disabled = true;
-      fetchWithAuth(BASE_URL + UPDATE_DIAGNOSIS_ENDPOINT, {
-        method:'POST',
-        body: JSON.stringify({ ipp: currentIPP, visit_id: currentVisitId, diagnostic: val })
-      })
-      .then(() => showMessage("diagMessage","Enregistré","success"))
-      .catch(e => { console.error(e); showMessage("diagMessage",e.message,"error"); })
-      .finally(() => btn.disabled=false);
+      fetchWithAuth(BASE_URL + "/webhook/doctor-submit-diagnostic", { method: "POST", body: JSON.stringify({ ipp: currentIPP, visit_id: currentVisitId, diagnostic: diag }) })
+        .then(() => showMessage("diagMessage", "Diagnostic Enregistré.", "success"))
+        .catch(e => showMessage("diagMessage", `Err Enreg.: ${e.message}`, "error"))
+        .finally(() => btn.disabled = false);
     }
 
     function submitPrescription() {
       const presc = document.getElementById("prescriptionInput").value;
-      const btn = document.getElementById("submitPrescBtn");
+      const btn = document.getElementById('submitPrescBtn');
       const msgEl = document.getElementById("validationMessage");
       const aiEl = document.getElementById("aiSuggestion");
-      btn.disabled = true; showMessage("validationMessage","", "info"); aiEl.style.display='none';
-      fetchWithAuth(BASE_URL + SUBMIT_PRESCRIPTION_AI_ENDPOINT, {
-        method:'POST',
-        body: JSON.stringify({ ipp: currentIPP, visit_id: currentVisitId, prescription: presc })
-      })
-      .then(r => {
-        let data = Array.isArray(r) ? r[0].output : r.suggestion;
-        aiEl.style.display = 'block';
-        aiEl.innerHTML = `
-          <h3><i class="fas fa-lightbulb"></i> Suggestion IA</h3>
-          <label>Médicament:<input id="medicament" value="${data.medicament||''}"/></label>
-          <label>Début:<input class="french-date" id="start_date" value="${data.start_date||''}"/></label>
-          <label>Fin:<input class="french-date" id="end_date" value="${data.end_date||''}"/></label>
-          <div><label><input type="checkbox" id="matin" ${data.schedule?.matin?"checked":""}/> Matin</label>
-                <label><input type="checkbox" id="apres_midi" ${data.schedule?.apres_midi?"checked":""}/> Après-midi</label>
-                <label><input type="checkbox" id="soir" ${data.schedule?.soir?"checked":""}/> Soir</label>
-                <label><input type="checkbox" id="nuit" ${data.schedule?.nuit?"checked":""}/> Nuit</label></div>
-          <button class="btn btn-success" id="validatePrescBtn" onclick="validatePrescription()">Valider</button>
-        `;
-      })
-      .catch(e => { console.error(e); showMessage("validationMessage",e.message,"error"); })
-      .finally(() => btn.disabled=false);
+      if (!presc || !currentIPP || !currentVisitId) { showMessage(msgEl.id, "Prescription vide ou patient/visite non chargé.", "warning"); aiEl.style.display = "none"; return; }
+      btn.disabled = true;
+      fetchWithAuth(BASE_URL + "/webhook/doctor-submit-prescription", { method: "POST", body: JSON.stringify({ ipp: currentIPP, visit_id: currentVisitId, prescription: presc }) })
+        .then(r => {
+          let data;
+          if (Array.isArray(r) && r[0].output) data = r[0].output;
+          else if (r.suggestion) data = r.suggestion;
+          else throw new Error(r.message || "Réponse IA invalide");
+          aiEl.style.display = "block";
+          aiEl.innerHTML = `
+            <h3><i class="fas fa-lightbulb"></i> Suggestion IA</h3>
+            <div class="input-group"><label for="medicament">Médicament:</label><input type="text" id="medicament" value="${data.medicament||''}"/></div>
+            <div class="input-group"><label for="start_date">Date début (jj/mm/aaaa):</label><input type="text" class="french-date" id="start_date" value="${formatDate(data.start_date)}"/></div>
+            <div class="input-group"><label for="end_date">Date fin (jj/mm/aaaa):</label><input type="text" class="french-date" id="end_date" value="${formatDate(data.end_date)}"/></div>
+            <div class="input-group"><label>Horaires:</label><div class="checkbox-wrapper">
+              <label class="checkbox-item"><input type="checkbox" id="matin" ${data.schedule?.matin?"checked":""}/> Matin</label>
+              <label class="checkbox-item"><input type="checkbox" id="apres_midi" ${data.schedule?.apres_midi?"checked":""}/> Après-midi</label>
+              <label class="checkbox-item"><input type="checkbox" id="soir" ${data.schedule?.soir?"checked":""}/> Soir</label>
+              <label class="checkbox-item"><input type="checkbox" id="nuit" ${data.schedule?.nuit?"checked":""}/> Nuit</label>
+            </div></div>
+            <div class="btn-group"><button class="btn btn-success" id="validatePrescBtn" onclick="validatePrescription()"><i class="fas fa-check-double"></i> Valider</button></div>
+          `;
+        })
+        .catch(e => { showMessage("validationMessage", `Err AI: ${e.message}`, "error"); })
+        .finally(() => btn.disabled = false);
     }
 
     function validatePrescription() {
-      const btn = document.getElementById("validatePrescBtn");
+      const med = document.getElementById("medicament").value;
+      const sd = document.getElementById("start_date").value;
+      const ed = document.getElementById("end_date").value;
+      const btn = document.getElementById('validatePrescBtn');
       const msgEl = document.getElementById("validationMessage");
-      btn.disabled=true; showMessage("validationMessage","","info");
-      const body = {
-        ipp: currentIPP,
-        visit_id: currentVisitId,
-        final_prescription: document.getElementById("prescriptionInput").value,
-        start_date: document.getElementById("start_date").value,
-        end_date: document.getElementById("end_date").value,
-        schedule: {
-          matin: document.getElementById("matin").checked,
-          apres_midi: document.getElementById("apres_midi").checked,
-          soir: document.getElementById("soir").checked,
-          nuit: document.getElementById("nuit").checked
-        },
-        medicament_name: document.getElementById("medicament").value
-      };
+      if (!med || !sd || !ed || !currentIPP || !currentVisitId) { showMessage(msgEl.id, "Champs requis ou patient/visite non chargé.", "warning"); return; }
+      btn.disabled = true;
       fetchWithAuth(BASE_URL + VALIDATE_PRESCRIPTION_AI_ENDPOINT, {
-        method:'POST', body: JSON.stringify(body)
+        method: "POST",
+        body: JSON.stringify({
+          ipp: currentIPP,
+          visit_id: currentVisitId,
+          final_prescription: document.getElementById("prescriptionInput").value,
+          start_date: sd,
+          end_date: ed,
+          schedule: {
+            matin: document.getElementById("matin").checked,
+            apres_midi: document.getElementById("apres_midi").checked,
+            soir: document.getElementById("soir").checked,
+            nuit: document.getElementById("nuit").checked
+          },
+          medicament_name: med
+        })
       })
-      .then(() => { showMessage("validationMessage","Validé","success"); })
-      .catch(e => { console.error(e); showMessage("validationMessage",e.message,"error"); })
-      .finally(() => btn.disabled=false);
+      .then(() => { showMessage(msgEl.id, "Prescription validée.", "success"); document.getElementById("aiSuggestion").style.display = "none"; })
+      .catch(e => showMessage(msgEl.id, `Err valid: ${e.message}`, "error"))
+      .finally(() => btn.disabled = false);
     }
 
-    function updateScanStatus(msg,type='info'){ showMessage('scanResult',msg,type); }
-
-    scanButton.onclick = async () => {
-      if (!scanning) {
-        try {
-          scannerContainer.style.display='block';
-          updateScanStatus('Initialisation caméra...','loading');
-          currentStream = await navigator.mediaDevices.getUserMedia({ video:{facingMode:"environment"} });
-          video.srcObject= currentStream;
-          await video.play();
-          updateScanStatus('Scannez le QR code','info');
-          scanButton.innerHTML='<i class="fas fa-stop-circle"></i> Arrêter Scan';
-          scanButton.classList.replace('btn-primary','btn-danger');
-          scanning=true;
-          scanTimeout=setTimeout(()=>{ if(scanning){ stopScanner(); updateScanStatus('Aucun code détecté','warning'); } },30000);
-          requestAnimationFrame(tick);
-        } catch(e) {
-          console.error(e);
-          updateScanStatus('Erreur caméra','error');
-          stopScanner();
-        }
-      } else {
-        stopScanner();
-        updateScanStatus('Scan arrêté','info');
-      }
-    };
-
-    function stopScanner() {
-      scanning=false;
-      clearTimeout(scanTimeout);
-      if (currentStream) currentStream.getTracks().forEach(t=>t.stop());
-      video.srcObject=null;
-      scannerContainer.style.display='none';
-      scanButton.innerHTML='<i class="fas fa-qrcode"></i> Scanner QR';
-      scanButton.classList.replace('btn-danger','btn-primary');
-    }
-
-    function tick() {
-      if (!scanning || video.readyState<2) return requestAnimationFrame(tick);
-      const c = document.createElement('canvas');
-      c.width=video.videoWidth; c.height=video.videoHeight;
-      const ctx = c.getContext('2d');
-      ctx.drawImage(video,0,0);
-      try {
-        const img = ctx.getImageData(0,0,c.width,c.height);
-        const code = window.jsQR(img.data, img.width, img.height, { inversionAttempts:"dontInvert" });
-        if (code) {
-          processScannedQrCode(code.data);
-        } else {
-          requestAnimationFrame(tick);
-        }
-      } catch(e) {
-        console.error(e);
-        requestAnimationFrame(tick);
-      }
-    }
-
-    function processScannedQrCode(url) {
-      stopScanner();
-      updateScanStatus('Lecture QR code...','loading');
-      try {
-        const u = new URL(url);
-        if (url.startsWith(QR_TARGET_BASE_URL)) {
-          const ipp = u.searchParams.get('ipp');
-          if (ipp) { loadPatient(ipp); }
-          else { throw new Error('IPP manquant'); }
-        } else {
-          throw new Error('QR non reconnu');
-        }
-      } catch(e) {
-        updateScanStatus(e.message,'error');
-        clearDoctorUI();
-      }
-    }
-
-    window.onload = () => {
-      if (!localStorage.getItem('authToken')) { window.location.href = LOGIN_PAGE_URL; return; }
+    window.onload = function() {
+      if (!localStorage.getItem('authToken')) return window.location.href = LOGIN_PAGE_URL;
       document.body.classList.add('loaded');
-      const ipp = new URLSearchParams(window.location.search).get('ipp');
-      if (ipp) loadPatient(ipp);
-      else clearDoctorUI();
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('ipp')) loadPatient(params.get('ipp'));
     };
   </script>
 </body>
