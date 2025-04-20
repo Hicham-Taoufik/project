@@ -2072,10 +2072,15 @@
                 devise: "DH", // Assuming "DH" is the currency
               },
             }));
+
             if (tarifChoices) {
-              tarifChoices.setChoices(choices, "value", "label", true);
-              tarifChoices.setValue(choices.map((choice) => choice.value)); // Auto-select
+              // Add AI-suggested tariffs to the dropdown without clearing existing options
+              tarifChoices.setChoices(choices, "value", "label", false);
+
+              // Pre-select the AI-suggested tariffs
+              tarifChoices.setValue(choices.map((choice) => choice.value));
             }
+
             statusEl.innerHTML = '<i class="fas fa-check"></i>';
           })
           .catch((err) => {
