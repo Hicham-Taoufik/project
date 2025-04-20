@@ -2066,10 +2066,10 @@
               : [];
             const choices = list.map((item) => ({
               value: item.code,
-              label: `${item.code} - ${item.description || "Sans description"}`, // Include description
+              label: `${item.code} - ${item.libellé || "Sans description"}`, // Include libellé
               customProperties: {
                 tarif: item.tarif || "0",
-                devise: item.devise || "MAD",
+                devise: "DH", // Assuming "DH" is the currency
               },
             }));
             if (tarifChoices) {
@@ -2350,11 +2350,8 @@
           renderChoiceLimit: 100,
           allowHTML: true,
           renderChoice: (choice, classNames) => {
-            const priceText = sanitizeInput(
+            const tarifText = sanitizeInput(
               choice.customProperties?.tarif || "N/A"
-            );
-            const currencyText = sanitizeInput(
-              choice.customProperties?.devise || "MAD"
             );
             const labelText = sanitizeInput(choice.label || "Service inconnu");
             const codeText = sanitizeInput(choice.value || "N/A");
@@ -2370,16 +2367,17 @@
                 : "data-choice-selectable"
             }>
                 <span>${codeText} - ${labelText}</span>
-                <span class="price-badge">${priceText} ${currencyText}</span>
+                <span class="price-badge">${tarifText}</span>
               </div>
             `;
           },
           renderItem: (item, classNames) => {
             const code = sanitizeInput(item.value || "N/A");
             const label = sanitizeInput(item.label || "Sans libellé");
+            const tarif = sanitizeInput(item.customProperties?.tarif || "N/A");
             return `
               <div class="${classNames.item} ${classNames.itemSelectable}" data-id="${item.id}" data-value="${item.value}">
-                <strong>${code}</strong> – ${label}
+                <strong>${code}</strong> – ${label} <span class="price-badge">${tarif}</span>
               </div>
             `;
           },
