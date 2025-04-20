@@ -1016,6 +1016,7 @@
               <i class="fas fa-stop-circle"></i> Arrêter
             </button>
             <span id="tarifStatus" class="status"></span>
+            <div id="tarifMessage" class="message"></div>
           </div>
         </div>
       </div>
@@ -2201,94 +2202,43 @@
 
       // Accept UI elements as parameters
       function sendTarifAudioToAI(blob, statusEl, startBtn, stopBtn) {
-        console.log("sendTarifAudioToAI called!");
-        // Elements are passed in, no need to find them again
-        if (
-          !currentIPP ||
-          !currentVisitId ||
-          !statusEl ||
-          !startBtn ||
-          !stopBtn
-        ) {
-          console.error(
-            "Missing parameters or patient/visit for sendTarifAudioToAI."
-          );
-          if (statusEl)
-            statusEl.innerHTML =
-              '<i class="fas fa-exclamation-triangle"></i> Err Param';
-          if (startBtn) startBtn.disabled = false;
-          if (stopBtn) stopBtn.disabled = true;
-          return Promise.reject(
-            new Error(
-              "Missing parameters or patient/visit for sendTarifAudioToAI"
-            )
-          );
-        }
-
-        statusEl.innerHTML =
-          '<i class="fas fa-spinner fa-spin"></i> Traitement...';
-        startBtn.disabled = true;
-        stopBtn.disabled = true;
-
+        // Build the multipart form
         const fd = new FormData();
-        fd.append(
-          "audio",
-          blob,
-          `tarifDictation_${currentIPP}_${Date.now()}.webm`
-        );
+        fd.append("audio", blob, `tarif_${currentIPP}_${Date.now()}.webm`);
         fd.append("ipp", currentIPP);
         fd.append("visit_id", currentVisitId);
 
-        // Use the NEW transcription endpoint for audio
+        const messageEl = document.getElementById("tarifMessage");
+        // UI: spinner + clear old message
+        statusEl.innerHTML =
+          '<i class="fas fa-spinner fa-spin"></i> Traitement…';
+        if (messageEl) messageEl.innerHTML = "";
+        startBtn.disabled = true;
+        stopBtn.disabled = true;
+
         return fetchWithAuth(BASE_URL + TRANSCRIBE_TARIFS_ENDPOINT, {
-          // <-- CORRECTED ENDPOINT
           method: "POST",
-          body: JSON.stringify({
-            ipp: currentIPP,
-            visit_id: currentVisitId,
-            audio: true,
-          }), // Include audio=true flag for backend
+          body: fd,
         })
-          .then((data) => {
-            // fetchWithAuth returns parsed JSON
-            console.log("Tarif extraction response:", data);
-            // Ensure 'data' is an array, potentially nested
-            const suggestions = Array.isArray(data)
-              ? data
-              : data && Array.isArray(data.data)
-              ? data.data
+          .then((responseData) => {
+            // Normalize to an array of items
+            const list = Array.isArray(responseData)
+              ? responseData
+              : responseData.data && Array.isArray(responseData.data)
+              ? responseData.data
               : [];
-            console.log("Extracted tarif suggestions:", suggestions);
+            // Extract codes and select them in the dropdown
+            const codes = list.map((item) => item.code).filter(Boolean);
+            if (tarifChoices) tarifChoices.setValue(codes);
 
-            if (tarifChoices) {
-              const codes = suggestions
-                .map((x) => x.code)
-                .filter((code) => code); // Ensure code exists
-              console.log("Setting suggested tarif codes:", codes);
-              tarifChoices.setValue(codes); // Select the suggested tariffs
-              // The card is already visible if a patient is loaded, no need to explicitly show it here.
-            } else {
-              console.error("tarifChoices not initialized.");
-            }
-
-            statusEl.innerHTML = '<i class="fas fa-check"></i> OK';
-            setTimeout(() => {
-              if (statusEl?.innerHTML.includes("OK")) statusEl.innerHTML = "";
-            }, 4000);
-            return data; // Pass data along
+            statusEl.innerHTML = '<i class="fas fa-check"></i>';
           })
-          .catch((e) => {
-            console.error("Erreur lors du traitement des tarifs:", e);
-            statusEl.innerHTML =
-              '<i class="fas fa-times-circle"></i> Err Trait.';
-            setTimeout(() => {
-              if (statusEl?.innerHTML.includes("Err Trait."))
-                statusEl.innerHTML = "";
-            }, 4000);
-            throw e; // Re-throw error
+          .catch((err) => {
+            console.error("Erreur IA Tarifs:", err);
+            statusEl.innerHTML = '<i class="fas fa-times-circle"></i>';
+            if (messageEl) messageEl.innerText = "Erreur IA : " + err.message;
           })
           .finally(() => {
-            // Button re-enabling is handled here after the fetch completes
             startBtn.disabled = false;
             stopBtn.disabled = true;
           });
