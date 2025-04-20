@@ -2561,16 +2561,15 @@
       // ─── 2) Fetch & populate the full tarifs list ────────
       function loadTarifList() {
         console.log("Loading full tarif list...");
-        fetchWithAuth(BASE_URL + TARIFF_LIST_ENDPOINT) // Uses TARIFF_LIST_ENDPOINT
+        fetchWithAuth(BASE_URL + TARIFF_LIST_ENDPOINT)
           .then((data) => {
-            // Assuming the endpoint returns an array directly or within a 'data' property
+            console.log("API Response:", data); // Log the response here
             const list = Array.isArray(data)
               ? data
               : data && Array.isArray(data.data)
               ? data.data
               : [];
-            console.log("Fetched tarif list:", list);
-            console.log("Fetched tarif list:", list);
+            console.log("Parsed Tarif List:", list); // Log the parsed list
             return list;
           })
           .then((list) => {
@@ -2580,37 +2579,30 @@
             }
             const choices = list
               .map((item) => ({
-                // Ensure item properties exist before mapping
-                value: item.code || item.id, // Use code or id as value (this is the internal value stored)
+                value: item.code || item.id,
                 label: sanitizeInput(
                   item.libelle || item.name || "Sans libellé"
-                ), // ONLY the description for the main label
+                ),
                 customProperties: {
-                  // Store price and currency here for custom rendering
                   tarif: item.tarif || "0",
                   devise: item.devise || "MAD",
                 },
-                disabled: false, // Assume items are selectable
+                disabled: false,
               }))
-              .filter((choice) => choice.value); // Filter out choices without a value
-
-            // Clear previous options before setting new ones
+              .filter((choice) => choice.value);
             tarifChoices.clearChoices();
-            // Set the new choices, sort them by label (the description)
             tarifChoices.setChoices(
               choices.sort((a, b) => a.label.localeCompare(b.label)),
               "value",
               "label",
               true
             );
-            console.log(
-              "Tarif list populated in Choices.js with custom rendering data."
-            );
+            console.log("Choices populated:", choices); // Log the choices
           })
           .catch((err) => {
             console.error("Err loadTarifList:", err);
             if (tarifChoices) {
-              tarifChoices.clearChoices(); // Clear any potential loading indicators
+              tarifChoices.clearChoices();
               tarifChoices.setChoices(
                 [
                   {
@@ -2798,3 +2790,4 @@
     </script>
   </body>
 </html>
+```
