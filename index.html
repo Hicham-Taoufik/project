@@ -2533,23 +2533,15 @@
             `;
           },
           // Optional: Customize how selected tags look (items above the input)
-          /*
-        , renderItem: (item, classNames) => {
-             // item object contains { value, label, id, active, disabled }
-             // We might need to store the price/currency here too if we want it in the selected tag.
-             // For now, we'll keep the default tag rendering which uses the 'label'
-             return `
-                 <div class="${classNames.item} ${
-                 item.active ? classNames.itemSelectable : classNames.itemDisabled
-                 } ${classNames.itemChoice}"
-                 data-id="${item.id}"
-                 data-value="${item.value}"
-                 ${item.disabled ? 'aria-disabled="true"' : 'data-choice-remove'}>
-                 ${sanitizeInput(item.label)}
-                 </div>
-             `;
-         }
-         */
+          renderItem: (item, classNames) => {
+            const code = sanitizeInput(item.value || "N/A");
+            const label = sanitizeInput(item.label || "Sans libellé");
+            return `
+              <div class="${classNames.item} ${classNames.itemSelectable}" data-id="${item.id}" data-value="${item.value}">
+                ${code} — ${label}
+              </div>
+            `;
+          },
         });
         document
           .getElementById("addAllTarifsBtn")
