@@ -2464,14 +2464,23 @@
       }
 
       function processScannedQrCode(payload) {
-        console.log("QR Code scanned:", payload);
-        if (payload.startsWith(QR_TARGET_BASE_URL)) {
-          const ipp = payload.split("/").pop();
-          showMessage("scanResult", "QR code scanné avec succès.", "success");
-          loadPatient(ipp);
-        } else {
-          showMessage("scanResult", "QR code invalide.", "error");
+        // Show what we got
+        showMessage("scanResult", `QR détecté : ${payload}`, "success");
+        stopScanner();
+
+        // Try to parse it as a URL to get ?ipp=…
+        let ipp;
+        try {
+          const u = new URL(payload);
+          ipp = u.searchParams.get("ipp");
+        } catch (e) {
+          // Fallback: look for an "ipp=" fragment anywhere
+          const m = payload.match(/ipp=([^&]+)/);
+          ipp = m ? m[1] : payload;
         }
+
+        console.log(`processScannedQrCode → loading IPP: ${ipp}`);
+        loadPatient(ipp.trim());
       }
 
       function stopScanner() {
