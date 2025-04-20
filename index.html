@@ -1,159 +1,503 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>Dashboard - Médecin</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
-  <style>
-    /* --- Base CSS --- */
-    :root {
-      --primary: #5d74f2;
-      --primary-light: #ebeffe;
-      --primary-dark: #4a62d8;
-      --success: #31c971;
-      --success-light: #e0fbea;
-      --success-dark: #28a960;
-      --warning: #ffb648;
-      --warning-light: #fff8ec;
-      --danger: #ff5a5a;
-      --danger-light: #ffeded;
-      --gray-100: #f9fafb;
-      --gray-200: #f1f3f9;
-      --gray-300: #e5e7eb;
-      --gray-400: #d1d5db;
-      --gray-500: #9ca3af;
-      --gray-600: #6b7280;
-      --gray-700: #4b5563;
-      --gray-800: #374151;
-      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-      --shadow-md: 0 4px 6px rgba(0,0,0,0.04);
-      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.05);
-      --shadow-focus: 0 0 0 3px rgba(93,116,242,0.2);
-      --border-radius: 8px;
-      --transition-speed: 0.2s;
-      font-size: 15px;
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: var(--gray-100); color: var(--gray-800); line-height: 1.5; min-height: 100vh; padding: 0; visibility: hidden; }
-    body.loaded { visibility: visible; animation: fadeIn 0.3s ease-in; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-    .header { display: flex; align-items: center; padding: 15px 0; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid var(--gray-200); }
-    .header-main-content { display: flex; align-items: center; gap: 10px; flex-grow: 1; }
-    .logo { display: flex; align-items: center; }
-    .logo-img { height: 35px; width: auto; margin-right: 10px; }
-    .header-title { color: var(--primary); font-size: 1.3rem; font-weight: 600; margin: 0; }
-    .header-logout { margin-left: auto; flex-shrink: 0; }
-    .logout-btn { padding: 5px 10px; font-size: 0.8rem; border-radius: var(--border-radius); }
-    .card { background: white; border-radius: var(--border-radius); box-shadow: var(--shadow-md); overflow: hidden; margin-bottom: 20px; transition: box-shadow var(--transition-speed) ease; }
-    .card:hover { box-shadow: var(--shadow-lg); }
-    .card-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--gray-200); }
-    .card-title { font-size: 1rem; font-weight: 600; color: var(--gray-800); display: flex; align-items: center; }
-    .card-title i { margin-right: 10px; color: var(--primary); }
-    .card-actions { color: white; background: var(--primary); border-radius: var(--border-radius); width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
-    .card-body { padding: 16px; }
-    .patient-info { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
-    .info-group { margin-bottom: 5px; }
-    .info-label { font-size: 0.75rem; color: var(--gray-500); margin-bottom: 4px; }
-    .info-value { font-size: 0.85rem; color: var(--gray-800); font-weight: 500; word-break: break-word; }
-    .flex-row { display: flex; gap: 25px; margin-bottom: 25px; flex-wrap: wrap; }
-    .flex-col { flex: 1; min-width: 320px; }
-    label { display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--gray-600); }
-    textarea, input[type="text"] {
-      width: 100%;
-      padding: 12px;
-      font-size: 1rem;
-      border-radius: var(--border-radius);
-      border: 1px solid var(--gray-300);
-      background: white;
-      transition: all 0.2s ease;
-      font-family: 'Inter', sans-serif;
-      min-height: 140px;
-    }
-    input.french-date { width: 100%; padding: 10px 12px; font-size: 0.95rem; border-radius: var(--border-radius); border: 1px solid var(--gray-300); }
-    input.french-date:focus { outline: none; border-color: var(--primary); box-shadow: var(--shadow-focus); }
-    .input-group { margin-bottom: 15px; }
-    .btn-group { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-    .btn { padding: 10px 16px; font-size: 0.9rem; font-weight: 500; border-radius: var(--border-radius); border: none; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; }
-    .btn i { margin-right: 6px; }
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-primary:hover { background: var(--primary-dark); }
-    .btn-danger { background-color: var(--danger); border-color: var(--danger); color: white; }
-    .btn-danger:hover { background-color: #d3483e; border-color: #d3483e; }
-    .btn-outline { background: white; color: var(--primary); border: 1px solid var(--gray-300); }
-    .btn-outline:hover { border-color: var(--primary); background: var(--primary-light); }
-    .btn-success { background: var(--success); color: white; }
-    .btn-success:hover { background: var(--success-dark); }
-    .btn:disabled { background-color: var(--gray-300); cursor: not-allowed; opacity: 0.7; }
-    .status { display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 4px; font-size: 0.8rem; color: var(--gray-600); background: var(--gray-200); margin-left: 10px; }
-    .checkbox-wrapper { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 10px; }
-    .checkbox-item { display: flex; align-items: center; }
-    .checkbox-item input[type="checkbox"] { margin-right: 6px; }
-    .ai-suggestion { background: var(--primary-light); border-radius: var(--border-radius); padding: 15px; margin-top: 20px; }
-    .ai-suggestion h3 { font-size: 1rem; margin-bottom: 15px; color: var(--primary); display: flex; align-items: center; }
-    .ai-suggestion h3 i { margin-right: 8px; }
-    .message { padding: 10px; border-radius: 6px; margin-top: 12px; font-size: 0.9rem; font-weight: 500; display: none; }
-    .message-success { background: var(--success-light); color: var(--success); }
-    .message-warning { background: var(--warning-light); color: var(--warning); }
-    .message-error { background: var(--danger-light); color: var(--danger); }
-    .message-info, .message-loading { background: var(--primary-light); color: var(--primary); border-left: 4px solid var(--primary); }
-    .no-print { @media print { display: none !important; } }
-    #scanner-container { display: none; position: relative; max-width: 300px; margin: 15px auto 0; border: 1px solid var(--gray-300); border-radius: var(--border-radius); overflow: hidden; }
-    #scanner-video { display: block; width: 100%; height: auto; }
-    .empty-state { text-align: center; padding: 1.5rem; color: var(--gray-500); }
-    .empty-state i { font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.6; display: block; }
-    .empty-state-message { font-size: 1rem; font-weight: 500; margin-bottom: 0.25rem; }
-    .empty-state-description { font-size: 0.85rem; }
-    .nurse-data-display { background-color: var(--gray-100); padding: 1rem; border-radius: var(--border-radius); margin-top: 1rem; border: 1px solid var(--gray-200); }
-    .nurse-data-display h4 { font-size: 0.9rem; margin-bottom: 0.75rem; color: var(--gray-700); border-bottom: 1px solid var(--gray-300); padding-bottom: 0.5rem; display: flex; align-items: center; }
-    .nurse-data-display h4 i { margin-right: 8px; color: var(--primary); }
-    .nurse-observation { margin-bottom: 10px; line-height: 1.4; }
-    .nurse-vitals { margin-top: 8px; }
-    .nurse-vital-line { display: flex; align-items: center; margin-bottom: 5px; }
-    .nurse-vital-line strong { margin-right: 6px; }
-    .nurse-vital-date { font-size: 0.85rem; color: var(--gray-500); margin-bottom: 5px; }
-    .mode-selection { margin: 20px 0; padding: 10px; background: var(--gray-200); border-radius: var(--border-radius); }
-    .mode-selection label { margin-right: 15px; font-weight: 600; }
-    @media (max-width: 768px) {
-      .flex-row { flex-direction: column; gap: 20px; }
-      .patient-info { grid-template-columns: 1fr 1fr; }
-    }
-    @media (max-width: 480px) {
-      .header { padding: 12px 0; justify-content: center; }
-      .header-main-content { width: 100%; justify-content: center; margin-bottom: 10px; }
-      .header-logout { width: 100%; }
-      .logout-btn { width: 100%; justify-content: center; }
-      .header-title { font-size: 1.1rem; }
-      .card-body { padding: 12px; }
-      .btn { padding: 8px 12px; font-size: 0.8rem; }
-      .patient-info { grid-template-columns: 1fr; }
-      .btn-group { gap: 6px; }
-      #scanner-container { max-width: 100%; }
-    }
-    /* ↓ add this at the end of your existing styles */
-    select.searchable {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid var(--gray-300);
-      border-radius: var(--border-radius);
-      font-size: 1rem;
-      background: white;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Dashboard - Médecin</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      /* --- Base CSS --- */
+      :root {
+        --primary: #5d74f2;
+        --primary-light: #ebeffe;
+        --primary-dark: #4a62d8;
+        --success: #31c971;
+        --success-light: #e0fbea;
+        --success-dark: #28a960;
+        --warning: #ffb648;
+        --warning-light: #fff8ec;
+        --danger: #ff5a5a;
+        --danger-light: #ffeded;
+        --gray-100: #f9fafb;
+        --gray-200: #f1f3f9;
+        --gray-300: #e5e7eb;
+        --gray-400: #d1d5db;
+        --gray-500: #9ca3af;
+        --gray-600: #6b7280;
+        --gray-700: #4b5563;
+        --gray-800: #374151;
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.04);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        --shadow-focus: 0 0 0 3px rgba(93, 116, 242, 0.2);
+        --border-radius: 8px;
+        --transition-speed: 0.2s;
+        font-size: 15px;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        background: var(--gray-100);
+        color: var(--gray-800);
+        line-height: 1.5;
+        min-height: 100vh;
+        padding: 0;
+        visibility: hidden;
+      }
+      body.loaded {
+        visibility: visible;
+        animation: fadeIn 0.3s ease-in;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+      .header {
+        display: flex;
+        align-items: center;
+        padding: 15px 0;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 10px;
+        border-bottom: 1px solid var(--gray-200);
+      }
+      .header-main-content {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-grow: 1;
+      }
+      .logo {
+        display: flex;
+        align-items: center;
+      }
+      .logo-img {
+        height: 35px;
+        width: auto;
+        margin-right: 10px;
+      }
+      .header-title {
+        color: var(--primary);
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin: 0;
+      }
+      .header-logout {
+        margin-left: auto;
+        flex-shrink: 0;
+      }
+      .logout-btn {
+        padding: 5px 10px;
+        font-size: 0.8rem;
+        border-radius: var(--border-radius);
+      }
+      .card {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+        margin-bottom: 20px;
+        transition: box-shadow var(--transition-speed) ease;
+      }
+      .card:hover {
+        box-shadow: var(--shadow-lg);
+      }
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--gray-200);
+      }
+      .card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--gray-800);
+        display: flex;
+        align-items: center;
+      }
+      .card-title i {
+        margin-right: 10px;
+        color: var(--primary);
+      }
+      .card-actions {
+        color: white;
+        background: var(--primary);
+        border-radius: var(--border-radius);
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .card-body {
+        padding: 16px;
+      }
+      .patient-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 12px;
+      }
+      .info-group {
+        margin-bottom: 5px;
+      }
+      .info-label {
+        font-size: 0.75rem;
+        color: var(--gray-500);
+        margin-bottom: 4px;
+      }
+      .info-value {
+        font-size: 0.85rem;
+        color: var(--gray-800);
+        font-weight: 500;
+        word-break: break-word;
+      }
+      .flex-row {
+        display: flex;
+        gap: 25px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+      }
+      .flex-col {
+        flex: 1;
+        min-width: 320px;
+      }
+      label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 0.85rem;
+        color: var(--gray-600);
+      }
+      textarea,
+      input[type="text"] {
+        width: 100%;
+        padding: 12px;
+        font-size: 1rem;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--gray-300);
+        background: white;
+        transition: all 0.2s ease;
+        font-family: "Inter", sans-serif;
+        min-height: 140px;
+      }
+      input.french-date {
+        width: 100%;
+        padding: 10px 12px;
+        font-size: 0.95rem;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--gray-300);
+      }
+      input.french-date:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: var(--shadow-focus);
+      }
+      .input-group {
+        margin-bottom: 15px;
+      }
+      .btn-group {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+        flex-wrap: wrap;
+      }
+      .btn {
+        padding: 10px 16px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        border-radius: var(--border-radius);
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .btn i {
+        margin-right: 6px;
+      }
+      .btn-primary {
+        background: var(--primary);
+        color: white;
+      }
+      .btn-primary:hover {
+        background: var(--primary-dark);
+      }
+      .btn-danger {
+        background-color: var(--danger);
+        border-color: var(--danger);
+        color: white;
+      }
+      .btn-danger:hover {
+        background-color: #d3483e;
+        border-color: #d3483e;
+      }
+      .btn-outline {
+        background: white;
+        color: var(--primary);
+        border: 1px solid var(--gray-300);
+      }
+      .btn-outline:hover {
+        border-color: var(--primary);
+        background: var(--primary-light);
+      }
+      .btn-success {
+        background: var(--success);
+        color: white;
+      }
+      .btn-success:hover {
+        background: var(--success-dark);
+      }
+      .btn:disabled {
+        background-color: var(--gray-300);
+        cursor: not-allowed;
+        opacity: 0.7;
+      }
+      .status {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 10px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        color: var(--gray-600);
+        background: var(--gray-200);
+        margin-left: 10px;
+      }
+      .checkbox-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 10px;
+      }
+      .checkbox-item {
+        display: flex;
+        align-items: center;
+      }
+      .checkbox-item input[type="checkbox"] {
+        margin-right: 6px;
+      }
+      .ai-suggestion {
+        background: var(--primary-light);
+        border-radius: var(--border-radius);
+        padding: 15px;
+        margin-top: 20px;
+      }
+      .ai-suggestion h3 {
+        font-size: 1rem;
+        margin-bottom: 15px;
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+      }
+      .ai-suggestion h3 i {
+        margin-right: 8px;
+      }
+      .message {
+        padding: 10px;
+        border-radius: 6px;
+        margin-top: 12px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        display: none;
+      }
+      .message-success {
+        background: var(--success-light);
+        color: var(--success);
+      }
+      .message-warning {
+        background: var(--warning-light);
+        color: var(--warning);
+      }
+      .message-error {
+        background: var(--danger-light);
+        color: var(--danger);
+      }
+      .message-info,
+      .message-loading {
+        background: var(--primary-light);
+        color: var(--primary);
+        border-left: 4px solid var(--primary);
+      }
+      .no-print {
+        @media print {
+          display: none !important;
+        }
+      }
+      #scanner-container {
+        display: none;
+        position: relative;
+        max-width: 300px;
+        margin: 15px auto 0;
+        border: 1px solid var(--gray-300);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+      }
+      #scanner-video {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      .empty-state {
+        text-align: center;
+        padding: 1.5rem;
+        color: var(--gray-500);
+      }
+      .empty-state i {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        opacity: 0.6;
+        display: block;
+      }
+      .empty-state-message {
+        font-size: 1rem;
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+      }
+      .empty-state-description {
+        font-size: 0.85rem;
+      }
+      .nurse-data-display {
+        background-color: var(--gray-100);
+        padding: 1rem;
+        border-radius: var(--border-radius);
+        margin-top: 1rem;
+        border: 1px solid var(--gray-200);
+      }
+      .nurse-data-display h4 {
+        font-size: 0.9rem;
+        margin-bottom: 0.75rem;
+        color: var(--gray-700);
+        border-bottom: 1px solid var(--gray-300);
+        padding-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+      }
+      .nurse-data-display h4 i {
+        margin-right: 8px;
+        color: var(--primary);
+      }
+      .nurse-observation {
+        margin-bottom: 10px;
+        line-height: 1.4;
+      }
+      .nurse-vitals {
+        margin-top: 8px;
+      }
+      .nurse-vital-line {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+      }
+      .nurse-vital-line strong {
+        margin-right: 6px;
+      }
+      .nurse-vital-date {
+        font-size: 0.85rem;
+        color: var(--gray-500);
+        margin-bottom: 5px;
+      }
+      .mode-selection {
+        margin: 20px 0;
+        padding: 10px;
+        background: var(--gray-200);
+        border-radius: var(--border-radius);
+      }
+      .mode-selection label {
+        margin-right: 15px;
+        font-weight: 600;
+      }
+      @media (max-width: 768px) {
+        .flex-row {
+          flex-direction: column;
+          gap: 20px;
+        }
+        .patient-info {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      @media (max-width: 480px) {
+        .header {
+          padding: 12px 0;
+          justify-content: center;
+        }
+        .header-main-content {
+          width: 100%;
+          justify-content: center;
+          margin-bottom: 10px;
+        }
+        .header-logout {
+          width: 100%;
+        }
+        .logout-btn {
+          width: 100%;
+          justify-content: center;
+        }
+        .header-title {
+          font-size: 1.1rem;
+        }
+        .card-body {
+          padding: 12px;
+        }
+        .btn {
+          padding: 8px 12px;
+          font-size: 0.8rem;
+        }
+        .patient-info {
+          grid-template-columns: 1fr;
+        }
+        .btn-group {
+          gap: 6px;
+        }
+        #scanner-container {
+          max-width: 100%;
+        }
+      }
+      /* ↓ add this at the end of your existing styles */
+      select.searchable {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid var(--gray-300);
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+        background: white;
+      }
 
-    /* --- Custom Choices.js Rendering Styles --- */
-    /* This styles the list items in the dropdown */
-    .choices__list.choices__list--dropdown .choices__item {
+      /* --- Custom Choices.js Rendering Styles --- */
+      /* This styles the list items in the dropdown */
+      .choices__list.choices__list--dropdown .choices__item {
         display: flex; /* Use flexbox to align description and price */
         justify-content: space-between; /* Space out description and price */
         align-items: center; /* Vertically align items */
         padding: 10px; /* Add padding inside list items */
         word-break: break-word; /* Prevent long descriptions from overflowing */
-    }
+      }
 
-    /* Style for the price/currency badge */
-    .choices__list.choices__list--dropdown .choices__item .price-badge {
+      /* Style for the price/currency badge */
+      .choices__list.choices__list--dropdown .choices__item .price-badge {
         flex-shrink: 0; /* Prevent the badge from shrinking */
         margin-left: 10px; /* Add space between text and badge */
         padding: 4px 8px; /* Padding inside the badge */
@@ -163,776 +507,1194 @@
         font-size: 0.8rem; /* Smaller font size */
         font-weight: 600; /* Bold text */
         white-space: nowrap; /* Prevent the badge text from wrapping */
-    }
+      }
 
-    /* Style for the highlighted item in the dropdown */
-     .choices__list.choices__list--dropdown .choices__item--highlighted {
-         background-color: var(--primary-light); /* Use a light primary color for highlight */
-     }
-     .choices__list.choices__list--dropdown .choices__item--highlighted .price-badge {
-          background-color: var(--primary-dark); /* Darker blue for badge when item is highlighted */
-     }
-
-  </style>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
-  <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-</head>
-<body>
-  <div class="container">
-    <!-- Header -->
-    <div class="header no-print">
-      <div class="header-main-content">
-        <div class="logo">
-          <img src="./clinique-nakhil-logo-horizontal.webp" alt="MediClinic Logo" class="logo-img">
+      /* Style for the highlighted item in the dropdown */
+      .choices__list.choices__list--dropdown .choices__item--highlighted {
+        background-color: var(
+          --primary-light
+        ); /* Use a light primary color for highlight */
+      }
+      .choices__list.choices__list--dropdown
+        .choices__item--highlighted
+        .price-badge {
+        background-color: var(
+          --primary-dark
+        ); /* Darker blue for badge when item is highlighted */
+      }
+    </style>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="header no-print">
+        <div class="header-main-content">
+          <div class="logo">
+            <img
+              src="./clinique-nakhil-logo-horizontal.webp"
+              alt="MediClinic Logo"
+              class="logo-img"
+            />
+          </div>
+          <h1 class="header-title">Médecin</h1>
         </div>
-        <h1 class="header-title">Médecin</h1>
-      </div>
-      <div class="header-logout">
-        <button onclick="logout()" class="btn btn-outline logout-btn no-print">
-          <i class="fas fa-sign-out-alt"></i> Déconnexion
-        </button>
-      </div>
-    </div>
-
-    <!-- QR Scanner -->
-    <div class="card no-print">
-      <div class="card-header">
-        <h2 class="card-title"><i class="fas fa-qrcode"></i> Scanner Patient</h2>
-        <div class="card-actions"><i class="fas fa-camera"></i></div>
-      </div>
-      <div class="card-body">
-        <div class="btn-group">
-          <button id="scanQrButton" class="btn btn-primary">
-            <i class="fas fa-qrcode"></i> Scanner QR
+        <div class="header-logout">
+          <button
+            onclick="logout()"
+            class="btn btn-outline logout-btn no-print"
+          >
+            <i class="fas fa-sign-out-alt"></i> Déconnexion
           </button>
         </div>
-        <div id="scanner-container"><video id="scanner-video" playsinline></video></div>
-        <div id="scanResult" class="message message-info" style="margin-top:10px;"></div>
+      </div>
+
+      <!-- QR Scanner -->
+      <div class="card no-print">
+        <div class="card-header">
+          <h2 class="card-title">
+            <i class="fas fa-qrcode"></i> Scanner Patient
+          </h2>
+          <div class="card-actions"><i class="fas fa-camera"></i></div>
+        </div>
+        <div class="card-body">
+          <div class="btn-group">
+            <button id="scanQrButton" class="btn btn-primary">
+              <i class="fas fa-qrcode"></i> Scanner QR
+            </button>
+          </div>
+          <div id="scanner-container">
+            <video id="scanner-video" playsinline></video>
+          </div>
+          <div
+            id="scanResult"
+            class="message message-info"
+            style="margin-top: 10px"
+          ></div>
+        </div>
+      </div>
+
+      <!-- Patient Info -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">
+            <i class="fas fa-user-circle"></i> Infos Patient & Visite
+          </h2>
+          <div class="card-actions"><i class="fas fa-notes-medical"></i></div>
+        </div>
+        <div class="card-body">
+          <div id="patientInfo" class="patient-info">
+            <div class="empty-state" style="grid-column: 1/-1">
+              <i class="fas fa-qrcode"></i>
+              <div class="empty-state-message">Prêt à scanner</div>
+              <div class="empty-state-description">
+                Scan QR ou chargez via URL
+              </div>
+            </div>
+          </div>
+          <div
+            id="nurseDataDisplay"
+            class="nurse-data-display"
+            style="display: none"
+          ></div>
+        </div>
+      </div>
+
+      <!-- Dictée Globale -->
+      <div id="globalDictationUI" class="card">
+        <div class="card-header">
+          <h2 class="card-title">
+            <i class="fas fa-file-medical"></i> Dictée Globale
+          </h2>
+        </div>
+        <div
+          class="card-body"
+          id="fullDictationCardBody"
+          style="opacity: 0.5; pointer-events: none; text-align: center"
+        >
+          <p>Appuyez sur “Démarrer” pour enregistrer</p>
+          <div class="btn-group">
+            <button
+              class="btn btn-outline"
+              id="startFullDictationRecordBtn"
+              onclick="startRecording('fullDictation')"
+              disabled
+            >
+              <i class="fas fa-microphone"></i> Démarrer
+            </button>
+            <button
+              class="btn btn-outline"
+              id="stopFullDictationRecordBtn"
+              onclick="stopRecording('fullDictation')"
+              disabled
+            >
+              <i class="fas fa-stop-circle"></i> Arrêter
+            </button>
+            <span id="fullDictationStatus" class="status"></span>
+          </div>
+          <div id="fullDictationMessage" class="message"></div>
+        </div>
+      </div>
+
+      <!-- Individual Mode -->
+      <div id="individualModeUI">
+        <!-- Row 1: Diagnostic & Antécédents -->
+        <div class="flex-row">
+          <!-- Diagnostic -->
+          <div class="flex-col">
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">
+                  <i class="fas fa-stethoscope"></i> Diagnostic
+                </h2>
+                <div class="card-actions">
+                  <i class="fas fa-notes-medical"></i>
+                </div>
+              </div>
+              <div
+                class="card-body"
+                id="diagCardBody"
+                style="opacity: 0.5; pointer-events: none"
+              >
+                <div class="input-group">
+                  <textarea
+                    id="diagnosticInput"
+                    placeholder="Entrez le diagnostic..."
+                    disabled
+                  ></textarea>
+                </div>
+                <div class="btn-group">
+                  <button
+                    class="btn btn-outline"
+                    id="startDiagRecordBtn"
+                    onclick="startRecording('diagnosis')"
+                    disabled
+                  >
+                    <i class="fas fa-microphone"></i> Démarrer
+                  </button>
+                  <button
+                    class="btn btn-outline"
+                    id="stopDiagRecordBtn"
+                    onclick="stopRecording('diagnosis')"
+                    disabled
+                  >
+                    <i class="fas fa-stop-circle"></i> Arrêter
+                  </button>
+                  <span id="diagnosisStatus" class="status"></span>
+                </div>
+                <div class="btn-group">
+                  <button
+                    class="btn btn-success"
+                    id="submitDiagBtn"
+                    onclick="submitDiagnostic()"
+                    disabled
+                  >
+                    <i class="fas fa-check-circle"></i> Enregistrer
+                  </button>
+                </div>
+                <div id="diagMessage" class="message"></div>
+              </div>
+            </div>
+          </div>
+          <!-- Antécédents -->
+          <div class="flex-col">
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">
+                  <i class="fas fa-history"></i> Antécédents
+                </h2>
+              </div>
+              <div
+                class="card-body"
+                id="antecedentsCardBody"
+                style="opacity: 0.5; pointer-events: none"
+              >
+                <div class="input-group">
+                  <textarea
+                    id="antecedentsInput"
+                    placeholder="Entrez les antécédents..."
+                    disabled
+                  ></textarea>
+                </div>
+                <div class="btn-group">
+                  <button
+                    class="btn btn-outline"
+                    id="startAntecedentsRecordBtn"
+                    onclick="startRecording('antecedents')"
+                    disabled
+                  >
+                    <i class="fas fa-microphone"></i> Démarrer
+                  </button>
+                  <button
+                    class="btn btn-outline"
+                    id="stopAntecedentsRecordBtn"
+                    onclick="stopRecording('antecedents')"
+                    disabled
+                  >
+                    <i class="fas fa-stop-circle"></i> Arrêter
+                  </button>
+                  <span id="antecedentsStatus" class="status"></span>
+                </div>
+                <div id="antecedentsMessage" class="message"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 2: Prescription & Conseils -->
+        <div class="flex-row">
+          <!-- Prescription -->
+          <div class="flex-col">
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">
+                  <i class="fas fa-prescription-bottle-alt"></i> Prescription
+                </h2>
+                <div class="card-actions"><i class="fas fa-pills"></i></div>
+              </div>
+              <div
+                class="card-body"
+                id="prescCardBody"
+                style="opacity: 0.5; pointer-events: none"
+              >
+                <div class="input-group">
+                  <textarea
+                    id="prescriptionInput"
+                    placeholder="Entrez la prescription..."
+                    disabled
+                  ></textarea>
+                </div>
+                <div class="btn-group">
+                  <button
+                    class="btn btn-outline"
+                    id="startPrescRecordBtn"
+                    onclick="startRecording('prescription')"
+                    disabled
+                  >
+                    <i class="fas fa-microphone"></i> Démarrer
+                  </button>
+                  <button
+                    class="btn btn-outline"
+                    id="stopPrescRecordBtn"
+                    onclick="stopRecording('prescription')"
+                    disabled
+                  >
+                    <i class="fas fa-stop-circle"></i> Arrêter
+                  </button>
+                  <span id="prescriptionStatus" class="status"></span>
+                </div>
+                <div class="btn-group">
+                  <button
+                    class="btn btn-primary"
+                    id="submitPrescBtn"
+                    onclick="submitPrescription()"
+                    disabled
+                  >
+                    <i class="fas fa-robot"></i> Soumettre IA
+                  </button>
+                </div>
+                <div
+                  id="aiSuggestion"
+                  class="ai-suggestion"
+                  style="display: none"
+                ></div>
+                <div id="validationMessage" class="message"></div>
+              </div>
+            </div>
+          </div>
+          <!-- Conseils (anciennement Traitement) -->
+          <div class="flex-col">
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">
+                  <i class="fas fa-lightbulb"></i> Conseils
+                </h2>
+              </div>
+              <div
+                class="card-body"
+                id="treatmentCardBody"
+                style="opacity: 0.5; pointer-events: none"
+              >
+                <div class="input-group">
+                  <textarea
+                    id="treatmentInput"
+                    placeholder="Entrez les conseils..."
+                    disabled
+                  ></textarea>
+                </div>
+                <div class="btn-group">
+                  <button
+                    class="btn btn-outline"
+                    id="startTreatmentRecordBtn"
+                    onclick="startRecording('treatment')"
+                    disabled
+                  >
+                    <i class="fas fa-microphone"></i> Démarrer
+                  </button>
+                  <button
+                    class="btn btn-outline"
+                    id="stopTreatmentRecordBtn"
+                    onclick="stopRecording('treatment')"
+                    disabled
+                  >
+                    <i class="fas fa-stop-circle"></i> Arrêter
+                  </button>
+                  <span id="treatmentStatus" class="status"></span>
+                </div>
+                <div id="treatmentMessage" class="message"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 3: Notes, Orientation & Exploration -->
+        <div class="flex-row">
+          <!-- Notes -->
+          <div class="flex-col">
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">
+                  <i class="fas fa-file-alt"></i> Notes
+                </h2>
+              </div>
+              <div
+                class="card-body"
+                id="notesCardBody"
+                style="opacity: 0.5; pointer-events: none"
+              >
+                <div class="input-group">
+                  <textarea
+                    id="notesInput"
+                    placeholder="Entrez les notes..."
+                    disabled
+                  ></textarea>
+                </div>
+                <div class="btn-group">
+                  <button
+                    class="btn btn-outline"
+                    id="startNotesRecordBtn"
+                    onclick="startRecording('notes')"
+                    disabled
+                  >
+                    <i class="fas fa-microphone"></i> Démarrer
+                  </button>
+                  <button
+                    class="btn btn-outline"
+                    id="stopNotesRecordBtn"
+                    onclick="stopRecording('notes')"
+                    disabled
+                  >
+                    <i class="fas fa-stop-circle"></i> Arrêter
+                  </button>
+                  <span id="notesStatus" class="status"></span>
+                </div>
+                <div id="notesMessage" class="message"></div>
+              </div>
+            </div>
+          </div>
+          <!-- Orientation -->
+          <div class="flex-col">
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">
+                  <i class="fas fa-map-signs"></i> Orientation
+                </h2>
+              </div>
+              <div
+                class="card-body"
+                id="orientationCardBody"
+                style="opacity: 0.5; pointer-events: none"
+              >
+                <div class="input-group">
+                  <textarea
+                    id="orientationInput"
+                    placeholder="Entrez l'orientation..."
+                    disabled
+                  ></textarea>
+                </div>
+                <div class="btn-group">
+                  <button
+                    class="btn btn-outline"
+                    id="startOrientationRecordBtn"
+                    onclick="startRecording('orientation')"
+                    disabled
+                  >
+                    <i class="fas fa-microphone"></i> Démarrer
+                  </button>
+                  <button
+                    class="btn btn-outline"
+                    id="stopOrientationRecordBtn"
+                    onclick="stopRecording('orientation')"
+                    disabled
+                  >
+                    <i class="fas fa-stop-circle"></i> Arrêter
+                  </button>
+                  <span id="orientationStatus" class="status"></span>
+                </div>
+                <div id="orientationMessage" class="message"></div>
+              </div>
+            </div>
+          </div>
+          <!-- Exploration -->
+          <div class="flex-col">
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">
+                  <i class="fas fa-microscope"></i> Exploration
+                </h2>
+              </div>
+              <div
+                class="card-body"
+                id="explorationCardBody"
+                style="opacity: 0.5; pointer-events: none"
+              >
+                <div class="input-group">
+                  <textarea
+                    id="explorationInput"
+                    placeholder="Entrez l'exploration..."
+                    disabled
+                  ></textarea>
+                </div>
+                <div class="btn-group">
+                  <button
+                    class="btn btn-outline"
+                    id="startExplorationRecordBtn"
+                    onclick="startRecording('exploration')"
+                    disabled
+                  >
+                    <i class="fas fa-microphone"></i> Démarrer
+                  </button>
+                  <button
+                    class="btn btn-outline"
+                    id="stopExplorationRecordBtn"
+                    onclick="stopRecording('exploration')"
+                    disabled
+                  >
+                    <i class="fas fa-stop-circle"></i> Arrêter
+                  </button>
+                  <span id="explorationStatus" class="status"></span>
+                </div>
+                <div id="explorationMessage" class="message"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit All -->
+      <div style="text-align: center; margin: 20px 0">
+        <button id="submitAllBtn" class="btn btn-success">
+          <i class="fas fa-upload"></i> Soumettre Toutes les Données
+        </button>
+        <div id="validationMessage" class="message"></div>
+      </div>
+      <!-- ↓ new Tarifs card - Title changed, display: none removed -->
+      <div id="tarifsDropdownCard" class="card" style="margin-top: 20px">
+        <div class="card-header">
+          <!-- Title changed from Sélection Tarifs (Recherche) to Services -->
+          <h2 class="card-title"><i class="fas fa-list"></i> Services</h2>
+        </div>
+        <div class="card-body">
+          <select id="tarifsSelect" class="searchable" multiple></select>
+          <div style="margin-top: 10px">
+            <button id="addAllTarifsBtn" class="btn btn-outline">
+              Sélectionner Tout
+            </button>
+            <button id="removeAllTarifsBtn" class="btn btn-outline">
+              Tout Désélectionner
+            </button>
+          </div>
+          <div class="btn-group" style="margin-top: 12px">
+            <button id="startTarifRecordBtn" class="btn btn-outline">
+              <i class="fas fa-microphone"></i> Démarrer Tarifs IA
+            </button>
+            <button id="stopTarifRecordBtn" class="btn btn-outline" disabled>
+              <i class="fas fa-stop-circle"></i> Arrêter
+            </button>
+            <span id="tarifStatus" class="status"></span>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Patient Info -->
-    <div class="card">
-      <div class="card-header">
-        <h2 class="card-title"><i class="fas fa-user-circle"></i> Infos Patient & Visite</h2>
-        <div class="card-actions"><i class="fas fa-notes-medical"></i></div>
-      </div>
-      <div class="card-body">
-        <div id="patientInfo" class="patient-info">
-          <div class="empty-state" style="grid-column:1/-1;">
-            <i class="fas fa-qrcode"></i>
-            <div class="empty-state-message">Prêt à scanner</div>
-            <div class="empty-state-description">Scan QR ou chargez via URL</div>
-          </div>
-        </div>
-        <div id="nurseDataDisplay" class="nurse-data-display" style="display:none;"></div>
-      </div>
-    </div>
-
-    <!-- Dictée Globale -->
-    <div id="globalDictationUI" class="card">
-      <div class="card-header">
-        <h2 class="card-title"><i class="fas fa-file-medical"></i> Dictée Globale</h2>
-      </div>
-      <div class="card-body" id="fullDictationCardBody" style="opacity:0.5;pointer-events:none;text-align:center;">
-        <p>Appuyez sur “Démarrer” pour enregistrer</p>
-        <div class="btn-group">
-          <button class="btn btn-outline" id="startFullDictationRecordBtn" onclick="startRecording('fullDictation')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
-          <button class="btn btn-outline" id="stopFullDictationRecordBtn" onclick="stopRecording('fullDictation')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
-          <span id="fullDictationStatus" class="status"></span>
-        </div>
-        <div id="fullDictationMessage" class="message"></div>
-      </div>
-    </div>
-
-    <!-- Individual Mode -->
-    <div id="individualModeUI">
-      <!-- Row 1: Diagnostic & Antécédents -->
-      <div class="flex-row">
-        <!-- Diagnostic -->
-        <div class="flex-col">
-          <div class="card">
-            <div class="card-header">
-              <h2 class="card-title"><i class="fas fa-stethoscope"></i> Diagnostic</h2>
-              <div class="card-actions"><i class="fas fa-notes-medical"></i></div>
-            </div>
-            <div class="card-body" id="diagCardBody" style="opacity:0.5;pointer-events:none;">
-              <div class="input-group"><textarea id="diagnosticInput" placeholder="Entrez le diagnostic..." disabled></textarea></div>
-              <div class="btn-group">
-                <button class="btn btn-outline" id="startDiagRecordBtn" onclick="startRecording('diagnosis')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
-                <button class="btn btn-outline" id="stopDiagRecordBtn" onclick="stopRecording('diagnosis')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
-                <span id="diagnosisStatus" class="status"></span>
-              </div>
-              <div class="btn-group"><button class="btn btn-success" id="submitDiagBtn" onclick="submitDiagnostic()" disabled><i class="fas fa-check-circle"></i> Enregistrer</button></div>
-              <div id="diagMessage" class="message"></div>
-            </div>
-          </div>
-        </div>
-        <!-- Antécédents -->
-        <div class="flex-col">
-          <div class="card">
-            <div class="card-header">
-              <h2 class="card-title"><i class="fas fa-history"></i> Antécédents</h2>
-            </div>
-            <div class="card-body" id="antecedentsCardBody" style="opacity:0.5;pointer-events:none;">
-              <div class="input-group"><textarea id="antecedentsInput" placeholder="Entrez les antécédents..." disabled></textarea></div>
-              <div class="btn-group">
-                <button class="btn btn-outline" id="startAntecedentsRecordBtn" onclick="startRecording('antecedents')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
-                <button class="btn btn-outline" id="stopAntecedentsRecordBtn" onclick="stopRecording('antecedents')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
-                <span id="antecedentsStatus" class="status"></span>
-              </div>
-              <div id="antecedentsMessage" class="message"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Row 2: Prescription & Conseils -->
-      <div class="flex-row">
-        <!-- Prescription -->
-        <div class="flex-col">
-          <div class="card">
-            <div class="card-header">
-              <h2 class="card-title"><i class="fas fa-prescription-bottle-alt"></i> Prescription</h2>
-              <div class="card-actions"><i class="fas fa-pills"></i></div>
-            </div>
-            <div class="card-body" id="prescCardBody" style="opacity:0.5;pointer-events:none;">
-              <div class="input-group"><textarea id="prescriptionInput" placeholder="Entrez la prescription..." disabled></textarea></div>
-              <div class="btn-group">
-                <button class="btn btn-outline" id="startPrescRecordBtn" onclick="startRecording('prescription')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
-                <button class="btn btn-outline" id="stopPrescRecordBtn" onclick="stopRecording('prescription')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
-                <span id="prescriptionStatus" class="status"></span>
-              </div>
-              <div class="btn-group"><button class="btn btn-primary" id="submitPrescBtn" onclick="submitPrescription()" disabled><i class="fas fa-robot"></i> Soumettre IA</button></div>
-              <div id="aiSuggestion" class="ai-suggestion" style="display:none;"></div>
-              <div id="validationMessage" class="message"></div>
-            </div>
-          </div>
-        </div>
-        <!-- Conseils (anciennement Traitement) -->
-        <div class="flex-col">
-          <div class="card">
-            <div class="card-header">
-              <h2 class="card-title"><i class="fas fa-lightbulb"></i> Conseils</h2>
-            </div>
-            <div class="card-body" id="treatmentCardBody" style="opacity:0.5;pointer-events:none;">
-              <div class="input-group"><textarea id="treatmentInput" placeholder="Entrez les conseils..." disabled></textarea></div>
-              <div class="btn-group">
-                <button class="btn btn-outline" id="startTreatmentRecordBtn" onclick="startRecording('treatment')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
-                <button class="btn btn-outline" id="stopTreatmentRecordBtn" onclick="stopRecording('treatment')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
-                <span id="treatmentStatus" class="status"></span>
-              </div>
-              <div id="treatmentMessage" class="message"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Row 3: Notes, Orientation & Exploration -->
-      <div class="flex-row">
-        <!-- Notes -->
-        <div class="flex-col">
-          <div class="card">
-            <div class="card-header">
-              <h2 class="card-title"><i class="fas fa-file-alt"></i> Notes</h2>
-            </div>
-            <div class="card-body" id="notesCardBody" style="opacity:0.5;pointer-events:none;">
-              <div class="input-group"><textarea id="notesInput" placeholder="Entrez les notes..." disabled></textarea></div>
-              <div class="btn-group">
-                <button class="btn btn-outline" id="startNotesRecordBtn" onclick="startRecording('notes')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
-                <button class="btn btn-outline" id="stopNotesRecordBtn" onclick="stopRecording('notes')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
-                <span id="notesStatus" class="status"></span>
-              </div>
-              <div id="notesMessage" class="message"></div>
-            </div>
-          </div>
-        </div>
-        <!-- Orientation -->
-        <div class="flex-col">
-          <div class="card">
-            <div class="card-header">
-              <h2 class="card-title"><i class="fas fa-map-signs"></i> Orientation</h2>
-            </div>
-            <div class="card-body" id="orientationCardBody" style="opacity:0.5;pointer-events:none;">
-              <div class="input-group"><textarea id="orientationInput" placeholder="Entrez l'orientation..." disabled></textarea></div>
-              <div class="btn-group">
-                <button class="btn btn-outline" id="startOrientationRecordBtn" onclick="startRecording('orientation')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
-                <button class="btn btn-outline" id="stopOrientationRecordBtn" onclick="stopRecording('orientation')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
-                <span id="orientationStatus" class="status"></span>
-              </div>
-              <div id="orientationMessage" class="message"></div>
-            </div>
-          </div>
-        </div>
-        <!-- Exploration -->
-        <div class="flex-col">
-          <div class="card">
-            <div class="card-header">
-              <h2 class="card-title"><i class="fas fa-microscope"></i> Exploration</h2>
-            </div>
-            <div class="card-body" id="explorationCardBody" style="opacity:0.5;pointer-events:none;">
-              <div class="input-group"><textarea id="explorationInput" placeholder="Entrez l'exploration..." disabled></textarea></div>
-              <div class="btn-group">
-                <button class="btn btn-outline" id="startExplorationRecordBtn" onclick="startRecording('exploration')" disabled><i class="fas fa-microphone"></i> Démarrer</button>
-                <button class="btn btn-outline" id="stopExplorationRecordBtn" onclick="stopRecording('exploration')" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
-                <span id="explorationStatus" class="status"></span>
-              </div>
-              <div id="explorationMessage" class="message"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Submit All -->
-    <div style="text-align:center; margin:20px 0;">
-      <button id="submitAllBtn" class="btn btn-success">
-        <i class="fas fa-upload"></i> Soumettre Toutes les Données
-      </button>
-      <div id="validationMessage" class="message"></div>
-    </div>
-    <!-- ↓ new Tarifs card - Title changed, display: none removed -->
-    <div id="tarifsDropdownCard" class="card" style="margin-top:20px;">
-      <div class="card-header">
-        <!-- Title changed from Sélection Tarifs (Recherche) to Services -->
-        <h2 class="card-title"><i class="fas fa-list"></i> Services</h2>
-      </div>
-      <div class="card-body">
-        <select id="tarifsSelect" class="searchable" multiple></select>
-        <div style="margin-top:10px;">
-          <button id="addAllTarifsBtn" class="btn btn-outline">Sélectionner Tout</button>
-          <button id="removeAllTarifsBtn" class="btn btn-outline">Tout Désélectionner</button>
-        </div>
-        <div class="btn-group" style="margin-top:12px;">
-          <button id="startTarifRecordBtn" class="btn btn-outline"><i class="fas fa-microphone"></i> Démarrer Tarifs IA</button>
-          <button id="stopTarifRecordBtn" class="btn btn-outline" disabled><i class="fas fa-stop-circle"></i> Arrêter</button>
-          <span id="tarifStatus" class="status"></span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- jsQR Library Script -->
-  <script src="./jsQR.js"></script>
-  <script>
-    // --- Function Definitions ---
-    // Define enableFullDictationSection first so it's available for later calls.
-    function enableFullDictationSection(enable) {
-      const fullCard = document.getElementById("fullDictationCardBody");
-      if (!fullCard) return;
-      if (enable && currentIPP && currentVisitId) {
-        fullCard.style.opacity = '1';
-        fullCard.style.pointerEvents = 'auto';
-        document.getElementById("startFullDictationRecordBtn").disabled = false;
-        // stop button starts disabled until recording starts
-        document.getElementById("stopFullDictationRecordBtn").disabled = true;
-      } else {
-        fullCard.style.opacity = '0.5';
-        fullCard.style.pointerEvents = 'none';
-        document.getElementById("startFullDictationRecordBtn").disabled = true;
-        document.getElementById("stopFullDictationRecordBtn").disabled = true;
+    <!-- jsQR Library Script -->
+    <script src="./jsQR.js"></script>
+    <script>
+      // --- Function Definitions ---
+      // Define enableFullDictationSection first so it's available for later calls.
+      function enableFullDictationSection(enable) {
+        const fullCard = document.getElementById("fullDictationCardBody");
+        if (!fullCard) return;
+        if (enable && currentIPP && currentVisitId) {
+          fullCard.style.opacity = "1";
+          fullCard.style.pointerEvents = "auto";
+          document.getElementById(
+            "startFullDictationRecordBtn"
+          ).disabled = false;
+          // stop button starts disabled until recording starts
+          document.getElementById("stopFullDictationRecordBtn").disabled = true;
+        } else {
+          fullCard.style.opacity = "0.5";
+          fullCard.style.pointerEvents = "none";
+          document.getElementById(
+            "startFullDictationRecordBtn"
+          ).disabled = true;
+          document.getElementById("stopFullDictationRecordBtn").disabled = true;
+        }
       }
-    }
 
-    // Helper functions for date conversion
-    function convertToFrenchDate(aiDateStr) {
-      if (!aiDateStr || typeof aiDateStr !== 'string') {
-        return "";
-      }
-       // Attempt to parse common formats (YYYY-MM-DD, MM/DD/YYYY, DD/MM/YYYY)
-      const date = new Date(aiDateStr);
-      if (isNaN(date.getTime())) {
-         // Fallback for explicit DD/MM/YYYY or MM/DD/YYYY if new Date fails
-         const parts = aiDateStr.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
-         if (parts) {
+      // Helper functions for date conversion
+      function convertToFrenchDate(aiDateStr) {
+        if (!aiDateStr || typeof aiDateStr !== "string") {
+          return "";
+        }
+        // Attempt to parse common formats (YYYY-MM-DD, MM/DD/YYYY, DD/MM/YYYY)
+        const date = new Date(aiDateStr);
+        if (isNaN(date.getTime())) {
+          // Fallback for explicit DD/MM/YYYY or MM/DD/YYYY if new Date fails
+          const parts = aiDateStr.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
+          if (parts) {
             // Assume DD/MM/YYYY first
             let d = parseInt(parts[1], 10);
             let m = parseInt(parts[2], 10);
             let y = parseInt(parts[3], 10);
-             // Basic validation
+            // Basic validation
             if (m >= 1 && m <= 12 && d >= 1 && d <= 31) {
-                return `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${y}`;
+              return `${String(d).padStart(2, "0")}/${String(m).padStart(
+                2,
+                "0"
+              )}/${y}`;
             }
-             // Try MM/DD/YYYY if DD/MM/YYYY was invalid (e.g., day > 12)
-             if (d >= 1 && d <= 12 && m >= 1 && m <= 31) {
-                 return `${String(m).padStart(2, '0')}/${String(d).padStart(2, '0')}/${y}`; // Still return in DD/MM/YYYY format
-             }
-         }
-         return ""; // Invalid date format
-      }
-      // Format valid Date object as DD/MM/YYYY
-      const d = String(date.getDate()).padStart(2, '0');
-      const m = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
-      const y = date.getFullYear();
-      return `${d}/${m}/${y}`;
-    }
-    function convertFrenchToBackendDate(frenchDateStr) {
-      if (!frenchDateStr || !/^\d{2}\/\d{2}\/\d{4}$/.test(frenchDateStr)) {
-        return "";
-      }
-      const [day, month, year] = frenchDateStr.split("/");
-       // Return in MM/DD/YYYY or YYYY-MM-DD format, backend specifies MM/DD/YYYY in prompt
-      return `${month}/${day}/${year}`;
-    }
-
-    // --- Configuration & Globals ---
-    const BASE_URL = 'https://workflows.aphelionxinnovations.com';
-    const LOGIN_PAGE_URL = 'https://hicham-taoufik.github.io/login/';
-    const QR_TARGET_BASE_URL = 'app://medilink/patient';
-    const GET_PATIENT_DATA_ENDPOINT = "/webhook/doctor/get-visit-details";
-    const UPDATE_DIAGNOSIS_ENDPOINT = "/webhook/doctor-submit-diagnostic";
-    const TRANSCRIBE_DIAGNOSIS_ENDPOINT = "/webhook/transcribe-diagnosis";
-    const TRANSCRIBE_PRESCRIPTION_ENDPOINT = "/webhook/transcribe-prescription";
-    const SUBMIT_PRESCRIPTION_AI_ENDPOINT = "/webhook/doctor-submit-prescription";
-    const VALIDATE_PRESCRIPTION_AI_ENDPOINT = "/webhook/doctor-validate-prescription";
-
-    // New transcription endpoints for individual fields
-    const TRANSCRIBE_NOTES_ENDPOINT = "/webhook/transcribe-notes";
-    const TRANSCRIBE_ORIENTATION_ENDPOINT = "/webhook/transcribe-orientation";
-    const TRANSCRIBE_ANTECEDENTS_ENDPOINT = "/webhook/transcribe-antecedents";
-    const TRANSCRIBE_TREATMENT_ENDPOINT = "/webhook/transcribe-treatment";
-    const TRANSCRIBE_EXPLORATION_ENDPOINT = "/webhook/transcribe-exploration";
-
-    // Full dictation endpoint – ensure it matches your n8n webhook
-    const PROCESS_VISIT_DICTATION_ENDPOINT = "/webhook/process-visit-dictation";
-
-    // --- NEW TARIFF ENDPOINTS ---
-    const TARIFF_LIST_ENDPOINT = '/webhook/get-all-tarifs'; // For loading the full list
-    const VISIT_TARIF_SUGGEST_ENDPOINT = '/webhook/extract-tarifs'; // For suggesting tariffs from visit context (post-submit)
-    const TRANSCRIBE_TARIFS_ENDPOINT = '/webhook/transcribe-extract-tarifs'; // <-- NEW: For suggesting tariffs from audio
-
-
-    let currentIPP = null;
-    let currentVisitId = null;
-    let mediaRecorder;
-    let audioChunks = [];
-    let recordingField = null;
-    let scanning = false;
-    let currentStream = null;
-    let scanTimeout = null;
-
-    // Cache frequently-used DOM elements
-    const patientInfoDiv = document.getElementById('patientInfo');
-    const nurseDataDisplayDiv = document.getElementById('nurseDataDisplay');
-    const scanButton = document.getElementById('scanQrButton');
-    const scannerContainer = document.getElementById('scanner-container');
-    const video = document.getElementById('scanner-video');
-    const aiSuggestionDiv = document.getElementById('aiSuggestion');
-
-    // --- Auth & Helper Functions ---
-    function fetchWithAuth(url, options = {}) {
-      const token = localStorage.getItem('authToken');
-      if (!token) {
-        console.error('Doctor: No token.');
-        alert('Session expirée.');
-        window.location.href = LOGIN_PAGE_URL;
-        return Promise.reject(new Error('Token non trouvé.'));
-      }
-      const headers = {
-        ...options.headers,
-        'Authorization': `Bearer ${token}`
-      };
-      if (options.body && !(options.body instanceof FormData)) {
-        headers['Content-Type'] = 'application/json';
-      } else if (options.body instanceof FormData) {
-        delete headers['Content-Type'];
-      }
-      return fetch(url, { ...options, headers: headers })
-        .then(async response => {
-          if (response.status === 401 || response.status === 403) {
-            console.error('Doctor: Auth error:', response.status);
-            localStorage.removeItem('authToken');
-            alert('Session invalide.');
-            window.location.href = LOGIN_PAGE_URL;
-            throw new Error(`Auth failed: ${response.status}`);
+            // Try MM/DD/YYYY if DD/MM/YYYY was invalid (e.g., day > 12)
+            if (d >= 1 && d <= 12 && m >= 1 && m <= 31) {
+              return `${String(m).padStart(2, "0")}/${String(d).padStart(
+                2,
+                "0"
+              )}/${y}`; // Still return in DD/MM/YYYY format
+            }
           }
-          if (!response.ok) {
-            let errorText = response.statusText;
-            try {
-              const errorData = await response.text();
+          return ""; // Invalid date format
+        }
+        // Format valid Date object as DD/MM/YYYY
+        const d = String(date.getDate()).padStart(2, "0");
+        const m = String(date.getMonth() + 1).padStart(2, "0"); // Month is 0-indexed
+        const y = date.getFullYear();
+        return `${d}/${m}/${y}`;
+      }
+      function convertFrenchToBackendDate(frenchDateStr) {
+        if (!frenchDateStr || !/^\d{2}\/\d{2}\/\d{4}$/.test(frenchDateStr)) {
+          return "";
+        }
+        const [day, month, year] = frenchDateStr.split("/");
+        // Return in MM/DD/YYYY or YYYY-MM-DD format, backend specifies MM/DD/YYYY in prompt
+        return `${month}/${day}/${year}`;
+      }
+
+      // --- Configuration & Globals ---
+      const BASE_URL = "https://workflows.aphelionxinnovations.com";
+      const LOGIN_PAGE_URL = "https://hicham-taoufik.github.io/login/";
+      const QR_TARGET_BASE_URL = "app://medilink/patient";
+      const GET_PATIENT_DATA_ENDPOINT = "/webhook/doctor/get-visit-details";
+      const UPDATE_DIAGNOSIS_ENDPOINT = "/webhook/doctor-submit-diagnostic";
+      const TRANSCRIBE_DIAGNOSIS_ENDPOINT = "/webhook/transcribe-diagnosis";
+      const TRANSCRIBE_PRESCRIPTION_ENDPOINT =
+        "/webhook/transcribe-prescription";
+      const SUBMIT_PRESCRIPTION_AI_ENDPOINT =
+        "/webhook/doctor-submit-prescription";
+      const VALIDATE_PRESCRIPTION_AI_ENDPOINT =
+        "/webhook/doctor-validate-prescription";
+
+      // New transcription endpoints for individual fields
+      const TRANSCRIBE_NOTES_ENDPOINT = "/webhook/transcribe-notes";
+      const TRANSCRIBE_ORIENTATION_ENDPOINT = "/webhook/transcribe-orientation";
+      const TRANSCRIBE_ANTECEDENTS_ENDPOINT = "/webhook/transcribe-antecedents";
+      const TRANSCRIBE_TREATMENT_ENDPOINT = "/webhook/transcribe-treatment";
+      const TRANSCRIBE_EXPLORATION_ENDPOINT = "/webhook/transcribe-exploration";
+
+      // Full dictation endpoint – ensure it matches your n8n webhook
+      const PROCESS_VISIT_DICTATION_ENDPOINT =
+        "/webhook/process-visit-dictation";
+
+      // --- NEW TARIFF ENDPOINTS ---
+      const TARIFF_LIST_ENDPOINT = "/webhook/get-all-tarifs"; // For loading the full list
+      const VISIT_TARIF_SUGGEST_ENDPOINT = "/webhook/extract-tarifs"; // For suggesting tariffs from visit context (post-submit)
+      const TRANSCRIBE_TARIFS_ENDPOINT = "/webhook/transcribe-extract-tarifs"; // <-- NEW: For suggesting tariffs from audio
+
+      let currentIPP = null;
+      let currentVisitId = null;
+      let mediaRecorder;
+      let audioChunks = [];
+      let recordingField = null;
+      let scanning = false;
+      let currentStream = null;
+      let scanTimeout = null;
+
+      // Cache frequently-used DOM elements
+      const patientInfoDiv = document.getElementById("patientInfo");
+      const nurseDataDisplayDiv = document.getElementById("nurseDataDisplay");
+      const scanButton = document.getElementById("scanQrButton");
+      const scannerContainer = document.getElementById("scanner-container");
+      const video = document.getElementById("scanner-video");
+      const aiSuggestionDiv = document.getElementById("aiSuggestion");
+
+      // --- Auth & Helper Functions ---
+      function fetchWithAuth(url, options = {}) {
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+          console.error("Doctor: No token.");
+          alert("Session expirée.");
+          window.location.href = LOGIN_PAGE_URL;
+          return Promise.reject(new Error("Token non trouvé."));
+        }
+        const headers = {
+          ...options.headers,
+          Authorization: `Bearer ${token}`,
+        };
+        if (options.body && !(options.body instanceof FormData)) {
+          headers["Content-Type"] = "application/json";
+        } else if (options.body instanceof FormData) {
+          delete headers["Content-Type"];
+        }
+        return fetch(url, { ...options, headers: headers })
+          .then(async (response) => {
+            if (response.status === 401 || response.status === 403) {
+              console.error("Doctor: Auth error:", response.status);
+              localStorage.removeItem("authToken");
+              alert("Session invalide.");
+              window.location.href = LOGIN_PAGE_URL;
+              throw new Error(`Auth failed: ${response.status}`);
+            }
+            if (!response.ok) {
+              let errorText = response.statusText;
               try {
-                const errorJson = JSON.parse(errorData);
-                errorText = errorJson.message || errorData;
-              } catch (parseError) {
-                errorText = errorData || response.statusText;
+                const errorData = await response.text();
+                try {
+                  const errorJson = JSON.parse(errorData);
+                  errorText = errorJson.message || errorData;
+                } catch (parseError) {
+                  errorText = errorData || response.statusText;
+                }
+              } catch (readError) {
+                console.warn(
+                  `Could not read error body for ${url}:`,
+                  readError
+                );
               }
-            } catch (readError) {
-              console.warn(`Could not read error body for ${url}:`, readError);
+              console.error(
+                `Doctor: API Error ${response.status} for ${url}: ${errorText}`
+              );
+              throw new Error(`Erreur ${response.status}: ${errorText}`);
             }
-            console.error(`Doctor: API Error ${response.status} for ${url}: ${errorText}`);
-            throw new Error(`Erreur ${response.status}: ${errorText}`);
-          }
-          const contentType = response.headers.get("content-type");
-          if (contentType && contentType.includes("application/json")) {
-            const text = await response.text();
-            try {
-              return JSON.parse(text);
-            } catch (e) {
-              console.warn(`Invalid JSON from ${url}: ${text}`);
-               // Return a structure indicating potential success but with non-JSON body
-               return { success: true, data: text, warning: 'Invalid JSON received' };
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+              const text = await response.text();
+              try {
+                return JSON.parse(text);
+              } catch (e) {
+                console.warn(`Invalid JSON from ${url}: ${text}`);
+                // Return a structure indicating potential success but with non-JSON body
+                return {
+                  success: true,
+                  data: text,
+                  warning: "Invalid JSON received",
+                };
+              }
+            } else {
+              const text = await response.text();
+              return { success: true, data: text };
             }
-          } else {
-            const text = await response.text();
-            return { success: true, data: text };
-          }
-        })
-        .catch(error => {
-          console.error(`Fetch error for ${url}:`, error);
-          const genericMsgEl = document.getElementById('scanResult');
-          if (genericMsgEl) showMessage(genericMsgEl.id, `Erreur Comm: ${error.message}`, 'error');
-          throw error;
-        });
-    }
-    function logout() {
-      localStorage.removeItem('authToken');
-      alert('Déconnecté.');
-      window.location.href = LOGIN_PAGE_URL;
-    }
-    function showMessage(elementId, message, type = 'info') {
-      const messageElement = document.getElementById(elementId);
-      if (!messageElement) {
-        console.error(`Msg Elem "${elementId}" not found.`);
-        return;
+          })
+          .catch((error) => {
+            console.error(`Fetch error for ${url}:`, error);
+            const genericMsgEl = document.getElementById("scanResult");
+            if (genericMsgEl)
+              showMessage(
+                genericMsgEl.id,
+                `Erreur Comm: ${error.message}`,
+                "error"
+              );
+            throw error;
+          });
       }
-      const statusIcons = {
-        'info': 'fas fa-info-circle',
-        'success': 'fas fa-check-circle',
-        'warning': 'fas fa-exclamation-triangle',
-        'error': 'fas fa-times-circle',
-        'loading': 'fas fa-spinner fa-spin'
-      };
-      const iconClass = statusIcons[type] || statusIcons['info'];
-      const iconHtml = message ? `<i class="${iconClass}" style="margin-right: 6px;"></i>` : "";
-      messageElement.innerHTML = message ? `${iconHtml}${message}` : "";
-      messageElement.style.display = message ? "block" : "none";
-      messageElement.className = 'message';
-      if (type === "success") messageElement.classList.add("message-success");
-      else if (type === "warning") messageElement.classList.add("message-warning");
-      else if (type === "error") messageElement.classList.add("message-error");
-      else if (type === "info" || type === "loading") messageElement.classList.add("message-info");
-      if ((type === "success" || type === "warning") && message && elementId !== 'scanResult') {
-        setTimeout(() => {
-          const currentElement = document.getElementById(elementId);
-          if (currentElement && currentElement.innerHTML.includes(message)) {
-            currentElement.style.display = 'none';
-            currentElement.innerHTML = '';
-          }
-        }, 5000);
+      function logout() {
+        localStorage.removeItem("authToken");
+        alert("Déconnecté.");
+        window.location.href = LOGIN_PAGE_URL;
       }
-    }
-    function sanitizeInput(input) {
-      if (input === null || input === undefined) return "";
-      const temp = document.createElement("div");
-      temp.textContent = String(input);
-      return temp.innerHTML;
-    }
-    function formatDate(dateString, includeTime = false) {
-      if (!dateString || typeof dateString !== 'string') {
-        return '-';
-      }
-      try {
-        const dateObj = new Date(dateString);
-        if (isNaN(dateObj.getTime())) {
-          return 'Date Invalide';
+      function showMessage(elementId, message, type = "info") {
+        const messageElement = document.getElementById(elementId);
+        if (!messageElement) {
+          console.error(`Msg Elem "${elementId}" not found.`);
+          return;
         }
-        const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
-        let resolvedTimeZone = 'UTC';
-        if (includeTime) {
-          options.hour = '2-digit';
-          options.minute = '2-digit';
-          resolvedTimeZone = undefined; // Use local timezone for time
+        const statusIcons = {
+          info: "fas fa-info-circle",
+          success: "fas fa-check-circle",
+          warning: "fas fa-exclamation-triangle",
+          error: "fas fa-times-circle",
+          loading: "fas fa-spinner fa-spin",
+        };
+        const iconClass = statusIcons[type] || statusIcons["info"];
+        const iconHtml = message
+          ? `<i class="${iconClass}" style="margin-right: 6px;"></i>`
+          : "";
+        messageElement.innerHTML = message ? `${iconHtml}${message}` : "";
+        messageElement.style.display = message ? "block" : "none";
+        messageElement.className = "message";
+        if (type === "success") messageElement.classList.add("message-success");
+        else if (type === "warning")
+          messageElement.classList.add("message-warning");
+        else if (type === "error")
+          messageElement.classList.add("message-error");
+        else if (type === "info" || type === "loading")
+          messageElement.classList.add("message-info");
+        if (
+          (type === "success" || type === "warning") &&
+          message &&
+          elementId !== "scanResult"
+        ) {
+          setTimeout(() => {
+            const currentElement = document.getElementById(elementId);
+            if (currentElement && currentElement.innerHTML.includes(message)) {
+              currentElement.style.display = "none";
+              currentElement.innerHTML = "";
+            }
+          }, 5000);
         }
-        // Check if input string looks like YYYY-MM-DD without time
-         if (!includeTime && dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      }
+      function sanitizeInput(input) {
+        if (input === null || input === undefined) return "";
+        const temp = document.createElement("div");
+        temp.textContent = String(input);
+        return temp.innerHTML;
+      }
+      function formatDate(dateString, includeTime = false) {
+        if (!dateString || typeof dateString !== "string") {
+          return "-";
+        }
+        try {
+          const dateObj = new Date(dateString);
+          if (isNaN(dateObj.getTime())) {
+            return "Date Invalide";
+          }
+          const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+          let resolvedTimeZone = "UTC";
+          if (includeTime) {
+            options.hour = "2-digit";
+            options.minute = "2-digit";
+            resolvedTimeZone = undefined; // Use local timezone for time
+          }
+          // Check if input string looks like YYYY-MM-DD without time
+          if (!includeTime && dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
             // Parse explicitly as UTC date to avoid timezone shift
-             const [y, m, d] = dateString.split('-').map(Number);
-             const utcDate = new Date(Date.UTC(y, m - 1, d));
-             return utcDate.toLocaleDateString('fr-FR', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'UTC' });
-         }
-         // Handle DD/MM/YYYY or MM/DD/YYYY from AI/backend not in standard format
-         const parts = dateString.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
-         if (!includeTime && parts) {
-              let d = parseInt(parts[1], 10);
-              let m = parseInt(parts[2], 10);
-              let y = parseInt(parts[3], 10);
-               // Assume DD/MM/YYYY first, then MM/DD/YYYY
-               if (m >= 1 && m <= 12 && d >= 1 && d <= 31) {
-                   // Reconstruct as YYYY-MM-DD to let Date handle it or just format manually
-                   return `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${y}`;
-               } else if (d >= 1 && d <= 12 && m >= 1 && m <= 31) {
-                   // If MM/DD/YYYY is the likely format
-                   return `${String(m).padStart(2, '0')}/${String(d).padStart(2, '0')}/${y}`;
-               }
-         }
+            const [y, m, d] = dateString.split("-").map(Number);
+            const utcDate = new Date(Date.UTC(y, m - 1, d));
+            return utcDate.toLocaleDateString("fr-FR", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              timeZone: "UTC",
+            });
+          }
+          // Handle DD/MM/YYYY or MM/DD/YYYY from AI/backend not in standard format
+          const parts = dateString.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
+          if (!includeTime && parts) {
+            let d = parseInt(parts[1], 10);
+            let m = parseInt(parts[2], 10);
+            let y = parseInt(parts[3], 10);
+            // Assume DD/MM/YYYY first, then MM/DD/YYYY
+            if (m >= 1 && m <= 12 && d >= 1 && d <= 31) {
+              // Reconstruct as YYYY-MM-DD to let Date handle it or just format manually
+              return `${String(d).padStart(2, "0")}/${String(m).padStart(
+                2,
+                "0"
+              )}/${y}`;
+            } else if (d >= 1 && d <= 12 && m >= 1 && m <= 31) {
+              // If MM/DD/YYYY is the likely format
+              return `${String(m).padStart(2, "0")}/${String(d).padStart(
+                2,
+                "0"
+              )}/${y}`;
+            }
+          }
 
-
-        options.timeZone = resolvedTimeZone;
-        return dateObj.toLocaleString('fr-FR', options);
-
-      } catch (e) {
-        console.error("Date format error:", dateString, e);
-        return 'Err Format';
-      }
-    }
-
-
-    // --- Function to Submit All Data ---
-    function submitAllData() {
-      const data = {
-        ipp: currentIPP,
-        visit_id: currentVisitId,
-        // dictation_global is handled separately by sendFullDictationAudio
-        dictation_global: "", // This field might be unused or used for a summary if the backend expects it
-        diagnostic: document.getElementById("diagnosticInput")?.value || "",
-        prescription: document.getElementById("prescriptionInput")?.value || "",
-        notes: document.getElementById("notesInput")?.value || "",
-        orientation: document.getElementById("orientationInput")?.value || "",
-        antecedents: document.getElementById("antecedentsInput")?.value || "",
-        treatment: document.getElementById("treatmentInput")?.value || "",
-        exploration: document.getElementById("explorationInput")?.value || ""
-      };
-
-      // Also include selected tarifs
-      const selectedTarifs = tarifChoices ? tarifChoices.getValue(true) : [];
-      if (selectedTarifs && selectedTarifs.length > 0) {
-         data.tarifs = selectedTarifs;
-      } else {
-          data.tarifs = []; // Ensure tarifs field is present even if empty
+          options.timeZone = resolvedTimeZone;
+          return dateObj.toLocaleString("fr-FR", options);
+        } catch (e) {
+          console.error("Date format error:", dateString, e);
+          return "Err Format";
+        }
       }
 
-      document.getElementById("submitAllBtn").disabled = true;
-      showMessage("validationMessage", "<i class='fas fa-spinner fa-spin'></i> Envoi de toutes les données...", "loading");
+      // --- Function to Submit All Data ---
+      function submitAllData() {
+        const data = {
+          ipp: currentIPP,
+          visit_id: currentVisitId,
+          // dictation_global is handled separately by sendFullDictationAudio
+          dictation_global: "", // This field might be unused or used for a summary if the backend expects it
+          diagnostic: document.getElementById("diagnosticInput")?.value || "",
+          prescription:
+            document.getElementById("prescriptionInput")?.value || "",
+          notes: document.getElementById("notesInput")?.value || "",
+          orientation: document.getElementById("orientationInput")?.value || "",
+          antecedents: document.getElementById("antecedentsInput")?.value || "",
+          treatment: document.getElementById("treatmentInput")?.value || "",
+          exploration: document.getElementById("explorationInput")?.value || "",
+        };
 
-      fetchWithAuth(`${BASE_URL}/webhook/doctor-submit-all`, {
-        method: "POST",
-        body: JSON.stringify(data)
-      })
-      .then(responseData => {
-        console.log("Submission response:", responseData);
-        if (responseData.success) {
-          showMessage("validationMessage", responseData.message || "<i class='fas fa-check-circle'></i> Données soumises avec succès.", "success");
+        // Also include selected tarifs
+        const selectedTarifs = tarifChoices ? tarifChoices.getValue(true) : [];
+        if (selectedTarifs && selectedTarifs.length > 0) {
+          data.tarifs = selectedTarifs;
         } else {
-          showMessage("validationMessage", responseData.message || "<i class='fas fa-exclamation-triangle'></i> Échec de la soumission des données.", "error");
+          data.tarifs = []; // Ensure tarifs field is present even if empty
         }
-      })
-      .catch(error => {
-        console.error("Error submitting all data:", error);
-        // FetchWithAuth handles auth errors, so remaining are communication/server issues
-        showMessage("validationMessage", "Erreur lors de la soumission des données.", "error");
-      })
-      .finally(() => {
-        document.getElementById("submitAllBtn").disabled = false;
-      });
-    }
-    // Attach event listener for Submit Everything button.
-    // This is replaced by the new listener in the appended script block
-    // document.getElementById("submitAllBtn").addEventListener("click", submitAllData);
 
+        document.getElementById("submitAllBtn").disabled = true;
+        showMessage(
+          "validationMessage",
+          "<i class='fas fa-spinner fa-spin'></i> Envoi de toutes les données...",
+          "loading"
+        );
 
-    // --- Enable/Disable Individual Fields ---
-    function enableDoctorSections(enable) {
-      const fullDictationCardBody = document.getElementById('fullDictationCardBody');
-      const diagCardBody = document.getElementById('diagCardBody');
-      const prescCardBody = document.getElementById('prescCardBody');
-      const notesCardBody = document.getElementById('notesCardBody');
-      const orientationCardBody = document.getElementById('orientationCardBody');
-      const antecedentsCardBody = document.getElementById('antecedentsCardBody');
-      const treatmentCardBody = document.getElementById('treatmentCardBody');
-      const explorationCardBody = document.getElementById('explorationCardBody');
-      const tarifsDropdownCard = document.getElementById('tarifsDropdownCard'); // New tarifs card
+        fetchWithAuth(`${BASE_URL}/webhook/doctor-submit-all`, {
+          method: "POST",
+          body: JSON.stringify(data),
+        })
+          .then((responseData) => {
+            console.log("Submission response:", responseData);
+            if (responseData.success) {
+              showMessage(
+                "validationMessage",
+                responseData.message ||
+                  "<i class='fas fa-check-circle'></i> Données soumises avec succès.",
+                "success"
+              );
+            } else {
+              showMessage(
+                "validationMessage",
+                responseData.message ||
+                  "<i class='fas fa-exclamation-triangle'></i> Échec de la soumission des données.",
+                "error"
+              );
+            }
+          })
+          .catch((error) => {
+            console.error("Error submitting all data:", error);
+            // FetchWithAuth handles auth errors, so remaining are communication/server issues
+            showMessage(
+              "validationMessage",
+              "Erreur lors de la soumission des données.",
+              "error"
+            );
+          })
+          .finally(() => {
+            document.getElementById("submitAllBtn").disabled = false;
+          });
+      }
+      // Attach event listener for Submit Everything button.
+      // This is replaced by the new listener in the appended script block
+      // document.getElementById("submitAllBtn").addEventListener("click", submitAllData);
 
+      // --- Enable/Disable Individual Fields ---
+      function enableDoctorSections(enable) {
+        const fullDictationCardBody = document.getElementById(
+          "fullDictationCardBody"
+        );
+        const diagCardBody = document.getElementById("diagCardBody");
+        const prescCardBody = document.getElementById("prescCardBody");
+        const notesCardBody = document.getElementById("notesCardBody");
+        const orientationCardBody = document.getElementById(
+          "orientationCardBody"
+        );
+        const antecedentsCardBody = document.getElementById(
+          "antecedentsCardBody"
+        );
+        const treatmentCardBody = document.getElementById("treatmentCardBody");
+        const explorationCardBody = document.getElementById(
+          "explorationCardBody"
+        );
+        const tarifsDropdownCard =
+          document.getElementById("tarifsDropdownCard"); // New tarifs card
 
-      // Elements inside the individual cards (excluding full dictation buttons handled separately)
-      const elementsToToggle = document.querySelectorAll(
-        '#diagCardBody textarea, #diagCardBody button:not([id^="start"]):not([id^="stop"]), ' + // Exclude record/stop buttons
-        '#prescCardBody textarea, #prescCardBody button:not([id^="start"]):not([id^="stop"]), ' +
-        '#notesCardBody textarea, #notesCardBody button:not([id^="start"]):not([id^="stop"]), ' +
-        '#orientationCardBody textarea, #orientationCardBody button:not([id^="start"]):not([id^="stop"]), ' +
-        '#antecedentsCardBody textarea, #antecedentsCardBody button:not([id^="start"]):not([id^="stop"]), ' +
-        '#treatmentCardBody textarea, #treatmentCardBody button:not([id^="start"]):not([id^="stop"]), ' +
-        '#explorationCardBody textarea, #explorationCardBody button:not([id^="start"]):not([id^="stop"]), ' +
-        '#aiSuggestion input, #aiSuggestion button'
-      );
+        // Elements inside the individual cards (excluding full dictation buttons handled separately)
+        const elementsToToggle = document.querySelectorAll(
+          '#diagCardBody textarea, #diagCardBody button:not([id^="start"]):not([id^="stop"]), ' + // Exclude record/stop buttons
+            '#prescCardBody textarea, #prescCardBody button:not([id^="start"]):not([id^="stop"]), ' +
+            '#notesCardBody textarea, #notesCardBody button:not([id^="start"]):not([id^="stop"]), ' +
+            '#orientationCardBody textarea, #orientationCardBody button:not([id^="start"]):not([id^="stop"]), ' +
+            '#antecedentsCardBody textarea, #antecedentsCardBody button:not([id^="start"]):not([id^="stop"]), ' +
+            '#treatmentCardBody textarea, #treatmentCardBody button:not([id^="start"]):not([id^="stop"]), ' +
+            '#explorationCardBody textarea, #explorationCardBody button:not([id^="start"]):not([id^="stop"]), ' +
+            "#aiSuggestion input, #aiSuggestion button"
+        );
 
-      // Record buttons need special handling - they are enabled only if a patient is loaded,
-      // but stop buttons are disabled until recording actually starts.
-      const recordButtons = document.querySelectorAll(
-          '#startDiagRecordBtn, #startPrescRecordBtn, #startNotesRecordBtn, #startOrientationRecordBtn, #startAntecedentsRecordBtn, #startTreatmentRecordBtn, #startExplorationRecordBtn, #startTarifRecordBtn' // Include new tarif record button
-      );
-      const stopButtons = document.querySelectorAll(
-          '#stopDiagRecordBtn, #stopPrescRecordBtn, #stopNotesRecordBtn, #stopOrientationRecordBtn, #stopAntecedentsRecordBtn, #stopTreatmentRecordBtn, #stopExplorationRecordBtn, #stopTarifRecordBtn' // Include new tarif stop button
-      );
-      const submitAllButton = document.getElementById('submitAllBtn');
+        // Record buttons need special handling - they are enabled only if a patient is loaded,
+        // but stop buttons are disabled until recording actually starts.
+        const recordButtons = document.querySelectorAll(
+          "#startDiagRecordBtn, #startPrescRecordBtn, #startNotesRecordBtn, #startOrientationRecordBtn, #startAntecedentsRecordBtn, #startTreatmentRecordBtn, #startExplorationRecordBtn, #startTarifRecordBtn" // Include new tarif record button
+        );
+        const stopButtons = document.querySelectorAll(
+          "#stopDiagRecordBtn, #stopPrescRecordBtn, #stopNotesRecordBtn, #stopOrientationRecordBtn, #stopAntecedentsRecordBtn, #stopTreatmentRecordBtn, #stopExplorationRecordBtn, #stopTarifRecordBtn" // Include new tarif stop button
+        );
+        const submitAllButton = document.getElementById("submitAllBtn");
 
+        if (enable && currentIPP && currentVisitId) {
+          if (diagCardBody) {
+            diagCardBody.style.opacity = "1";
+            diagCardBody.style.pointerEvents = "auto";
+          }
+          if (prescCardBody) {
+            prescCardBody.style.opacity = "1";
+            prescCardBody.style.pointerEvents = "auto";
+          }
+          if (notesCardBody) {
+            notesCardBody.style.opacity = "1";
+            notesCardBody.style.pointerEvents = "auto";
+          }
+          if (orientationCardBody) {
+            orientationCardBody.style.opacity = "1";
+            orientationCardBody.style.pointerEvents = "auto";
+          }
+          if (antecedentsCardBody) {
+            antecedentsCardBody.style.opacity = "1";
+            antecedentsCardBody.style.pointerEvents = "auto";
+          }
+          if (treatmentCardBody) {
+            treatmentCardBody.style.opacity = "1";
+            treatmentCardBody.style.pointerEvents = "auto";
+          }
+          if (explorationCardBody) {
+            explorationCardBody.style.opacity = "1";
+            explorationCardBody.style.pointerEvents = "auto";
+          }
+          // Tarifs card is now shown when sections are enabled
+          if (tarifsDropdownCard) tarifsDropdownCard.style.display = "block";
 
-      if (enable && currentIPP && currentVisitId) {
-        if (diagCardBody) { diagCardBody.style.opacity = '1'; diagCardBody.style.pointerEvents = 'auto'; }
-        if (prescCardBody) { prescCardBody.style.opacity = '1'; prescCardBody.style.pointerEvents = 'auto'; }
-        if (notesCardBody) { notesCardBody.style.opacity = '1'; notesCardBody.style.pointerEvents = 'auto'; }
-        if (orientationCardBody) { orientationCardBody.style.opacity = '1'; orientationCardBody.style.pointerEvents = 'auto'; }
-        if (antecedentsCardBody) { antecedentsCardBody.style.opacity = '1'; antecedentsCardBody.style.pointerEvents = 'auto'; }
-        if (treatmentCardBody) { treatmentCardBody.style.opacity = '1'; treatmentCardBody.style.pointerEvents = 'auto'; }
-        if (explorationCardBody) { explorationCardBody.style.opacity = '1'; explorationCardBody.style.pointerEvents = 'auto'; }
-         // Tarifs card is now shown when sections are enabled
-         if (tarifsDropdownCard) tarifsDropdownCard.style.display = 'block';
+          elementsToToggle.forEach((el) => {
+            if (el) el.disabled = false;
+          });
+          recordButtons.forEach((btn) => {
+            if (btn) btn.disabled = false;
+          });
+          // Stop buttons should remain disabled until recording starts
+          stopButtons.forEach((btn) => {
+            if (btn) btn.disabled = true;
+          });
+          if (submitAllButton) submitAllButton.disabled = false;
+        } else {
+          // Disable all sections
+          if (diagCardBody) {
+            diagCardBody.style.opacity = "0.5";
+            diagCardBody.style.pointerEvents = "none";
+          }
+          if (prescCardBody) {
+            prescCardBody.style.opacity = "0.5";
+            prescCardBody.style.pointerEvents = "none";
+          }
+          if (notesCardBody) {
+            notesCardBody.style.opacity = "0.5";
+            notesCardBody.style.pointerEvents = "none";
+          }
+          if (orientationCardBody) {
+            orientationCardBody.style.opacity = "0.5";
+            orientationCardBody.style.pointerEvents = "none";
+          }
+          if (antecedentsCardBody) {
+            antecedentsCardBody.style.opacity = "0.5";
+            antecedentsCardBody.style.pointerEvents = "none";
+          }
+          if (treatmentCardBody) {
+            treatmentCardBody.style.opacity = "0.5";
+            treatmentCardBody.style.pointerEvents = "none";
+          }
+          if (explorationCardBody) {
+            explorationCardBody.style.opacity = "0.5";
+            explorationCardBody.style.pointerEvents = "none";
+          }
+          // Tarifs card is hidden when no patient is loaded
+          if (tarifsDropdownCard) tarifsDropdownCard.style.display = "none";
 
+          elementsToToggle.forEach((el) => {
+            if (el) el.disabled = true;
+          });
+          recordButtons.forEach((btn) => {
+            if (btn) btn.disabled = true;
+          });
+          stopButtons.forEach((btn) => {
+            if (btn) btn.disabled = true;
+          });
+          if (submitAllButton) submitAllButton.disabled = true;
 
-        elementsToToggle.forEach(el => { if (el) el.disabled = false; });
-        recordButtons.forEach(btn => { if (btn) btn.disabled = false; });
-        // Stop buttons should remain disabled until recording starts
-        stopButtons.forEach(btn => { if (btn) btn.disabled = true; });
-        if (submitAllButton) submitAllButton.disabled = false;
+          // Clear textareas and hide AI suggestion
+          [
+            "diagnosticInput",
+            "prescriptionInput",
+            "notesInput",
+            "orientationInput",
+            "antecedentsInput",
+            "treatmentInput",
+            "explorationInput",
+          ].forEach((id) => {
+            const el = document.getElementById(id);
+            if (el) el.value = "";
+          });
+          if (aiSuggestionDiv) aiSuggestionDiv.style.display = "none";
 
-
-      } else {
-        // Disable all sections
-        if (diagCardBody) { diagCardBody.style.opacity = '0.5'; diagCardBody.style.pointerEvents = 'none'; }
-        if (prescCardBody) { prescCardBody.style.opacity = '0.5'; prescCardBody.style.pointerEvents = 'none'; }
-        if (notesCardBody) { notesCardBody.style.opacity = '0.5'; notesCardBody.style.pointerEvents = 'none'; }
-        if (orientationCardBody) { orientationCardBody.style.opacity = '0.5'; orientationCardBody.style.pointerEvents = 'none'; }
-        if (antecedentsCardBody) { antecedentsCardBody.style.opacity = '0.5'; antecedentsCardBody.style.pointerEvents = 'none'; }
-        if (treatmentCardBody) { treatmentCardBody.style.opacity = '0.5'; treatmentCardBody.style.pointerEvents = 'none'; }
-        if (explorationCardBody) { explorationCardBody.style.opacity = '0.5'; explorationCardBody.style.pointerEvents = 'none'; }
-        // Tarifs card is hidden when no patient is loaded
-        if (tarifsDropdownCard) tarifsDropdownCard.style.display = 'none';
-
-
-        elementsToToggle.forEach(el => { if (el) el.disabled = true; });
-        recordButtons.forEach(btn => { if (btn) btn.disabled = true; });
-        stopButtons.forEach(btn => { if (btn) btn.disabled = true; });
-        if (submitAllButton) submitAllButton.disabled = true;
-
-
-        // Clear textareas and hide AI suggestion
-        ['diagnosticInput', 'prescriptionInput', 'notesInput', 'orientationInput', 'antecedentsInput', 'treatmentInput', 'explorationInput'].forEach(id => {
-          const el = document.getElementById(id);
-          if (el) el.value = '';
-        });
-        if (aiSuggestionDiv) aiSuggestionDiv.style.display = 'none';
-
-        // Clear Choices.js selection and list
-        if(tarifChoices) {
+          // Clear Choices.js selection and list
+          if (tarifChoices) {
             tarifChoices.clearStore(); // Clears all items including options
-             // To only clear selection but keep options, use tarifChoices.removeActiveItems();
-             // But since we load for a new patient, clearing the list is appropriate.
+            // To only clear selection but keep options, use tarifChoices.removeActiveItems();
+            // But since we load for a new patient, clearing the list is appropriate.
+          }
         }
       }
-    }
 
-    // --- Clear UI Function ---
-    function clearDoctorUI() {
-      currentIPP = null;
-      currentVisitId = null;
-      if (patientInfoDiv) patientInfoDiv.innerHTML = `<div class="empty-state" style="grid-column: 1 / -1;">
+      // --- Clear UI Function ---
+      function clearDoctorUI() {
+        currentIPP = null;
+        currentVisitId = null;
+        if (patientInfoDiv)
+          patientInfoDiv.innerHTML = `<div class="empty-state" style="grid-column: 1 / -1;">
         <i class="fas fa-qrcode"></i>
         <div class="empty-state-message">Prêt à scanner</div>
         <div class="empty-state-description">Utilisez le bouton "Scanner QR".</div>
       </div>`;
-      if (nurseDataDisplayDiv) nurseDataDisplayDiv.style.display = 'none';
-      ['diagnosticInput', 'prescriptionInput', 'notesInput', 'orientationInput', 'antecedentsInput', 'treatmentInput', 'explorationInput'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-      });
-      if (aiSuggestionDiv) aiSuggestionDiv.style.display = 'none';
-       if (document.getElementById('tarifsDropdownCard')) { // Check if the tarifs card exists
-            document.getElementById('tarifsDropdownCard').style.display = 'none'; // Always hide when UI is cleared
+        if (nurseDataDisplayDiv) nurseDataDisplayDiv.style.display = "none";
+        [
+          "diagnosticInput",
+          "prescriptionInput",
+          "notesInput",
+          "orientationInput",
+          "antecedentsInput",
+          "treatmentInput",
+          "explorationInput",
+        ].forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) el.value = "";
+        });
+        if (aiSuggestionDiv) aiSuggestionDiv.style.display = "none";
+        if (document.getElementById("tarifsDropdownCard")) {
+          // Check if the tarifs card exists
+          document.getElementById("tarifsDropdownCard").style.display = "none"; // Always hide when UI is cleared
         }
         if (tarifChoices) {
-             tarifChoices.clearStore(); // Clear previous patient's list and selection
-             // The loadTarifList function will be called again for the new patient
+          tarifChoices.clearStore(); // Clear previous patient's list and selection
+          // The loadTarifList function will be called again for the new patient
         }
 
-      enableDoctorSections(false);
-      enableFullDictationSection(false);
-      try {
-        const url = new URL(window.location);
-        url.searchParams.delete('ipp');
-        window.history.replaceState({}, '', url);
-      } catch (e) {
-        console.error("History API error:", e);
+        enableDoctorSections(false);
+        enableFullDictationSection(false);
+        try {
+          const url = new URL(window.location);
+          url.searchParams.delete("ipp");
+          window.history.replaceState({}, "", url);
+        } catch (e) {
+          console.error("History API error:", e);
+        }
+        console.log("Doctor UI cleared.");
       }
-      console.log("Doctor UI cleared.");
-    }
 
-    // --- Improved Nurse Data Display Function ---
-    function displayNurseData(observations, vitals) {
-      const nurseDisplayContainer = document.getElementById('nurseDataDisplay');
-      if (!nurseDisplayContainer) {
-        console.error("Nurse data container not found.");
-        return;
-      }
-      // Hide container if no data
-      const hasObservation = observations && observations.observation_text && observations.observation_text.trim() !== '';
-      const hasVitals = vitals && vitals.timestamp;
+      // --- Improved Nurse Data Display Function ---
+      function displayNurseData(observations, vitals) {
+        const nurseDisplayContainer =
+          document.getElementById("nurseDataDisplay");
+        if (!nurseDisplayContainer) {
+          console.error("Nurse data container not found.");
+          return;
+        }
+        // Hide container if no data
+        const hasObservation =
+          observations &&
+          observations.observation_text &&
+          observations.observation_text.trim() !== "";
+        const hasVitals = vitals && vitals.timestamp;
 
-      if (!hasObservation && !hasVitals) {
-        nurseDisplayContainer.style.display = 'none';
-        return;
-      }
-      // Build observation content.
-      let obsDateStr = "";
-      let observationText = "";
-      if (hasObservation) {
-        const formattedDate = observations.observation_date_time ? `(${formatDate(observations.observation_date_time, true)})` : "";
-        obsDateStr = formattedDate;
-        observationText = sanitizeInput(observations.observation_text);
-      } else {
-        observationText = "-";
-      }
-      // Build vitals content.
-      let vitalsHTML = "";
-      if (hasVitals) {
-        const vitalsDate = formatDate(vitals.timestamp, true);
-        let lines = [];
-        if (vitals.temperature != null && vitals.temperature !== '') {
-          lines.push(`
+        if (!hasObservation && !hasVitals) {
+          nurseDisplayContainer.style.display = "none";
+          return;
+        }
+        // Build observation content.
+        let obsDateStr = "";
+        let observationText = "";
+        if (hasObservation) {
+          const formattedDate = observations.observation_date_time
+            ? `(${formatDate(observations.observation_date_time, true)})`
+            : "";
+          obsDateStr = formattedDate;
+          observationText = sanitizeInput(observations.observation_text);
+        } else {
+          observationText = "-";
+        }
+        // Build vitals content.
+        let vitalsHTML = "";
+        if (hasVitals) {
+          const vitalsDate = formatDate(vitals.timestamp, true);
+          let lines = [];
+          if (vitals.temperature != null && vitals.temperature !== "") {
+            lines.push(`
             <div class="nurse-vital-line">
               <i class="fas fa-thermometer-half" style="margin-right:5px;"></i>
-              <strong>Température:</strong> ${sanitizeInput(vitals.temperature)}°C
+              <strong>Température:</strong> ${sanitizeInput(
+                vitals.temperature
+              )}°C
             </div>
           `);
-        }
-        if (vitals.tension_systolic != null && vitals.tension_systolic !== '' && vitals.tension_diastolic != null && vitals.tension_diastolic !== '') {
-          lines.push(`
+          }
+          if (
+            vitals.tension_systolic != null &&
+            vitals.tension_systolic !== "" &&
+            vitals.tension_diastolic != null &&
+            vitals.tension_diastolic !== ""
+          ) {
+            lines.push(`
             <div class="nurse-vital-line">
               <i class="fas fa-heartbeat" style="margin-right:5px;"></i>
-              <strong>TA:</strong> ${sanitizeInput(vitals.tension_systolic)}/${sanitizeInput(vitals.tension_diastolic)} mmHg
+              <strong>TA:</strong> ${sanitizeInput(
+                vitals.tension_systolic
+              )}/${sanitizeInput(vitals.tension_diastolic)} mmHg
             </div>
           `);
-        }
-        if (vitals.heart_rate != null && vitals.heart_rate !== '') {
-          lines.push(`
+          }
+          if (vitals.heart_rate != null && vitals.heart_rate !== "") {
+            lines.push(`
             <div class="nurse-vital-line">
               <i class="fas fa-heart" style="margin-right:5px;"></i>
               <strong>FC:</strong> ${sanitizeInput(vitals.heart_rate)}/min
             </div>
           `);
-        }
-        if (vitals.spo2 != null && vitals.spo2 !== '') {
-          lines.push(`
+          }
+          if (vitals.spo2 != null && vitals.spo2 !== "") {
+            lines.push(`
             <div class="nurse-vital-line">
               <i class="fas fa-lungs" style="margin-right:5px;"></i>
               <strong>SpO₂:</strong> ${sanitizeInput(vitals.spo2)}%
             </div>
           `);
-        }
-        if (lines.length > 0) {
-          vitalsHTML = `
+          }
+          if (lines.length > 0) {
+            vitalsHTML = `
             <div class="nurse-vital-date">
               Dernière mise à jour: ${vitalsDate}
             </div>
             ${lines.join("\n")}
           `;
+          } else {
+            vitalsHTML =
+              '<div class="nurse-vital-line">Aucun signe vital enregistré.</div>';
+          }
         } else {
-             vitalsHTML = '<div class="nurse-vital-line">Aucun signe vital enregistré.</div>';
+          vitalsHTML =
+            '<div class="nurse-vital-line">Aucun signe vital enregistré.</div>';
         }
-      } else {
-          vitalsHTML = '<div class="nurse-vital-line">Aucun signe vital enregistré.</div>';
-      }
 
-      nurseDisplayContainer.style.display = 'block';
-      nurseDisplayContainer.innerHTML = `
+        nurseDisplayContainer.style.display = "block";
+        nurseDisplayContainer.innerHTML = `
         <h4><i class="fas fa-user-nurse"></i> Données Infirmières</h4>
         <div class="nurse-observation">
           <strong>Observation ${obsDateStr}:</strong>
@@ -943,541 +1705,871 @@
           ${vitalsHTML}
         </div>
       `;
-    }
-
-    // --- Load Patient Function ---
-    function loadPatient(ipp) {
-      console.log(`loadPatient CALLED for IPP: ${ipp}`);
-      const patientInfoContainer = document.getElementById("patientInfo");
-      if (!patientInfoContainer) {
-        console.error("Patient info div not found");
-        return;
       }
-      patientInfoContainer.innerHTML = '<div style="grid-column: 1 / -1; text-align: center;"><i class="fas fa-spinner fa-spin"></i> Chargement...</div>';
-      if (nurseDataDisplayDiv) nurseDataDisplayDiv.style.display = 'none';
-      enableDoctorSections(false); // Disable UI while loading
-      enableFullDictationSection(false); // Disable full dictation UI
 
-      fetchWithAuth(`${BASE_URL}${GET_PATIENT_DATA_ENDPOINT}?ipp=${ipp}`)
-        .then(responseData => {
-          console.log("Full Patient Data Response:", responseData);
-          if (!responseData || responseData.success === false || !responseData.patientData || responseData.visitId === undefined || responseData.visitId === null) {
-            throw new Error(responseData?.message || "Données patient/visite invalides.");
-          }
-          const patientData = responseData.patientData;
-          currentVisitId = responseData.visitId;
-          const nurseObservations = responseData.nurseObservations || {};
-          const vitalSigns = responseData.vitalSigns || {};
-          currentIPP = ipp;
-          console.log(`Patient Loaded: IPP=${currentIPP}, VisitID=${currentVisitId}`);
+      // --- Load Patient Function ---
+      function loadPatient(ipp) {
+        console.log(`loadPatient CALLED for IPP: ${ipp}`);
+        const patientInfoContainer = document.getElementById("patientInfo");
+        if (!patientInfoContainer) {
+          console.error("Patient info div not found");
+          return;
+        }
+        patientInfoContainer.innerHTML =
+          '<div style="grid-column: 1 / -1; text-align: center;"><i class="fas fa-spinner fa-spin"></i> Chargement...</div>';
+        if (nurseDataDisplayDiv) nurseDataDisplayDiv.style.display = "none";
+        enableDoctorSections(false); // Disable UI while loading
+        enableFullDictationSection(false); // Disable full dictation UI
 
-          patientInfoContainer.innerHTML = `
-            <div class="info-group"><div class="info-label">Nom</div><div class="info-value">${sanitizeInput(patientData.nom || '-')}</div></div>
-            <div class="info-group"><div class="info-label">Prénom</div><div class="info-value">${sanitizeInput(patientData.prenom || '-')}</div></div>
-            <div class="info-group"><div class="info-label">IPP</div><div class="info-value">${sanitizeInput(currentIPP)}</div></div>
-            <div class="info-group"><div class="info-label">Visite ID</div><div class="info-value" style="font-weight:bold;">${sanitizeInput(currentVisitId)}</div></div>
-            <div class="info-group"><div class="info-label">CIN</div><div class="info-value">${sanitizeInput(patientData.cin || '-')}</div></div>
-            <div class="info-group"><div class="info-label">Téléphone</div><div class="info-value">${sanitizeInput(patientData.telephone || '-')}</div></div>
-            <div class="info-group"><div class="info-label">Adresse</div><div class="info-value">${sanitizeInput(patientData.adresse || '-')}</div></div>
-            <div class="info-group"><div class="info-label">Mutuelle</div><div class="info-value">${sanitizeInput(patientData.mutuelle || 'Aucune')}</div></div>
-            <div class="info-group"><div class="info-label">Naissance</div><div class="info-value">${formatDate(patientData.date_naissance)}</div></div>
-            <div class="info-group"><div class="info-label">Sexe</div><div class="info-value">${sanitizeInput(patientData.sexe === 'M' ? 'Homme' : patientData.sexe === 'F' ? 'Femme' : '-')}</div></div>
+        fetchWithAuth(`${BASE_URL}${GET_PATIENT_DATA_ENDPOINT}?ipp=${ipp}`)
+          .then((responseData) => {
+            console.log("Full Patient Data Response:", responseData);
+            if (
+              !responseData ||
+              responseData.success === false ||
+              !responseData.patientData ||
+              responseData.visitId === undefined ||
+              responseData.visitId === null
+            ) {
+              throw new Error(
+                responseData?.message || "Données patient/visite invalides."
+              );
+            }
+            const patientData = responseData.patientData;
+            currentVisitId = responseData.visitId;
+            const nurseObservations = responseData.nurseObservations || {};
+            const vitalSigns = responseData.vitalSigns || {};
+            currentIPP = ipp;
+            console.log(
+              `Patient Loaded: IPP=${currentIPP}, VisitID=${currentVisitId}`
+            );
+
+            patientInfoContainer.innerHTML = `
+            <div class="info-group"><div class="info-label">Nom</div><div class="info-value">${sanitizeInput(
+              patientData.nom || "-"
+            )}</div></div>
+            <div class="info-group"><div class="info-label">Prénom</div><div class="info-value">${sanitizeInput(
+              patientData.prenom || "-"
+            )}</div></div>
+            <div class="info-group"><div class="info-label">IPP</div><div class="info-value">${sanitizeInput(
+              currentIPP
+            )}</div></div>
+            <div class="info-group"><div class="info-label">Visite ID</div><div class="info-value" style="font-weight:bold;">${sanitizeInput(
+              currentVisitId
+            )}</div></div>
+            <div class="info-group"><div class="info-label">CIN</div><div class="info-value">${sanitizeInput(
+              patientData.cin || "-"
+            )}</div></div>
+            <div class="info-group"><div class="info-label">Téléphone</div><div class="info-value">${sanitizeInput(
+              patientData.telephone || "-"
+            )}</div></div>
+            <div class="info-group"><div class="info-label">Adresse</div><div class="info-value">${sanitizeInput(
+              patientData.adresse || "-"
+            )}</div></div>
+            <div class="info-group"><div class="info-label">Mutuelle</div><div class="info-value">${sanitizeInput(
+              patientData.mutuelle || "Aucune"
+            )}</div></div>
+            <div class="info-group"><div class="info-label">Naissance</div><div class="info-value">${formatDate(
+              patientData.date_naissance
+            )}</div></div>
+            <div class="info-group"><div class="info-label">Sexe</div><div class="info-value">${sanitizeInput(
+              patientData.sexe === "M"
+                ? "Homme"
+                : patientData.sexe === "F"
+                ? "Femme"
+                : "-"
+            )}</div></div>
           `;
-          displayNurseData(nurseObservations, vitalSigns);
-          enableDoctorSections(true); // Enable UI after data is loaded
-          enableFullDictationSection(true); // Enable full dictation UI
-        })
-        .catch(e => {
-          if (!e.message.startsWith('Auth')) {
-            if (patientInfoContainer) patientInfoContainer.innerHTML = `<div class="message message-error" style="display:block;grid-column:1/-1;">Erreur chargement: ${e.message}</div>`;
-          }
-          console.error("Err loadPatient:", e);
-          clearDoctorUI(); // Clear UI on error
-        });
-    }
-
-    // --- Audio Recording Functions ---
-    function startRecording(field) {
-      if (!currentIPP || !currentVisitId) {
-        alert("Chargez un patient et sa visite.");
-        return;
-      }
-      if (mediaRecorder?.state === 'recording') {
-        console.warn("Already recording.");
-        return;
-      }
-      audioChunks = [];
-      recordingField = field;
-      // Declare elements using 'let' so they are accessible within this function's scope
-      let statusEl, startBtn, stopBtn;
-
-      if (field === 'fullDictation') {
-          startBtn = document.getElementById('startFullDictationRecordBtn');
-          stopBtn = document.getElementById('stopFullDictationRecordBtn');
-          statusEl = document.getElementById('fullDictationStatus'); // Specific ID
-      } else if (field === 'tarifs') {
-          startBtn = document.getElementById('startTarifRecordBtn');
-          stopBtn = document.getElementById('stopTarifRecordBtn');
-          statusEl = document.getElementById('tarifStatus'); // CORRECT ID for tarifs status
-      }
-       else { // Generic case (diagnosis, prescription, notes, etc.)
-           startBtn = document.getElementById(`start${capitalize(field)}RecordBtn`);
-           stopBtn = document.getElementById(`stop${capitalize(field)}RecordBtn`);
-           statusEl = document.getElementById(`${field}Status`); // Use template literal for other fields
-       }
-
-      if (!statusEl || !startBtn || !stopBtn) {
-        console.error(`UI elements missing for ${field}: Status: ${!!statusEl}, StartBtn: ${!!startBtn}, StopBtn: ${!!stopBtn}`);
-         alert(`Erreur: Éléments UI manquants pour le champ ${field}.`);
-        return; // Exit function if elements are not found
+            displayNurseData(nurseObservations, vitalSigns);
+            enableDoctorSections(true); // Enable UI after data is loaded
+            enableFullDictationSection(true); // Enable full dictation UI
+          })
+          .catch((e) => {
+            if (!e.message.startsWith("Auth")) {
+              if (patientInfoContainer)
+                patientInfoContainer.innerHTML = `<div class="message message-error" style="display:block;grid-column:1/-1;">Erreur chargement: ${e.message}</div>`;
+            }
+            console.error("Err loadPatient:", e);
+            clearDoctorUI(); // Clear UI on error
+          });
       }
 
-      statusEl.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Démarrage...';
-      statusEl.style.display = 'inline-flex';
-      startBtn.disabled = true;
-      stopBtn.disabled = true; // Keep disabled until stream is ready
-      navigator.mediaDevices.getUserMedia({audio:true})
-        .then(stream => {
-          currentStream = stream; // Store stream to stop it later
-          mediaRecorder = new MediaRecorder(stream);
-          mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
-          // Pass the UI elements to handleRecordingStop
-          mediaRecorder.onstop = () => handleRecordingStop(statusEl, startBtn, stopBtn);
-          mediaRecorder.onerror = e => {
-            console.error(`Rec Err: ${e.error}`);
-            if (statusEl) statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Err Rec.';
+      // --- Audio Recording Functions ---
+      function startRecording(field) {
+        if (!currentIPP || !currentVisitId) {
+          alert("Chargez un patient et sa visite.");
+          return;
+        }
+        if (mediaRecorder?.state === "recording") {
+          console.warn("Already recording.");
+          return;
+        }
+        audioChunks = [];
+        recordingField = field;
+        // Declare elements using 'let' so they are accessible within this function's scope
+        let statusEl, startBtn, stopBtn;
+
+        if (field === "fullDictation") {
+          startBtn = document.getElementById("startFullDictationRecordBtn");
+          stopBtn = document.getElementById("stopFullDictationRecordBtn");
+          statusEl = document.getElementById("fullDictationStatus"); // Specific ID
+        } else if (field === "tarifs") {
+          startBtn = document.getElementById("startTarifRecordBtn");
+          stopBtn = document.getElementById("stopTarifRecordBtn");
+          statusEl = document.getElementById("tarifStatus"); // CORRECT ID for tarifs status
+        } else {
+          // Generic case (diagnosis, prescription, notes, etc.)
+          startBtn = document.getElementById(
+            `start${capitalize(field)}RecordBtn`
+          );
+          stopBtn = document.getElementById(
+            `stop${capitalize(field)}RecordBtn`
+          );
+          statusEl = document.getElementById(`${field}Status`); // Use template literal for other fields
+        }
+
+        if (!statusEl || !startBtn || !stopBtn) {
+          console.error(
+            `UI elements missing for ${field}: Status: ${!!statusEl}, StartBtn: ${!!startBtn}, StopBtn: ${!!stopBtn}`
+          );
+          alert(`Erreur: Éléments UI manquants pour le champ ${field}.`);
+          return; // Exit function if elements are not found
+        }
+
+        statusEl.innerHTML =
+          '<i class="fas fa-circle-notch fa-spin"></i> Démarrage...';
+        statusEl.style.display = "inline-flex";
+        startBtn.disabled = true;
+        stopBtn.disabled = true; // Keep disabled until stream is ready
+        navigator.mediaDevices
+          .getUserMedia({ audio: true })
+          .then((stream) => {
+            currentStream = stream; // Store stream to stop it later
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.ondataavailable = (e) => {
+              if (e.data.size > 0) audioChunks.push(e.data);
+            };
+            // Pass the UI elements to handleRecordingStop
+            mediaRecorder.onstop = () =>
+              handleRecordingStop(statusEl, startBtn, stopBtn);
+            mediaRecorder.onerror = (e) => {
+              console.error(`Rec Err: ${e.error}`);
+              if (statusEl)
+                statusEl.innerHTML =
+                  '<i class="fas fa-times-circle"></i> Err Rec.';
+              if (startBtn) startBtn.disabled = false;
+              if (stopBtn) stopBtn.disabled = true;
+              recordingField = null;
+              if (currentStream)
+                currentStream.getTracks().forEach((track) => track.stop());
+              currentStream = null;
+              mediaRecorder = null; // Reset recorder
+              setTimeout(() => {
+                if (statusEl?.innerHTML.includes("Err Rec."))
+                  statusEl.innerHTML = "";
+              }, 4000);
+            };
+            mediaRecorder.start();
+            console.log(`Recording started for ${field}`);
+            statusEl.innerHTML =
+              '<i class="fas fa-microphone-alt fa-beat"></i> REC...';
+            stopBtn.disabled = false; // Enable stop button now that recording has started
+          })
+          .catch((err) => {
+            console.error("Mic Err:", err);
+            if (statusEl)
+              statusEl.innerHTML =
+                '<i class="fas fa-exclamation-triangle"></i> Err micro';
+            alert("Err micro: " + err.message);
             if (startBtn) startBtn.disabled = false;
             if (stopBtn) stopBtn.disabled = true;
             recordingField = null;
-            if (currentStream) currentStream.getTracks().forEach(track => track.stop());
             currentStream = null;
-             mediaRecorder = null; // Reset recorder
-            setTimeout(() => { if (statusEl?.innerHTML.includes('Err Rec.')) statusEl.innerHTML = ''; }, 4000);
-          };
-          mediaRecorder.start();
-          console.log(`Recording started for ${field}`);
-          statusEl.innerHTML = '<i class="fas fa-microphone-alt fa-beat"></i> REC...';
-          stopBtn.disabled = false; // Enable stop button now that recording has started
-        })
-        .catch(err => {
-          console.error("Mic Err:", err);
-          if (statusEl) statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Err micro';
-          alert("Err micro: " + err.message);
-          if (startBtn) startBtn.disabled = false;
-          if (stopBtn) stopBtn.disabled = true;
-          recordingField = null;
-          currentStream = null;
-          mediaRecorder = null; // Reset recorder
-          setTimeout(() => { if (statusEl?.innerHTML.includes('Err micro')) statusEl.innerHTML = ''; }, 4000);
-        });
-    }
+            mediaRecorder = null; // Reset recorder
+            setTimeout(() => {
+              if (statusEl?.innerHTML.includes("Err micro"))
+                statusEl.innerHTML = "";
+            }, 4000);
+          });
+      }
 
-    // Accept UI elements as parameters
-    function stopRecording(field, statusEl, startBtn, stopBtn) {
+      // Accept UI elements as parameters
+      function stopRecording(field, statusEl, startBtn, stopBtn) {
         console.log(`stopRecording CALLED for ${field}`);
         // Find elements if not passed (handles button clicks directly)
         if (!statusEl || !startBtn || !stopBtn) {
-             if (field === 'fullDictation') {
-                 startBtn = document.getElementById('startFullDictationRecordBtn');
-                 stopBtn = document.getElementById('stopFullDictationRecordBtn');
-                 statusEl = document.getElementById('fullDictationStatus');
-             } else if (field === 'tarifs') {
-                  startBtn = document.getElementById('startTarifRecordBtn');
-                  stopBtn = document.getElementById('stopTarifRecordBtn');
-                  statusEl = document.getElementById('tarifStatus'); // CORRECT ID
-             } else {
-                 startBtn = document.getElementById(`start${capitalize(field)}RecordBtn`);
-                 stopBtn = document.getElementById(`stop${capitalize(field)}RecordBtn`);
-                 statusEl = document.getElementById(`${field}Status`);
-             }
-             if (!statusEl || !startBtn || !stopBtn) {
-                  console.error(`UI elements missing during stop for ${field}. Cannot proceed.`);
-                  return; // Exit if elements are missing
-             }
+          if (field === "fullDictation") {
+            startBtn = document.getElementById("startFullDictationRecordBtn");
+            stopBtn = document.getElementById("stopFullDictationRecordBtn");
+            statusEl = document.getElementById("fullDictationStatus");
+          } else if (field === "tarifs") {
+            startBtn = document.getElementById("startTarifRecordBtn");
+            stopBtn = document.getElementById("stopTarifRecordBtn");
+            statusEl = document.getElementById("tarifStatus"); // CORRECT ID
+          } else {
+            startBtn = document.getElementById(
+              `start${capitalize(field)}RecordBtn`
+            );
+            stopBtn = document.getElementById(
+              `stop${capitalize(field)}RecordBtn`
+            );
+            statusEl = document.getElementById(`${field}Status`);
+          }
+          if (!statusEl || !startBtn || !stopBtn) {
+            console.error(
+              `UI elements missing during stop for ${field}. Cannot proceed.`
+            );
+            return; // Exit if elements are missing
+          }
         }
 
-
-      if (mediaRecorder && mediaRecorder.state === 'recording' && recordingField === field) {
-        console.log(`Stopping recording for ${field}...`);
-        mediaRecorder.stop();
-        statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Arrêt...';
-        stopBtn.disabled = true; // Disable stop immediately
-      } else {
-        console.log(`Stop requested for ${field}, but no active recording for this field (current: ${recordingField}, state: ${mediaRecorder?.state}).`);
-         // Ensure buttons are reset even if recording wasn't active for this field
-         startBtn.disabled = false;
-         stopBtn.disabled = true;
-         if (statusEl && statusEl.innerHTML === '<i class="fas fa-spinner fa-spin"></i> Arrêt...') {
-             statusEl.innerHTML = ''; // Clear status if it was stuck
-         }
-      }
-      // Stream cleanup happens in handleRecordingStop, which receives the stream via onstop event
-    }
-
-    // Accept UI elements as parameters
-    function handleRecordingStop(statusEl, startBtn, stopBtn) {
-      const field = recordingField; // Use the global recordingField
-      console.log(`handleRecordingStop CALLED for field: ${field}`);
-      if (!field) {
-        console.warn("handleRecordingStop called with no active recording field.");
-         // Clean up stream/recorder even if field is null
-         if (currentStream) currentStream.getTracks().forEach(track => track.stop());
-         currentStream = null;
-         mediaRecorder = null;
-        return;
+        if (
+          mediaRecorder &&
+          mediaRecorder.state === "recording" &&
+          recordingField === field
+        ) {
+          console.log(`Stopping recording for ${field}...`);
+          mediaRecorder.stop();
+          statusEl.innerHTML =
+            '<i class="fas fa-spinner fa-spin"></i> Arrêt...';
+          stopBtn.disabled = true; // Disable stop immediately
+        } else {
+          console.log(
+            `Stop requested for ${field}, but no active recording for this field (current: ${recordingField}, state: ${mediaRecorder?.state}).`
+          );
+          // Ensure buttons are reset even if recording wasn't active for this field
+          startBtn.disabled = false;
+          stopBtn.disabled = true;
+          if (
+            statusEl &&
+            statusEl.innerHTML ===
+              '<i class="fas fa-spinner fa-spin"></i> Arrêt...'
+          ) {
+            statusEl.innerHTML = ""; // Clear status if it was stuck
+          }
+        }
+        // Stream cleanup happens in handleRecordingStop, which receives the stream via onstop event
       }
 
-      // Elements are passed in, no need to find them again
-      // Ensure elements are valid before proceeding
-       if (!statusEl || !startBtn || !stopBtn) {
-           console.error(`UI elements missing in handleRecordingStop for ${field}. Cannot proceed.`);
-            // Clean up stream/recorder
-            if (currentStream) currentStream.getTracks().forEach(track => track.stop());
-            currentStream = null;
-            mediaRecorder = null;
-           return;
-       }
-
-
-      if (currentStream) {
-          currentStream.getTracks().forEach(track => track.stop());
+      // Accept UI elements as parameters
+      function handleRecordingStop(statusEl, startBtn, stopBtn) {
+        const field = recordingField; // Use the global recordingField
+        console.log(`handleRecordingStop CALLED for field: ${field}`);
+        if (!field) {
+          console.warn(
+            "handleRecordingStop called with no active recording field."
+          );
+          // Clean up stream/recorder even if field is null
+          if (currentStream)
+            currentStream.getTracks().forEach((track) => track.stop());
           currentStream = null;
-      }
-       mediaRecorder = null; // Reset mediaRecorder
-
-
-      console.log(`Processing audio for ${field}. Chunks received: ${audioChunks.length}`);
-      if (audioChunks.length === 0) {
-        console.warn("No audio data received.");
-        statusEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Vide';
-        startBtn.disabled = false; // Ensure start button is re-enabled
-        stopBtn.disabled = true; // Ensure stop button is disabled
-        setTimeout(() => { if (statusEl?.innerHTML.includes('Vide')) statusEl.innerHTML = ''; }, 4000);
-      } else {
-        const blob = new Blob(audioChunks, { type: 'audio/webm' });
-        console.log(`Audio blob created (size: ${blob.size} bytes) for ${field}.`);
-        statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Transc...';
-         startBtn.disabled = true; // Keep disabled during transcription/fetch
-         stopBtn.disabled = true; // Keep disabled
-
-
-        if (field === "fullDictation") {
-          console.log("Full dictation recorded. Auto-submitting...");
-          sendFullDictationAudio(blob, statusEl, startBtn, stopBtn); // Pass elements
-        } else if (field === "tarifs") { // Handle tarif audio
-           console.log("Tarifs dictation recorded. Sending for extraction...");
-           sendTarifAudioToAI(blob, statusEl, startBtn, stopBtn); // Pass elements
+          mediaRecorder = null;
+          return;
         }
-        else { // Handle individual field audio
-           const config = getFieldConfig(field); // Need config for messageId
-           if (!config) {
-               console.error(`Config missing for field ${field} in handleRecordingStop.`);
-               statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Err Proc.';
-                startBtn.disabled = false; stopBtn.disabled = true;
-               return;
-           }
-          sendAudioToAI(blob, field, statusEl, startBtn, stopBtn, config.messageId); // Pass elements + messageId
+
+        // Elements are passed in, no need to find them again
+        // Ensure elements are valid before proceeding
+        if (!statusEl || !startBtn || !stopBtn) {
+          console.error(
+            `UI elements missing in handleRecordingStop for ${field}. Cannot proceed.`
+          );
+          // Clean up stream/recorder
+          if (currentStream)
+            currentStream.getTracks().forEach((track) => track.stop());
+          currentStream = null;
+          mediaRecorder = null;
+          return;
         }
-        audioChunks = []; // Clear chunks for next recording
-      }
-      // Button re-enabling is now handled in the .finally blocks of the sending functions.
-      recordingField = null; // Reset field after handling the stop
-    }
 
-    // Accept UI elements as parameters
-    function sendAudioToAI(blob, field, statusEl, startBtn, stopBtn, messageId) {
-      if (!field || !statusEl || !startBtn || !stopBtn || !messageId) {
-        console.error("Missing parameters for sendAudioToAI");
-         if (statusEl) statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Err Send.';
-         if (startBtn) startBtn.disabled = false; if (stopBtn) stopBtn.disabled = true;
-        return Promise.reject(new Error("Missing UI elements or config for sendAudioToAI"));
-      }
+        if (currentStream) {
+          currentStream.getTracks().forEach((track) => track.stop());
+          currentStream = null;
+        }
+        mediaRecorder = null; // Reset mediaRecorder
 
-      const config = getFieldConfig(field);
-      if (!config || !config.apiEndpoint) {
-        console.error(`Config/Endpoint missing for ${field} in sendAudioToAI`);
-        if (statusEl) statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Err Config.';
-         if (startBtn) startBtn.disabled = false; if (stopBtn) stopBtn.disabled = true;
-        showMessage(messageId, 'Erreur config endpoint', 'error');
-        return Promise.reject(new Error('Erreur config endpoint'));
-      }
-      const ep = BASE_URL + config.apiEndpoint;
-      const fd = new FormData();
-      fd.append("audio", blob, `${field}_${currentIPP}_${Date.now()}.webm`);
-      fd.append("ipp", currentIPP);
-      fd.append("visit_id", currentVisitId);
-
-      statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi...';
-      showMessage(messageId, '', 'info'); // Clear previous message
-
-       return fetchWithAuth(ep, { method: "POST", body: fd }) // <-- Ensure fetchWithAuth is returned
-        .then(responseData => {
-          console.log(`Raw Transc response ${field}:`, JSON.stringify(responseData));
-          let transcript = '';
-          let resultObject = null;
-
-          // Check for common response structures (array containing object, or direct object)
-          if (Array.isArray(responseData) && responseData.length > 0 && typeof responseData[0] === 'object' && responseData[0] !== null) {
-             resultObject = responseData[0];
-             console.log(`Processing first element of array for ${field}:`, resultObject);
-          } else if (typeof responseData === 'object' && responseData !== null && !Array.isArray(responseData)) {
-             resultObject = responseData;
-             console.log(`Processing direct object response for ${field}:`, resultObject);
-          } else {
-             throw new Error('Format de réponse transcription inattendu.');
-          }
-
-          if (resultObject && resultObject.success === true && typeof resultObject.transcript === 'string') {
-            transcript = resultObject.transcript;
-            console.log(`Transcript extracted for ${field}: "${transcript.substring(0, Math.min(transcript.length, 100))}..."`);
-          } else {
-             // Check for potential error message in the response
-             const errorMessage = resultObject?.message || responseData?.message || 'Transcription échouée ou format invalide.';
-             throw new Error(errorMessage);
-          }
-
-          const fieldToTextarea = {
-            diagnosis: 'diagnosticInput',
-            prescription: 'prescriptionInput',
-            notes: 'notesInput',
-            orientation: 'orientationInput',
-            antecedents: 'antecedentsInput',
-            treatment: 'treatmentInput',
-            exploration: 'explorationInput'
-          };
-          const txtAreaId = fieldToTextarea[field];
-          if (txtAreaId) {
-            const textarea = document.getElementById(txtAreaId);
-            if (textarea) {
-               textarea.value = transcript;
-            } else {
-                console.error(`Textarea element not found for field: ${field} (ID: ${txtAreaId})`);
-            }
-          } else {
-              console.error(`No textarea mapping found for field: ${field}`);
-          }
-
-          statusEl.innerHTML = '<i class="fas fa-check"></i> OK';
-          showMessage(messageId, '', 'info'); // Clear message bar if successful
-           return responseData; // Pass data along
-        })
-        .catch(e => {
-          if (!e.message.startsWith('Auth')) {
-            statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Err Transc.';
-             // Use the specific message element for the field
-            showMessage(messageId, `Err Transc: ${e.message}`, 'error');
-          }
-          console.error(`Transcription error for ${field}:`, e);
-           throw e; // Re-throw error so handleRecordingStop's finally catches it
-        })
-        .finally(() => {
-          // Button re-enabling is handled here after the fetch completes
-           startBtn.disabled = false;
-           stopBtn.disabled = true;
-          // Status message cleanup
+        console.log(
+          `Processing audio for ${field}. Chunks received: ${audioChunks.length}`
+        );
+        if (audioChunks.length === 0) {
+          console.warn("No audio data received.");
+          statusEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Vide';
+          startBtn.disabled = false; // Ensure start button is re-enabled
+          stopBtn.disabled = true; // Ensure stop button is disabled
           setTimeout(() => {
-            const currentStatusHTML = statusEl?.innerHTML;
-            if (currentStatusHTML && (currentStatusHTML.includes('Err Transc') || currentStatusHTML.includes('Vide') || currentStatusHTML.includes('OK'))) {
-              if (statusEl) statusEl.innerHTML = '';
-            }
+            if (statusEl?.innerHTML.includes("Vide")) statusEl.innerHTML = "";
           }, 4000);
-        });
-    }
+        } else {
+          const blob = new Blob(audioChunks, { type: "audio/webm" });
+          console.log(
+            `Audio blob created (size: ${blob.size} bytes) for ${field}.`
+          );
+          statusEl.innerHTML =
+            '<i class="fas fa-spinner fa-spin"></i> Transc...';
+          startBtn.disabled = true; // Keep disabled during transcription/fetch
+          stopBtn.disabled = true; // Keep disabled
 
-     // Accept UI elements as parameters
-     function sendTarifAudioToAI(blob, statusEl, startBtn, stopBtn) {
-         console.log("sendTarifAudioToAI called!");
-         // Elements are passed in, no need to find them again
-         if (!currentIPP || !currentVisitId || !statusEl || !startBtn || !stopBtn) {
-             console.error("Missing parameters or patient/visit for sendTarifAudioToAI.");
-             if (statusEl) statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Err Param';
-              if (startBtn) startBtn.disabled = false; if (stopBtn) stopBtn.disabled = true;
-             return Promise.reject(new Error("Missing parameters or patient/visit for sendTarifAudioToAI"));
-         }
+          if (field === "fullDictation") {
+            console.log("Full dictation recorded. Auto-submitting...");
+            sendFullDictationAudio(blob, statusEl, startBtn, stopBtn); // Pass elements
+          } else if (field === "tarifs") {
+            // Handle tarif audio
+            console.log("Tarifs dictation recorded. Sending for extraction...");
+            sendTarifAudioToAI(blob, statusEl, startBtn, stopBtn); // Pass elements
+          } else {
+            // Handle individual field audio
+            const config = getFieldConfig(field); // Need config for messageId
+            if (!config) {
+              console.error(
+                `Config missing for field ${field} in handleRecordingStop.`
+              );
+              statusEl.innerHTML =
+                '<i class="fas fa-times-circle"></i> Err Proc.';
+              startBtn.disabled = false;
+              stopBtn.disabled = true;
+              return;
+            }
+            sendAudioToAI(
+              blob,
+              field,
+              statusEl,
+              startBtn,
+              stopBtn,
+              config.messageId
+            ); // Pass elements + messageId
+          }
+          audioChunks = []; // Clear chunks for next recording
+        }
+        // Button re-enabling is now handled in the .finally blocks of the sending functions.
+        recordingField = null; // Reset field after handling the stop
+      }
 
-         statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement...';
-         startBtn.disabled = true;
-         stopBtn.disabled = true;
+      // Accept UI elements as parameters
+      function sendAudioToAI(
+        blob,
+        field,
+        statusEl,
+        startBtn,
+        stopBtn,
+        messageId
+      ) {
+        if (!field || !statusEl || !startBtn || !stopBtn || !messageId) {
+          console.error("Missing parameters for sendAudioToAI");
+          if (statusEl)
+            statusEl.innerHTML =
+              '<i class="fas fa-times-circle"></i> Err Send.';
+          if (startBtn) startBtn.disabled = false;
+          if (stopBtn) stopBtn.disabled = true;
+          return Promise.reject(
+            new Error("Missing UI elements or config for sendAudioToAI")
+          );
+        }
 
+        const config = getFieldConfig(field);
+        if (!config || !config.apiEndpoint) {
+          console.error(
+            `Config/Endpoint missing for ${field} in sendAudioToAI`
+          );
+          if (statusEl)
+            statusEl.innerHTML =
+              '<i class="fas fa-times-circle"></i> Err Config.';
+          if (startBtn) startBtn.disabled = false;
+          if (stopBtn) stopBtn.disabled = true;
+          showMessage(messageId, "Erreur config endpoint", "error");
+          return Promise.reject(new Error("Erreur config endpoint"));
+        }
+        const ep = BASE_URL + config.apiEndpoint;
+        const fd = new FormData();
+        fd.append("audio", blob, `${field}_${currentIPP}_${Date.now()}.webm`);
+        fd.append("ipp", currentIPP);
+        fd.append("visit_id", currentVisitId);
 
-         const fd = new FormData();
-         fd.append("audio", blob, `tarifDictation_${currentIPP}_${Date.now()}.webm`);
-         fd.append("ipp", currentIPP);
-         fd.append("visit_id", currentVisitId);
+        statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi...';
+        showMessage(messageId, "", "info"); // Clear previous message
 
-         // Use the NEW transcription endpoint for audio
-         return fetchWithAuth(BASE_URL + TRANSCRIBE_TARIFS_ENDPOINT, { // <-- CORRECTED ENDPOINT
-             method: "POST",
-             body: JSON.stringify({ ipp: currentIPP, visit_id: currentVisitId, audio: true }) // Include audio=true flag for backend
-         })
-         .then(data => { // fetchWithAuth returns parsed JSON
-             console.log("Tarif extraction response:", data);
-              // Ensure 'data' is an array, potentially nested
-             const suggestions = Array.isArray(data) ? data : (data && Array.isArray(data.data) ? data.data : []);
-             console.log("Extracted tarif suggestions:", suggestions);
+        return fetchWithAuth(ep, { method: "POST", body: fd }) // <-- Ensure fetchWithAuth is returned
+          .then((responseData) => {
+            console.log(
+              `Raw Transc response ${field}:`,
+              JSON.stringify(responseData)
+            );
+            let transcript = "";
+            let resultObject = null;
 
-             if (tarifChoices) {
-                 const codes = suggestions.map(x => x.code).filter(code => code); // Ensure code exists
-                 console.log("Setting suggested tarif codes:", codes);
-                 tarifChoices.setValue(codes); // Select the suggested tariffs
-                 // The card is already visible if a patient is loaded, no need to explicitly show it here.
-             } else {
-                  console.error("tarifChoices not initialized.");
-             }
+            // Check for common response structures (array containing object, or direct object)
+            if (
+              Array.isArray(responseData) &&
+              responseData.length > 0 &&
+              typeof responseData[0] === "object" &&
+              responseData[0] !== null
+            ) {
+              resultObject = responseData[0];
+              console.log(
+                `Processing first element of array for ${field}:`,
+                resultObject
+              );
+            } else if (
+              typeof responseData === "object" &&
+              responseData !== null &&
+              !Array.isArray(responseData)
+            ) {
+              resultObject = responseData;
+              console.log(
+                `Processing direct object response for ${field}:`,
+                resultObject
+              );
+            } else {
+              throw new Error("Format de réponse transcription inattendu.");
+            }
 
+            if (
+              resultObject &&
+              resultObject.success === true &&
+              typeof resultObject.transcript === "string"
+            ) {
+              transcript = resultObject.transcript;
+              console.log(
+                `Transcript extracted for ${field}: "${transcript.substring(
+                  0,
+                  Math.min(transcript.length, 100)
+                )}..."`
+              );
+            } else {
+              // Check for potential error message in the response
+              const errorMessage =
+                resultObject?.message ||
+                responseData?.message ||
+                "Transcription échouée ou format invalide.";
+              throw new Error(errorMessage);
+            }
 
-             statusEl.innerHTML = '<i class="fas fa-check"></i> OK';
-             setTimeout(() => { if (statusEl?.innerHTML.includes('OK')) statusEl.innerHTML = ''; }, 4000);
-              return data; // Pass data along
-         })
-         .catch(e => {
-             console.error("Erreur lors du traitement des tarifs:", e);
-             statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Err Trait.';
-             setTimeout(() => { if (statusEl?.innerHTML.includes('Err Trait.')) statusEl.innerHTML = ''; }, 4000);
-              throw e; // Re-throw error
-         })
-         .finally(() => {
-             // Button re-enabling is handled here after the fetch completes
-             startBtn.disabled = false;
-             stopBtn.disabled = true;
-         });
-     }
+            const fieldToTextarea = {
+              diagnosis: "diagnosticInput",
+              prescription: "prescriptionInput",
+              notes: "notesInput",
+              orientation: "orientationInput",
+              antecedents: "antecedentsInput",
+              treatment: "treatmentInput",
+              exploration: "explorationInput",
+            };
+            const txtAreaId = fieldToTextarea[field];
+            if (txtAreaId) {
+              const textarea = document.getElementById(txtAreaId);
+              if (textarea) {
+                textarea.value = transcript;
+              } else {
+                console.error(
+                  `Textarea element not found for field: ${field} (ID: ${txtAreaId})`
+                );
+              }
+            } else {
+              console.error(`No textarea mapping found for field: ${field}`);
+            }
 
+            statusEl.innerHTML = '<i class="fas fa-check"></i> OK';
+            showMessage(messageId, "", "info"); // Clear message bar if successful
+            return responseData; // Pass data along
+          })
+          .catch((e) => {
+            if (!e.message.startsWith("Auth")) {
+              statusEl.innerHTML =
+                '<i class="fas fa-times-circle"></i> Err Transc.';
+              // Use the specific message element for the field
+              showMessage(messageId, `Err Transc: ${e.message}`, "error");
+            }
+            console.error(`Transcription error for ${field}:`, e);
+            throw e; // Re-throw error so handleRecordingStop's finally catches it
+          })
+          .finally(() => {
+            // Button re-enabling is handled here after the fetch completes
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            // Status message cleanup
+            setTimeout(() => {
+              const currentStatusHTML = statusEl?.innerHTML;
+              if (
+                currentStatusHTML &&
+                (currentStatusHTML.includes("Err Transc") ||
+                  currentStatusHTML.includes("Vide") ||
+                  currentStatusHTML.includes("OK"))
+              ) {
+                if (statusEl) statusEl.innerHTML = "";
+              }
+            }, 4000);
+          });
+      }
 
-    // Accept UI elements as parameters
-    function sendFullDictationAudio(blob, statusEl, startBtn, stopBtn) {
-      console.log("sendFullDictationAudio called!");
-       // Elements are passed in, no need to find them again
-       if (!currentIPP || !currentVisitId || !statusEl || !startBtn || !stopBtn) {
-            console.error("Missing parameters or patient/visit for sendFullDictationAudio.");
-             if (statusEl) statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Err Param';
-             if (startBtn) startBtn.disabled = false; if (stopBtn) stopBtn.disabled = true;
-           return Promise.reject(new Error("Missing parameters or patient/visit for sendFullDictationAudio"));
-       }
+      // Accept UI elements as parameters
+      function sendTarifAudioToAI(blob, statusEl, startBtn, stopBtn) {
+        console.log("sendTarifAudioToAI called!");
+        // Elements are passed in, no need to find them again
+        if (
+          !currentIPP ||
+          !currentVisitId ||
+          !statusEl ||
+          !startBtn ||
+          !stopBtn
+        ) {
+          console.error(
+            "Missing parameters or patient/visit for sendTarifAudioToAI."
+          );
+          if (statusEl)
+            statusEl.innerHTML =
+              '<i class="fas fa-exclamation-triangle"></i> Err Param';
+          if (startBtn) startBtn.disabled = false;
+          if (stopBtn) stopBtn.disabled = true;
+          return Promise.reject(
+            new Error(
+              "Missing parameters or patient/visit for sendTarifAudioToAI"
+            )
+          );
+        }
 
-      statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement...';
-       startBtn.disabled = true;
-       stopBtn.disabled = true;
+        statusEl.innerHTML =
+          '<i class="fas fa-spinner fa-spin"></i> Traitement...';
+        startBtn.disabled = true;
+        stopBtn.disabled = true;
 
+        const fd = new FormData();
+        fd.append(
+          "audio",
+          blob,
+          `tarifDictation_${currentIPP}_${Date.now()}.webm`
+        );
+        fd.append("ipp", currentIPP);
+        fd.append("visit_id", currentVisitId);
 
-      const fd = new FormData();
-      fd.append("audio", blob, `fullDictation_${currentIPP}_${Date.now()}.webm`);
-      fd.append("ipp", currentIPP);
-      fd.append("visit_id", currentVisitId);
+        // Use the NEW transcription endpoint for audio
+        return fetchWithAuth(BASE_URL + TRANSCRIBE_TARIFS_ENDPOINT, {
+          // <-- CORRECTED ENDPOINT
+          method: "POST",
+          body: JSON.stringify({
+            ipp: currentIPP,
+            visit_id: currentVisitId,
+            audio: true,
+          }), // Include audio=true flag for backend
+        })
+          .then((data) => {
+            // fetchWithAuth returns parsed JSON
+            console.log("Tarif extraction response:", data);
+            // Ensure 'data' is an array, potentially nested
+            const suggestions = Array.isArray(data)
+              ? data
+              : data && Array.isArray(data.data)
+              ? data.data
+              : [];
+            console.log("Extracted tarif suggestions:", suggestions);
 
-      return fetchWithAuth(BASE_URL + PROCESS_VISIT_DICTATION_ENDPOINT, { // <-- Ensure fetchWithAuth is returned
-        method: "POST",
-        body: fd
-      })
-      .then(responseData => {
-        console.log("Dictée traitée:", responseData);
-         // Assuming the response might contain the fields either directly or within 'extractedData'
-        const data = responseData.extractedData || responseData;
-        if (data) {
-           // Update text areas with returned data, using empty string fallback
-           document.getElementById("diagnosticInput").value = data.diagnostic || "";
-           document.getElementById("notesInput").value = data.notes_supplementaires || "";
-           document.getElementById("antecedentsInput").value = data.antecedents || "";
-           document.getElementById("treatmentInput").value = data.traitement_en_cours || "";
-           document.getElementById("orientationInput").value = data.orientation || "";
-           document.getElementById("prescriptionInput").value = data.ordonnance_medicale || "";
-           document.getElementById("explorationInput").value = data.prescription_exploration || "";
-           showMessage("fullDictationMessage", "Dictée traitée et champs mis à jour.", "success");
-           // If tarifs are suggested in the full dictation response, update tarifChoices
-           if (data.tarifs && Array.isArray(data.tarifs) && tarifChoices) {
-                const tarifCodes = data.tarifs.map(t => t.code || t).filter(code => code); // Map to codes, handle potential direct codes
-                console.log("Setting suggested tarif codes from full dictation:", tarifCodes);
+            if (tarifChoices) {
+              const codes = suggestions
+                .map((x) => x.code)
+                .filter((code) => code); // Ensure code exists
+              console.log("Setting suggested tarif codes:", codes);
+              tarifChoices.setValue(codes); // Select the suggested tariffs
+              // The card is already visible if a patient is loaded, no need to explicitly show it here.
+            } else {
+              console.error("tarifChoices not initialized.");
+            }
+
+            statusEl.innerHTML = '<i class="fas fa-check"></i> OK';
+            setTimeout(() => {
+              if (statusEl?.innerHTML.includes("OK")) statusEl.innerHTML = "";
+            }, 4000);
+            return data; // Pass data along
+          })
+          .catch((e) => {
+            console.error("Erreur lors du traitement des tarifs:", e);
+            statusEl.innerHTML =
+              '<i class="fas fa-times-circle"></i> Err Trait.';
+            setTimeout(() => {
+              if (statusEl?.innerHTML.includes("Err Trait."))
+                statusEl.innerHTML = "";
+            }, 4000);
+            throw e; // Re-throw error
+          })
+          .finally(() => {
+            // Button re-enabling is handled here after the fetch completes
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+          });
+      }
+
+      // Accept UI elements as parameters
+      function sendFullDictationAudio(blob, statusEl, startBtn, stopBtn) {
+        console.log("sendFullDictationAudio called!");
+        // Elements are passed in, no need to find them again
+        if (
+          !currentIPP ||
+          !currentVisitId ||
+          !statusEl ||
+          !startBtn ||
+          !stopBtn
+        ) {
+          console.error(
+            "Missing parameters or patient/visit for sendFullDictationAudio."
+          );
+          if (statusEl)
+            statusEl.innerHTML =
+              '<i class="fas fa-exclamation-triangle"></i> Err Param';
+          if (startBtn) startBtn.disabled = false;
+          if (stopBtn) stopBtn.disabled = true;
+          return Promise.reject(
+            new Error(
+              "Missing parameters or patient/visit for sendFullDictationAudio"
+            )
+          );
+        }
+
+        statusEl.innerHTML =
+          '<i class="fas fa-spinner fa-spin"></i> Traitement...';
+        startBtn.disabled = true;
+        stopBtn.disabled = true;
+
+        const fd = new FormData();
+        fd.append(
+          "audio",
+          blob,
+          `fullDictation_${currentIPP}_${Date.now()}.webm`
+        );
+        fd.append("ipp", currentIPP);
+        fd.append("visit_id", currentVisitId);
+
+        return fetchWithAuth(BASE_URL + PROCESS_VISIT_DICTATION_ENDPOINT, {
+          // <-- Ensure fetchWithAuth is returned
+          method: "POST",
+          body: fd,
+        })
+          .then((responseData) => {
+            console.log("Dictée traitée:", responseData);
+            // Assuming the response might contain the fields either directly or within 'extractedData'
+            const data = responseData.extractedData || responseData;
+            if (data) {
+              // Update text areas with returned data, using empty string fallback
+              document.getElementById("diagnosticInput").value =
+                data.diagnostic || "";
+              document.getElementById("notesInput").value =
+                data.notes_supplementaires || "";
+              document.getElementById("antecedentsInput").value =
+                data.antecedents || "";
+              document.getElementById("treatmentInput").value =
+                data.traitement_en_cours || "";
+              document.getElementById("orientationInput").value =
+                data.orientation || "";
+              document.getElementById("prescriptionInput").value =
+                data.ordonnance_medicale || "";
+              document.getElementById("explorationInput").value =
+                data.prescription_exploration || "";
+              showMessage(
+                "fullDictationMessage",
+                "Dictée traitée et champs mis à jour.",
+                "success"
+              );
+              // If tarifs are suggested in the full dictation response, update tarifChoices
+              if (data.tarifs && Array.isArray(data.tarifs) && tarifChoices) {
+                const tarifCodes = data.tarifs
+                  .map((t) => t.code || t)
+                  .filter((code) => code); // Map to codes, handle potential direct codes
+                console.log(
+                  "Setting suggested tarif codes from full dictation:",
+                  tarifCodes
+                );
                 tarifChoices.setValue(tarifCodes);
                 // The card is already visible if a patient is loaded, no need to explicitly show it here.
-           }
+              }
+            } else {
+              throw new Error(
+                responseData?.message ||
+                  "Données non reçues ou format inattendu."
+              );
+            }
+            return responseData; // Pass data along
+          })
+          .catch((e) => {
+            console.error("Erreur lors du traitement de la dictée:", e);
+            showMessage(
+              "fullDictationMessage",
+              `<i class="fas fa-times-circle"></i> Erreur traitement dictée: ${e.message}`,
+              "error"
+            );
+            throw e; // Re-throw error
+          })
+          .finally(() => {
+            // Button re-enabling is handled here after the fetch completes
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            // Status message cleanup
+            statusEl.innerHTML = ""; // Clear status display immediately
+          });
+      }
 
-        } else {
-          throw new Error(responseData?.message || "Données non reçues ou format inattendu.");
+      // --- Form Submission Functions for Individual Fields ---
+      // These functions remain unchanged as they don't directly interact with the recording elements.
+      // ... (submitDiagnostic, submitPrescription, validatePrescription remain unchanged) ...
+
+      // --- QR SCANNER CODE ---
+      scanButton.addEventListener("click", () => {
+        if (scanning) {
+          stopScanner();
+          return;
         }
-         return responseData; // Pass data along
-      })
-      .catch(e => {
-        console.error("Erreur lors du traitement de la dictée:", e);
-        showMessage("fullDictationMessage", `<i class="fas fa-times-circle"></i> Erreur traitement dictée: ${e.message}`, "error");
-         throw e; // Re-throw error
-      })
-      .finally(() => {
-        // Button re-enabling is handled here after the fetch completes
-        startBtn.disabled = false;
-        stopBtn.disabled = true;
-        // Status message cleanup
-        statusEl.innerHTML = ""; // Clear status display immediately
+
+        navigator.mediaDevices
+          .getUserMedia({ video: { facingMode: "environment" } })
+          .then((stream) => {
+            scanning = true;
+            currentStream = stream;
+            scannerContainer.style.display = "block";
+            video.srcObject = stream;
+            video.setAttribute("playsinline", true); // Required for iOS
+            video.play();
+            showMessage(
+              "scanResult",
+              "Scanner activé. Scannez un QR code.",
+              "info"
+            );
+            tick();
+          })
+          .catch((err) => {
+            console.error("Camera access error:", err);
+            showMessage("scanResult", "Erreur d’accès à la caméra.", "error");
+          });
       });
-    }
 
+      function tick() {
+        if (!scanning) return;
 
-    // --- Form Submission Functions for Individual Fields ---
-    // These functions remain unchanged as they don't directly interact with the recording elements.
-    // ... (submitDiagnostic, submitPrescription, validatePrescription remain unchanged) ...
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    // --- QR SCANNER CODE ---
-    // These functions remain unchanged as they don't directly interact with the recording elements.
-    // ... (updateScanStatus, scanButton.onclick, stopScanner, tick, processScannedQrCode, loadPatientIntoCurrentDashboard remain unchanged) ...
+        const imageData = context.getImageData(
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        );
+        const code = jsQR(imageData.data, canvas.width, canvas.height);
 
+        if (code) {
+          processScannedQrCode(code.data);
+          stopScanner();
+        } else {
+          requestAnimationFrame(tick);
+        }
+      }
 
-    // --- Helper Functions (Capitalize, getFieldConfig) ---
-    // These remain unchanged
-    function capitalize(s) {
-      if (typeof s !== 'string') return '';
-      return s.charAt(0).toUpperCase() + s.slice(1);
-    }
-    function getFieldConfig(field) {
-      const map = {
-        diagnosis: { apiEndpoint: TRANSCRIBE_DIAGNOSIS_ENDPOINT, messageId: 'diagMessage' },
-        prescription: { apiEndpoint: TRANSCRIBE_PRESCRIPTION_ENDPOINT, messageId: 'validationMessage' }, // Use validationMessage for presc transcription too
-        notes: { apiEndpoint: TRANSCRIBE_NOTES_ENDPOINT, messageId: 'notesMessage' },
-        orientation: { apiEndpoint: TRANSCRIBE_ORIENTATION_ENDPOINT, messageId: 'orientationMessage' },
-        antecedents: { apiEndpoint: TRANSCRIBE_ANTECEDENTS_ENDPOINT, messageId: 'antecedentsMessage' },
-        treatment: { apiEndpoint: TRANSCRIBE_TREATMENT_ENDPOINT, messageId: 'treatmentMessage' },
-        exploration: { apiEndpoint: TRANSCRIBE_EXPLORATION_ENDPOINT, messageId: 'explorationMessage' }
-      };
-      return map[field];
-    }
+      function processScannedQrCode(payload) {
+        console.log("QR Code scanned:", payload);
+        if (payload.startsWith(QR_TARGET_BASE_URL)) {
+          const ipp = payload.split("/").pop();
+          showMessage("scanResult", "QR code scanné avec succès.", "success");
+          loadPatient(ipp);
+        } else {
+          showMessage("scanResult", "QR code invalide.", "error");
+        }
+      }
 
+      function stopScanner() {
+        scanning = false;
+        if (currentStream) {
+          currentStream.getTracks().forEach((track) => track.stop());
+          currentStream = null;
+        }
+        scannerContainer.style.display = "none";
+        showMessage("scanResult", "Scanner arrêté.", "info");
+      }
 
-    // ─── New endpoints & globals ─────────────────────────
-    // Constants redefined at the top of the script for clarity
-    let tarifChoices;
+      // --- Helper Functions (Capitalize, getFieldConfig) ---
+      // These remain unchanged
+      function capitalize(s) {
+        if (typeof s !== "string") return "";
+        return s.charAt(0).toUpperCase() + s.slice(1);
+      }
+      function getFieldConfig(field) {
+        const map = {
+          diagnosis: {
+            apiEndpoint: TRANSCRIBE_DIAGNOSIS_ENDPOINT,
+            messageId: "diagMessage",
+          },
+          prescription: {
+            apiEndpoint: TRANSCRIBE_PRESCRIPTION_ENDPOINT,
+            messageId: "validationMessage",
+          }, // Use validationMessage for presc transcription too
+          notes: {
+            apiEndpoint: TRANSCRIBE_NOTES_ENDPOINT,
+            messageId: "notesMessage",
+          },
+          orientation: {
+            apiEndpoint: TRANSCRIBE_ORIENTATION_ENDPOINT,
+            messageId: "orientationMessage",
+          },
+          antecedents: {
+            apiEndpoint: TRANSCRIBE_ANTECEDENTS_ENDPOINT,
+            messageId: "antecedentsMessage",
+          },
+          treatment: {
+            apiEndpoint: TRANSCRIBE_TREATMENT_ENDPOINT,
+            messageId: "treatmentMessage",
+          },
+          exploration: {
+            apiEndpoint: TRANSCRIBE_EXPLORATION_ENDPOINT,
+            messageId: "explorationMessage",
+          },
+        };
+        return map[field];
+      }
 
-    // ─── 1) Initialize Choices.js on page load ──────────
-    function initTarifChoices() {
-      const tarifsSelectElement = document.getElementById('tarifsSelect');
-      if (!tarifsSelectElement) {
+      // ─── New endpoints & globals ─────────────────────────
+      // Constants redefined at the top of the script for clarity
+      let tarifChoices;
+
+      // ─── 1) Initialize Choices.js on page load ──────────
+      function initTarifChoices() {
+        const tarifsSelectElement = document.getElementById("tarifsSelect");
+        if (!tarifsSelectElement) {
           console.error("Tarifs select element not found.");
           return;
-      }
-      tarifChoices = new Choices(tarifsSelectElement, {
-        removeItemButton: true,
-        searchPlaceholderValue: 'Rechercher un service…', // Changed placeholder text slightly
-        placeholder: true,
-        placeholderValue: 'Sélectionner service(s)…',
-        shouldSort: false, // Keep the order from the backend/suggestion
-        searchResultLimit: 100, // Increase limit if needed
-        renderChoiceLimit: 100, // Increase limit if needed
-        allowHTML: true, // REQUIRED to render custom HTML in options
-        // Removed position: 'top' to revert to default ('auto'), which usually drops down
-        // --- Custom Renderer for Dropdown Options ---
-        renderChoice: (choice, classNames) => {
+        }
+        tarifChoices = new Choices(tarifsSelectElement, {
+          removeItemButton: true,
+          searchPlaceholderValue: "Rechercher un service…", // Changed placeholder text slightly
+          placeholder: true,
+          placeholderValue: "Sélectionner service(s)…",
+          shouldSort: false, // Keep the order from the backend/suggestion
+          searchResultLimit: 100, // Increase limit if needed
+          renderChoiceLimit: 100, // Increase limit if needed
+          allowHTML: true, // REQUIRED to render custom HTML in options
+          // Removed position: 'top' to revert to default ('auto'), which usually drops down
+          // --- Custom Renderer for Dropdown Options ---
+          renderChoice: (choice, classNames) => {
             // choice object contains { value, label, id, groupId, disabled, elementId, selected, customProperties }
             // In loadTarifList, we will put price and currency in customProperties
-            const priceText = sanitizeInput(choice.customProperties?.tarif || 'N/A');
-            const currencyText = sanitizeInput(choice.customProperties?.devise || 'MAD');
-            const labelText = sanitizeInput(choice.label || 'Service inconnu');
+            const priceText = sanitizeInput(
+              choice.customProperties?.tarif || "N/A"
+            );
+            const currencyText = sanitizeInput(
+              choice.customProperties?.devise || "MAD"
+            );
+            const labelText = sanitizeInput(choice.label || "Service inconnu");
 
             return `
-                <div class="${classNames.item} ${classNames.itemChoice} ${choice.disabled ? classNames.itemDisabled : ''}" data-select-text="${this.config.itemSelectText}" data-choice-id="${choice.id}" data-value="${choice.value}" ${choice.disabled ? 'aria-disabled="true"' : 'data-choice-selectable'}>
+                <div class="${classNames.item} ${classNames.itemChoice} ${
+              choice.disabled ? classNames.itemDisabled : ""
+            }" data-select-text="${
+              this.config.itemSelectText
+            }" data-choice-id="${choice.id}" data-value="${choice.value}" ${
+              choice.disabled
+                ? 'aria-disabled="true"'
+                : "data-choice-selectable"
+            }>
                     <span>${labelText}</span>
                     <span class="price-badge">${priceText} ${currencyText}</span>
                 </div>
             `;
-        }
-         // Optional: Customize how selected tags look (items above the input)
-         /*
+          },
+          // Optional: Customize how selected tags look (items above the input)
+          /*
         , renderItem: (item, classNames) => {
              // item object contains { value, label, id, active, disabled }
              // We might need to store the price/currency here too if we want it in the selected tag.
@@ -1494,208 +2586,262 @@
              `;
          }
          */
-      });
-      document.getElementById('addAllTarifsBtn')
-        ?.addEventListener('click', () => {
-           if (!tarifChoices) return;
-           // Select all available choices, filter out any "no results" message choice
-           const all = tarifChoices._store.choices.filter(c => c.active).map(c => c.value);
-           tarifChoices.setValue(all);
         });
-      document.getElementById('removeAllTarifsBtn')
-        ?.addEventListener('click', () => {
-          if (!tarifChoices) return;
-           tarifChoices.removeActiveItemsByRequireValue(true); // Remove only selected items
-           // tarifChoices.clearStore(); // This clears the options list too, maybe not desired
-        });
-    }
+        document
+          .getElementById("addAllTarifsBtn")
+          ?.addEventListener("click", () => {
+            if (!tarifChoices) return;
+            // Select all available choices, filter out any "no results" message choice
+            const all = tarifChoices._store.choices
+              .filter((c) => c.active)
+              .map((c) => c.value);
+            tarifChoices.setValue(all);
+          });
+        document
+          .getElementById("removeAllTarifsBtn")
+          ?.addEventListener("click", () => {
+            if (!tarifChoices) return;
+            tarifChoices.removeActiveItemsByRequireValue(true); // Remove only selected items
+            // tarifChoices.clearStore(); // This clears the options list too, maybe not desired
+          });
+      }
 
-    // ─── 2) Fetch & populate the full tarifs list ────────
-    function loadTarifList() {
-      console.log("Loading full tarif list...");
-      fetchWithAuth(BASE_URL + TARIFF_LIST_ENDPOINT) // Uses TARIFF_LIST_ENDPOINT
-        .then(data => {
-           // Assuming the endpoint returns an array directly or within a 'data' property
-           const list = Array.isArray(data) ? data : (data && Array.isArray(data.data) ? data.data : []);
-           console.log("Fetched tarif list:", list);
-           return list;
-        })
-        .then(list => {
-          if (!tarifChoices) {
+      // ─── 2) Fetch & populate the full tarifs list ────────
+      function loadTarifList() {
+        console.log("Loading full tarif list...");
+        fetchWithAuth(BASE_URL + TARIFF_LIST_ENDPOINT) // Uses TARIFF_LIST_ENDPOINT
+          .then((data) => {
+            // Assuming the endpoint returns an array directly or within a 'data' property
+            const list = Array.isArray(data)
+              ? data
+              : data && Array.isArray(data.data)
+              ? data.data
+              : [];
+            console.log("Fetched tarif list:", list);
+            return list;
+          })
+          .then((list) => {
+            if (!tarifChoices) {
               console.error("tarifChoices not initialized when loading list.");
               return;
+            }
+            const choices = list
+              .map((item) => ({
+                // Ensure item properties exist before mapping
+                value: item.code || item.id, // Use code or id as value (this is the internal value stored)
+                label: sanitizeInput(
+                  item.libelle || item.name || "Sans libellé"
+                ), // ONLY the description for the main label
+                customProperties: {
+                  // Store price and currency here for custom rendering
+                  tarif: item.tarif || "0",
+                  devise: item.devise || "MAD",
+                },
+                disabled: false, // Assume items are selectable
+              }))
+              .filter((choice) => choice.value); // Filter out choices without a value
+
+            // Clear previous options before setting new ones
+            tarifChoices.clearChoices();
+            // Set the new choices, sort them by label (the description)
+            tarifChoices.setChoices(
+              choices.sort((a, b) => a.label.localeCompare(b.label)),
+              "value",
+              "label",
+              true
+            );
+            console.log(
+              "Tarif list populated in Choices.js with custom rendering data."
+            );
+          })
+          .catch((err) => {
+            console.error("Err loadTarifList:", err);
+            if (tarifChoices) {
+              tarifChoices.clearChoices(); // Clear any potential loading indicators
+              tarifChoices.setChoices(
+                [
+                  {
+                    value: "",
+                    label: "Erreur chargement tarifs.",
+                    disabled: true,
+                  },
+                ],
+                "value",
+                "label",
+                true
+              );
+            }
+          });
+      }
+
+      // ─── 3) Hook into your “Soumettre Toutes les Données” ─
+      // The logic for this listener is placed within the window.onload function below
+      // to ensure it is added after all other initializations.
+
+      // ─── 4) Setup the voice‑to‑tarifs recorder ───────────
+      // This was partially handled in the generic recording functions above.
+      // This section defines the specific event listeners for the tarif buttons.
+      let tarifRecorder; // This is defined in the new global block now.
+      let tarifChunks = []; // This is defined in the new global block now.
+
+      document
+        .getElementById("startTarifRecordBtn")
+        ?.addEventListener("click", () => {
+          if (!currentIPP || !currentVisitId) {
+            alert("Chargez un patient et sa visite.");
+            return;
           }
-          const choices = list.map(item => ({
-            // Ensure item properties exist before mapping
-            value: item.code || item.id, // Use code or id as value (this is the internal value stored)
-            label: sanitizeInput(item.libelle || item.name || 'Sans libellé'), // ONLY the description for the main label
-            customProperties: { // Store price and currency here for custom rendering
-                 tarif: item.tarif || '0',
-                 devise: item.devise || 'MAD'
-            },
-            disabled: false // Assume items are selectable
-          })).filter(choice => choice.value); // Filter out choices without a value
-
-           // Clear previous options before setting new ones
-           tarifChoices.clearChoices();
-           // Set the new choices, sort them by label (the description)
-           tarifChoices.setChoices(choices.sort((a, b) => a.label.localeCompare(b.label)), 'value', 'label', true);
-           console.log("Tarif list populated in Choices.js with custom rendering data.");
-
-        })
-        .catch(err => {
-            console.error('Err loadTarifList:', err);
-             if (tarifChoices) {
-                 tarifChoices.clearChoices(); // Clear any potential loading indicators
-                 tarifChoices.setChoices([{
-                     value: '',
-                     label: 'Erreur chargement tarifs.',
-                     disabled: true
-                 }], 'value', 'label', true);
-             }
+          startRecording("tarifs"); // Use the generic startRecording function
         });
-    }
 
-    // ─── 3) Hook into your “Soumettre Toutes les Données” ─
-    // The logic for this listener is placed within the window.onload function below
-    // to ensure it is added after all other initializations.
+      document
+        .getElementById("stopTarifRecordBtn")
+        ?.addEventListener("click", () => {
+          // Pass the elements when calling stopRecording from the button click
+          const startBtn = document.getElementById("startTarifRecordBtn");
+          const stopBtn = document.getElementById("stopTarifRecordBtn");
+          const statusEl = document.getElementById("tarifStatus");
+          stopRecording("tarifs", statusEl, startBtn, stopBtn);
+        });
 
+      // The actual logic for sending tarif audio is integrated into handleRecordingStop and a new sendTarifAudioToAI function.
 
-    // ─── 4) Setup the voice‑to‑tarifs recorder ───────────
-    // This was partially handled in the generic recording functions above.
-    // This section defines the specific event listeners for the tarif buttons.
-    let tarifRecorder; // This is defined in the new global block now.
-    let tarifChunks = []; // This is defined in the new global block now.
+      // ─── 5) Wire it all up on load ───────────────────────
+      // Modify the existing window.onload function to include the new initializations.
+      window.addEventListener("load", () => {
+        if (!localStorage.getItem("authToken")) {
+          console.log("Doctor: No token, redirecting.");
+          window.location.href = LOGIN_PAGE_URL;
+          return;
+        }
+        document.body.classList.add("loaded");
+        console.log("Doctor: Authenticated.");
 
-    document.getElementById('startTarifRecordBtn')?.addEventListener('click', () => {
-        if (!currentIPP || !currentVisitId) {
-           alert("Chargez un patient et sa visite.");
-           return;
-       }
-       startRecording('tarifs'); // Use the generic startRecording function
-    });
+        // Initialize the new tarif Choices.js dropdown first
+        initTarifChoices();
+        // Load the list of all available tariffs
+        loadTarifList();
 
-    document.getElementById('stopTarifRecordBtn')?.addEventListener('click', () => {
-        // Pass the elements when calling stopRecording from the button click
-        const startBtn = document.getElementById('startTarifRecordBtn');
-        const stopBtn = document.getElementById('stopTarifRecordBtn');
-        const statusEl = document.getElementById('tarifStatus');
-        stopRecording('tarifs', statusEl, startBtn, stopBtn);
-    });
-
-
-    // The actual logic for sending tarif audio is integrated into handleRecordingStop and a new sendTarifAudioToAI function.
-
-
-    // ─── 5) Wire it all up on load ───────────────────────
-    // Modify the existing window.onload function to include the new initializations.
-    window.addEventListener('load', () => {
-      if (!localStorage.getItem('authToken')) {
-        console.log("Doctor: No token, redirecting.");
-        window.location.href = LOGIN_PAGE_URL;
-        return;
-      }
-      document.body.classList.add('loaded');
-      console.log("Doctor: Authenticated.");
-
-      // Initialize the new tarif Choices.js dropdown first
-      initTarifChoices();
-      // Load the list of all available tariffs
-      loadTarifList();
-
-
-      const urlParams = new URLSearchParams(window.location.search);
-      const ippFromUrl = urlParams.get("ipp");
-      if (ippFromUrl) {
-        console.log(`IPP in URL: ${ippFromUrl}. Loading initial data.`);
-        loadPatient(ippFromUrl);
-      } else {
-        console.log("No initial IPP. Waiting scan.");
-        clearDoctorUI(); // Ensure UI is clear and disabled if no IPP
-      }
-
-       // Add the new event listener for the "Soumettre Toutes les Données" button
-       // This makes the new listener the *only* listener, and it calls the original function first.
-
-       const submitAllBtn = document.getElementById('submitAllBtn');
-        if (submitAllBtn) {
-            // Capture the original function reference *before* potentially wrapping it, though in this structure,
-            // submitAllData is already defined when this listener is added.
-            const origSubmitAll = submitAllData; // This is the original function defined above
-
-            // Add the new combined listener
-            submitAllBtn.addEventListener('click', () => {
-              console.log("Submit All button clicked. Starting combined logic.");
-              // Capture current IPP and Visit ID BEFORE calling the original submitAllData,
-              // in case original submitAllData clears them (it doesn't in the provided code, but good practice).
-              const ipp = currentIPP;
-              const vid = currentVisitId;
-
-              // Validate patient/visit are loaded before proceeding with either submit function
-               if (!ipp || !vid) {
-                   showMessage('validationMessage', 'Patient ou Visite non chargé.', 'warning');
-                   console.warn("Attempted submitAllData without loaded patient/visit.");
-                   return; // Stop the process
-               }
-
-               // Call the original submit function first
-               console.log("Calling original submitAllData...");
-               origSubmitAll(); // This function handles saving all text fields + selected tarifs
-
-               // Then, trigger the tariff extraction logic based on visit context
-               console.log(`Triggering tarif extraction from visit context for IPP: ${ipp}, Visit ID: ${vid}`);
-
-               fetchWithAuth(BASE_URL + VISIT_TARIF_SUGGEST_ENDPOINT, { // <-- Uses VISIT_TARIF_SUGGEST_ENDPOINT
-                 method: 'POST',
-                 // Send IPP and visit_id to identify the visit for extraction context
-                 body: JSON.stringify({ ipp: ipp, visit_id: vid, action: 'extract_from_visit' }) // Assume backend needs context
-               })
-               // fetchWithAuth already returns parsed JSON:
-               .then(data => {
-                   console.log("Raw tarif extraction response (post submit):", data);
-                   // Assuming the endpoint returns an array directly or within a 'data' property
-                   const suggestions = Array.isArray(data) ? data : (data && Array.isArray(data.data) ? data.data : []);
-                   console.log("Extracted tarif suggestions (post submit):", suggestions);
-                   return suggestions;
-               })
-               .then(suggestions => {
-                 if (tarifChoices) {
-                   const codes = suggestions.map(x => x.code || x).filter(code => code); // Map to codes, handle potential direct codes
-                    if (codes.length > 0) {
-                        console.log("Setting suggested tarif codes (post submit):", codes);
-                        tarifChoices.setValue(codes); // Select the suggested tariffs
-                        // Show the tarifs card if suggestions are found (redundant if already shown by enableDoctorSections, but safe)
-                         const tarifsDropdownCard = document.getElementById('tarifsDropdownCard');
-                         if (tarifsDropdownCard) {
-                             tarifsDropdownCard.style.display = 'block';
-                             console.log("Tarifs card shown.");
-                             // Optional: Scroll to the tarifs card
-                             // tarifsDropdownCard.scrollIntoView({ behavior: 'smooth', block: 'start' }); // Maybe too aggressive
-                         }
-                    } else {
-                         console.log("No tarif suggestions received.");
-                         // Optionally clear selection if no suggestions were returned? Depends on desired behaviour.
-                         // tarifChoices.removeActiveItemsByRequireValue(true);
-                         // Optionally hide the card if no suggestions are ever found after submit? (Probably not desired, user might select manually)
-                     }
-
-                 } else {
-                     console.error("tarifChoices not initialized when processing post-submit suggestions.");
-                 }
-               })
-               .catch(err => {
-                   // This catch is for the *second* fetch (tarif extraction), not the main submitAllData fetch.
-                   console.error('Err fetching suggestions after submit:', err);
-                   // Decide how to display this error. Maybe a specific message area for tarif suggestions?
-                   // For now, log to console.
-               });
-            }); // End of new combined click listener
+        const urlParams = new URLSearchParams(window.location.search);
+        const ippFromUrl = urlParams.get("ipp");
+        if (ippFromUrl) {
+          console.log(`IPP in URL: ${ippFromUrl}. Loading initial data.`);
+          loadPatient(ippFromUrl);
         } else {
-            console.error("Submit All button not found!");
+          console.log("No initial IPP. Waiting scan.");
+          clearDoctorUI(); // Ensure UI is clear and disabled if no IPP
         }
 
-    }); // End of window.onload listener
+        // Add the new event listener for the "Soumettre Toutes les Données" button
+        // This makes the new listener the *only* listener, and it calls the original function first.
 
-  </script>
-</body>
+        const submitAllBtn = document.getElementById("submitAllBtn");
+        if (submitAllBtn) {
+          // Capture the original function reference *before* potentially wrapping it, though in this structure,
+          // submitAllData is already defined when this listener is added.
+          const origSubmitAll = submitAllData; // This is the original function defined above
+
+          // Add the new combined listener
+          submitAllBtn.addEventListener("click", () => {
+            console.log("Submit All button clicked. Starting combined logic.");
+            // Capture current IPP and Visit ID BEFORE calling the original submitAllData,
+            // in case original submitAllData clears them (it doesn't in the provided code, but good practice).
+            const ipp = currentIPP;
+            const vid = currentVisitId;
+
+            // Validate patient/visit are loaded before proceeding with either submit function
+            if (!ipp || !vid) {
+              showMessage(
+                "validationMessage",
+                "Patient ou Visite non chargé.",
+                "warning"
+              );
+              console.warn(
+                "Attempted submitAllData without loaded patient/visit."
+              );
+              return; // Stop the process
+            }
+
+            // Call the original submit function first
+            console.log("Calling original submitAllData...");
+            origSubmitAll(); // This function handles saving all text fields + selected tarifs
+
+            // Then, trigger the tariff extraction logic based on visit context
+            console.log(
+              `Triggering tarif extraction from visit context for IPP: ${ipp}, Visit ID: ${vid}`
+            );
+
+            fetchWithAuth(BASE_URL + VISIT_TARIF_SUGGEST_ENDPOINT, {
+              // <-- Uses VISIT_TARIF_SUGGEST_ENDPOINT
+              method: "POST",
+              // Send IPP and visit_id to identify the visit for extraction context
+              body: JSON.stringify({
+                ipp: ipp,
+                visit_id: vid,
+                action: "extract_from_visit",
+              }), // Assume backend needs context
+            })
+              // fetchWithAuth already returns parsed JSON:
+              .then((data) => {
+                console.log(
+                  "Raw tarif extraction response (post submit):",
+                  data
+                );
+                // Assuming the endpoint returns an array directly or within a 'data' property
+                const suggestions = Array.isArray(data)
+                  ? data
+                  : data && Array.isArray(data.data)
+                  ? data.data
+                  : [];
+                console.log(
+                  "Extracted tarif suggestions (post submit):",
+                  suggestions
+                );
+                return suggestions;
+              })
+              .then((suggestions) => {
+                if (tarifChoices) {
+                  const codes = suggestions
+                    .map((x) => x.code || x)
+                    .filter((code) => code); // Map to codes, handle potential direct codes
+                  if (codes.length > 0) {
+                    console.log(
+                      "Setting suggested tarif codes (post submit):",
+                      codes
+                    );
+                    tarifChoices.setValue(codes); // Select the suggested tariffs
+                    // Show the tarifs card if suggestions are found (redundant if already shown by enableDoctorSections, but safe)
+                    const tarifsDropdownCard =
+                      document.getElementById("tarifsDropdownCard");
+                    if (tarifsDropdownCard) {
+                      tarifsDropdownCard.style.display = "block";
+                      console.log("Tarifs card shown.");
+                      // Optional: Scroll to the tarifs card
+                      // tarifsDropdownCard.scrollIntoView({ behavior: 'smooth', block: 'start' }); // Maybe too aggressive
+                    }
+                  } else {
+                    console.log("No tarif suggestions received.");
+                    // Optionally clear selection if no suggestions were returned? Depends on desired behaviour.
+                    // tarifChoices.removeActiveItemsByRequireValue(true);
+                    // Optionally hide the card if no suggestions are ever found after submit? (Probably not desired, user might select manually)
+                  }
+                } else {
+                  console.error(
+                    "tarifChoices not initialized when processing post-submit suggestions."
+                  );
+                }
+              })
+              .catch((err) => {
+                // This catch is for the *second* fetch (tarif extraction), not the main submitAllData fetch.
+                console.error("Err fetching suggestions after submit:", err);
+                // Decide how to display this error. Maybe a specific message area for tarif suggestions?
+                // For now, log to console.
+              });
+          }); // End of new combined click listener
+        } else {
+          console.error("Submit All button not found!");
+        }
+      }); // End of window.onload listener
+    </script>
+  </body>
 </html>
