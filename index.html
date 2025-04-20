@@ -496,6 +496,12 @@
     // Full dictation endpoint – ensure it matches your n8n webhook
     const PROCESS_VISIT_DICTATION_ENDPOINT = "/webhook/process-visit-dictation";
 
+    // --- NEW TARIFF ENDPOINTS ---
+    const TARIFF_LIST_ENDPOINT = '/webhook/get-all-tarifs'; // For loading the full list
+    const VISIT_TARIF_SUGGEST_ENDPOINT = '/webhook/extract-tarifs'; // For suggesting tariffs from visit context (post-submit)
+    const TRANSCRIBE_TARIFS_ENDPOINT = '/webhook/transcribe-extract-tarifs'; // <-- NEW: For suggesting tariffs from audio
+
+
     let currentIPP = null;
     let currentVisitId = null;
     let mediaRecorder;
@@ -1002,7 +1008,7 @@
       }
       audioChunks = [];
       recordingField = field;
-      // Declare elements using 'let' so they are accessible outside the if/else blocks
+      // Declare elements using 'let' so they are accessible within this function's scope
       let statusEl, startBtn, stopBtn;
 
       if (field === 'fullDictation') {
@@ -1012,7 +1018,7 @@
       } else if (field === 'tarifs') {
           startBtn = document.getElementById('startTarifRecordBtn');
           stopBtn = document.getElementById('stopTarifRecordBtn');
-          statusEl = document.getElementById('tarifStatus'); // <-- CORRECTED: Look for 'tarifStatus'
+          statusEl = document.getElementById('tarifStatus'); // CORRECT ID for tarifs status
       }
        else { // Generic case (diagnosis, prescription, notes, etc.)
            startBtn = document.getElementById(`start${capitalize(field)}RecordBtn`);
@@ -1035,7 +1041,8 @@
           currentStream = stream; // Store stream to stop it later
           mediaRecorder = new MediaRecorder(stream);
           mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
-          mediaRecorder.onstop = () => handleRecordingStop(); // No need to pass stream, it's in currentStream
+          // Pass the UI elements to handleRecordingStop
+          mediaRecorder.onstop = () => handleRecordingStop(statusEl, startBtn, stopBtn);
           mediaRecorder.onerror = e => {
             console.error(`Rec Err: ${e.error}`);
             if (statusEl) statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Err Rec.';
@@ -1065,39 +1072,28 @@
         });
     }
 
-    function stopRecording(field) {
+    // Accept UI elements as parameters
+    function stopRecording(field, statusEl, startBtn, stopBtn) {
         console.log(`stopRecording CALLED for ${field}`);
-      // Declare elements using 'let' so they are accessible outside the if/else blocks
-      let statusEl, startBtn, stopBtn;
-
-       if (field === 'fullDictation') {
-           startBtn = document.getElementById('startFullDictationRecordBtn');
-           stopBtn = document.getElementById('stopFullDictationRecordBtn');
-           statusEl = document.getElementById('fullDictationStatus'); // Specific ID
-       } else if (field === 'tarifs') {
-            startBtn = document.getElementById('startTarifRecordBtn');
-            stopBtn = document.getElementById('stopTarifRecordBtn');
-            statusEl = document.getElementById('tarifStatus'); // <-- CORRECTED: Look for 'tarifStatus'
-       } else { // Generic case
-           startBtn = document.getElementById(`start${capitalize(field)}RecordBtn`);
-           stopBtn = document.getElementById(`stop${capitalize(field)}RecordBtn`);
-           statusEl = document.getElementById(`${field}Status`); // Use template literal
-       }
-
+        // Find elements if not passed (handles button clicks directly)
         if (!statusEl || !startBtn || !stopBtn) {
-             console.error(`UI elements missing during stop for ${field}.`);
-             // Attempt to stop recorder and stream anyway if they exist
-             if (mediaRecorder && mediaRecorder.state === 'recording' && recordingField === field) {
-                 mediaRecorder.stop();
+             if (field === 'fullDictation') {
+                 startBtn = document.getElementById('startFullDictationRecordBtn');
+                 stopBtn = document.getElementById('stopFullDictationRecordBtn');
+                 statusEl = document.getElementById('fullDictationStatus');
+             } else if (field === 'tarifs') {
+                  startBtn = document.getElementById('startTarifRecordBtn');
+                  stopBtn = document.getElementById('stopTarifRecordBtn');
+                  statusEl = document.getElementById('tarifStatus'); // CORRECT ID
+             } else {
+                 startBtn = document.getElementById(`start${capitalize(field)}RecordBtn`);
+                 stopBtn = document.getElementById(`stop${capitalize(field)}RecordBtn`);
+                 statusEl = document.getElementById(`${field}Status`);
              }
-              if (currentStream) {
-                 currentStream.getTracks().forEach(track => track.stop());
-                 currentStream = null;
+             if (!statusEl || !startBtn || !stopBtn) {
+                  console.error(`UI elements missing during stop for ${field}. Cannot proceed.`);
+                  return; // Exit if elements are missing
              }
-             // Reset button states if possible, even if not all elements were found
-             if (startBtn) startBtn.disabled = false;
-             if (stopBtn) stopBtn.disabled = true;
-             return; // Exit if elements are missing
         }
 
 
@@ -1115,46 +1111,29 @@
              statusEl.innerHTML = ''; // Clear status if it was stuck
          }
       }
-      // Stream cleanup happens in handleRecordingStop
+      // Stream cleanup happens in handleRecordingStop, which receives the stream via onstop event
     }
 
-    function handleRecordingStop() {
+    // Accept UI elements as parameters
+    function handleRecordingStop(statusEl, startBtn, stopBtn) {
       const field = recordingField; // Use the global recordingField
       console.log(`handleRecordingStop CALLED for field: ${field}`);
       if (!field) {
         console.warn("handleRecordingStop called with no active recording field.");
-        if (currentStream) currentStream.getTracks().forEach(track => track.stop());
+         // Clean up stream/recorder even if field is null
+         if (currentStream) currentStream.getTracks().forEach(track => track.stop());
          currentStream = null;
          mediaRecorder = null;
         return;
       }
-      const config = (field === "fullDictation" || field === "tarifs") ? {} : getFieldConfig(field); // Get config for individual fields
-      // Declare elements using 'let' so they are accessible outside the if/else blocks
-      let statusEl, startBtn, stopBtn;
 
-       if (field === 'fullDictation') {
-           startBtn = document.getElementById('startFullDictationRecordBtn');
-           stopBtn = document.getElementById('stopFullDictationRecordBtn');
-           statusEl = document.getElementById('fullDictationStatus'); // Specific ID
-       } else if (field === 'tarifs') {
-            startBtn = document.getElementById('startTarifRecordBtn');
-            stopBtn = document.getElementById('stopTarifRecordBtn');
-            statusEl = document.getElementById('tarifStatus'); // <-- CORRECTED: Look for 'tarifStatus'
-       }
-       else { // Generic case
-           startBtn = document.getElementById(`start${capitalize(field)}RecordBtn`);
-           stopBtn = document.getElementById(`stop${capitalize(field)}RecordBtn`);
-           statusEl = document.getElementById(`${field}Status`); // Use template literal
-       }
-
-       // Check elements again before using them, especially important here
+      // Elements are passed in, no need to find them again
+      // Ensure elements are valid before proceeding
        if (!statusEl || !startBtn || !stopBtn) {
-           console.error(`UI elements missing after stop for ${field}.`);
-           // Clean up stream even if UI elements are missing
-           if (currentStream) {
-               currentStream.getTracks().forEach(track => track.stop());
-               currentStream = null;
-           }
+           console.error(`UI elements missing in handleRecordingStop for ${field}. Cannot proceed.`);
+            // Clean up stream/recorder
+            if (currentStream) currentStream.getTracks().forEach(track => track.stop());
+            currentStream = null;
             mediaRecorder = null;
            return;
        }
@@ -1172,7 +1151,7 @@
         console.warn("No audio data received.");
         statusEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Vide';
         startBtn.disabled = false; // Ensure start button is re-enabled
-        // Stop button is already disabled by stopRecording
+        stopBtn.disabled = true; // Ensure stop button is disabled
         setTimeout(() => { if (statusEl?.innerHTML.includes('Vide')) statusEl.innerHTML = ''; }, 4000);
       } else {
         const blob = new Blob(audioChunks, { type: 'audio/webm' });
@@ -1184,60 +1163,118 @@
 
         if (field === "fullDictation") {
           console.log("Full dictation recorded. Auto-submitting...");
-          sendFullDictationAudio(blob)
-             .finally(() => { // Use finally to re-enable start button after the fetch finishes
-                  startBtn.disabled = false;
-                  // stopBtn is already disabled
-              });
+          sendFullDictationAudio(blob, statusEl, startBtn, stopBtn); // Pass elements
         } else if (field === "tarifs") { // Handle tarif audio
            console.log("Tarifs dictation recorded. Sending for extraction...");
-           sendTarifAudioToAI(blob)
-              .finally(() => { // Use finally to re-enable start button after the fetch finishes
-                   startBtn.disabled = false;
-                   // stopBtn is already disabled
-               });
+           sendTarifAudioToAI(blob, statusEl, startBtn, stopBtn); // Pass elements
         }
         else { // Handle individual field audio
-          sendAudioToAI(blob, field)
-             .finally(() => { // Use finally to re-enable start button after the fetch finishes
-                  startBtn.disabled = false;
-                  // stopBtn is already disabled
-              });
+           const config = getFieldConfig(field); // Need config for messageId
+           if (!config) {
+               console.error(`Config missing for field ${field} in handleRecordingStop.`);
+               statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Err Proc.';
+                startBtn.disabled = false; stopBtn.disabled = true;
+               return;
+           }
+          sendAudioToAI(blob, field, statusEl, startBtn, stopBtn, config.messageId); // Pass elements + messageId
         }
         audioChunks = []; // Clear chunks for next recording
       }
-      // We re-enable the start button inside the .finally block of the fetch calls now.
-      // recordingField = null; // Reset field after handling the stop
+      // Button re-enabling is now handled in the .finally blocks of the sending functions.
+      recordingField = null; // Reset field after handling the stop
     }
 
-    // --- Send Audio for Individual Recordings ---
-    function sendAudioToAI(blob, field) {
-      // ... (previous code remains the same) ...
-      // Added finally block in handleRecordingStop to re-enable startBtn.
-      // The fetchWithAuth finally block should probably just handle status updates now.
-      // Let's adjust the finally block here slightly to only manage status.
+    // Accept UI elements as parameters
+    function sendAudioToAI(blob, field, statusEl, startBtn, stopBtn, messageId) {
+      if (!field || !statusEl || !startBtn || !stopBtn || !messageId) {
+        console.error("Missing parameters for sendAudioToAI");
+         if (statusEl) statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Err Send.';
+         if (startBtn) startBtn.disabled = false; if (stopBtn) stopBtn.disabled = true;
+        return Promise.reject(new Error("Missing UI elements or config for sendAudioToAI"));
+      }
+
+      const config = getFieldConfig(field);
+      if (!config || !config.apiEndpoint) {
+        console.error(`Config/Endpoint missing for ${field} in sendAudioToAI`);
+        if (statusEl) statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Err Config.';
+         if (startBtn) startBtn.disabled = false; if (stopBtn) stopBtn.disabled = true;
+        showMessage(messageId, 'Erreur config endpoint', 'error');
+        return Promise.reject(new Error('Erreur config endpoint'));
+      }
+      const ep = BASE_URL + config.apiEndpoint;
+      const fd = new FormData();
+      fd.append("audio", blob, `${field}_${currentIPP}_${Date.now()}.webm`);
+      fd.append("ipp", currentIPP);
+      fd.append("visit_id", currentVisitId);
+
+      statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi...';
+      showMessage(messageId, '', 'info'); // Clear previous message
 
        return fetchWithAuth(ep, { method: "POST", body: fd }) // <-- Ensure fetchWithAuth is returned
         .then(responseData => {
-          // ... (response parsing and textarea update) ...
-          if (statusEl) statusEl.innerHTML = '<i class="fas fa-check"></i> OK';
-          showMessage(config.messageId, '', 'info'); // Clear message bar if successful
-          setTimeout(() => { if (statusEl?.innerHTML.includes('OK')) statusEl.innerHTML = ''; }, 4000);
+          console.log(`Raw Transc response ${field}:`, JSON.stringify(responseData));
+          let transcript = '';
+          let resultObject = null;
+
+          // Check for common response structures (array containing object, or direct object)
+          if (Array.isArray(responseData) && responseData.length > 0 && typeof responseData[0] === 'object' && responseData[0] !== null) {
+             resultObject = responseData[0];
+             console.log(`Processing first element of array for ${field}:`, resultObject);
+          } else if (typeof responseData === 'object' && responseData !== null && !Array.isArray(responseData)) {
+             resultObject = responseData;
+             console.log(`Processing direct object response for ${field}:`, resultObject);
+          } else {
+             throw new Error('Format de réponse transcription inattendu.');
+          }
+
+          if (resultObject && resultObject.success === true && typeof resultObject.transcript === 'string') {
+            transcript = resultObject.transcript;
+            console.log(`Transcript extracted for ${field}: "${transcript.substring(0, Math.min(transcript.length, 100))}..."`);
+          } else {
+             // Check for potential error message in the response
+             const errorMessage = resultObject?.message || responseData?.message || 'Transcription échouée ou format invalide.';
+             throw new Error(errorMessage);
+          }
+
+          const fieldToTextarea = {
+            diagnosis: 'diagnosticInput',
+            prescription: 'prescriptionInput',
+            notes: 'notesInput',
+            orientation: 'orientationInput',
+            antecedents: 'antecedentsInput',
+            treatment: 'treatmentInput',
+            exploration: 'explorationInput'
+          };
+          const txtAreaId = fieldToTextarea[field];
+          if (txtAreaId) {
+            const textarea = document.getElementById(txtAreaId);
+            if (textarea) {
+               textarea.value = transcript;
+            } else {
+                console.error(`Textarea element not found for field: ${field} (ID: ${txtAreaId})`);
+            }
+          } else {
+              console.error(`No textarea mapping found for field: ${field}`);
+          }
+
+          statusEl.innerHTML = '<i class="fas fa-check"></i> OK';
+          showMessage(messageId, '', 'info'); // Clear message bar if successful
            return responseData; // Pass data along
         })
         .catch(e => {
           if (!e.message.startsWith('Auth')) {
-            if (statusEl) statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Err Transc.';
+            statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Err Transc.';
              // Use the specific message element for the field
-            if (messageEl) showMessage(config.messageId, `Err Transc: ${e.message}`, 'error');
-            else console.error(`Transcription error message element not found for ${field}. Error: ${e.message}`);
+            showMessage(messageId, `Err Transc: ${e.message}`, 'error');
           }
           console.error(`Transcription error for ${field}:`, e);
            throw e; // Re-throw error so handleRecordingStop's finally catches it
         })
         .finally(() => {
-          // This finally block now only manages status display cleanup after success or error
-          // Button re-enabling is handled in handleRecordingStop's finally
+          // Button re-enabling is handled here after the fetch completes
+           startBtn.disabled = false;
+           stopBtn.disabled = true;
+          // Status message cleanup
           setTimeout(() => {
             const currentStatusHTML = statusEl?.innerHTML;
             if (currentStatusHTML && (currentStatusHTML.includes('Err Transc') || currentStatusHTML.includes('Vide') || currentStatusHTML.includes('OK'))) {
@@ -1247,57 +1284,117 @@
         });
     }
 
-     // --- Send Audio for Tarifs Extraction ---
-     function sendTarifAudioToAI(blob) {
-         // ... (previous code remains the same) ...
-         // Added finally block in handleRecordingStop to re-enable startBtn.
-         // The fetchWithAuth finally block should probably just handle status updates now.
-         // Let's adjust the finally block here slightly to only manage status.
+     // Accept UI elements as parameters
+     function sendTarifAudioToAI(blob, statusEl, startBtn, stopBtn) {
+         console.log("sendTarifAudioToAI called!");
+         // Elements are passed in, no need to find them again
+         if (!currentIPP || !currentVisitId || !statusEl || !startBtn || !stopBtn) {
+             console.error("Missing parameters or patient/visit for sendTarifAudioToAI.");
+             if (statusEl) statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Err Param';
+              if (startBtn) startBtn.disabled = false; if (stopBtn) stopBtn.disabled = true;
+             return Promise.reject(new Error("Missing parameters or patient/visit for sendTarifAudioToAI"));
+         }
 
-         return fetchWithAuth(BASE_URL + EXTRACT_TARIFS_ENDPOINT, { // <-- Ensure fetchWithAuth is returned
+         statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement...';
+         startBtn.disabled = true;
+         stopBtn.disabled = true;
+
+
+         const fd = new FormData();
+         fd.append("audio", blob, `tarifDictation_${currentIPP}_${Date.now()}.webm`);
+         fd.append("ipp", currentIPP);
+         fd.append("visit_id", currentVisitId);
+
+         // Use the NEW transcription endpoint for audio
+         return fetchWithAuth(BASE_URL + TRANSCRIBE_TARIFS_ENDPOINT, { // <-- CORRECTED ENDPOINT
              method: "POST",
              body: JSON.stringify({ ipp: currentIPP, visit_id: currentVisitId, audio: true }) // Include audio=true flag for backend
          })
          .then(data => { // fetchWithAuth returns parsed JSON
-             // ... (response parsing and Choices.js setValue) ...
-             if (statusEl) statusEl.innerHTML = '<i class="fas fa-check"></i> OK';
+             console.log("Tarif extraction response:", data);
+              // Ensure 'data' is an array, potentially nested
+             const suggestions = Array.isArray(data) ? data : (data && Array.isArray(data.data) ? data.data : []);
+             console.log("Extracted tarif suggestions:", suggestions);
+
+             if (tarifChoices) {
+                 const codes = suggestions.map(x => x.code).filter(code => code); // Ensure code exists
+                 console.log("Setting suggested tarif codes:", codes);
+                 tarifChoices.setValue(codes); // Select the suggested tariffs
+                 // The card is already visible if a patient is loaded, no need to explicitly show it here.
+             } else {
+                  console.error("tarifChoices not initialized.");
+             }
+
+
+             statusEl.innerHTML = '<i class="fas fa-check"></i> OK';
              setTimeout(() => { if (statusEl?.innerHTML.includes('OK')) statusEl.innerHTML = ''; }, 4000);
               return data; // Pass data along
          })
          .catch(e => {
              console.error("Erreur lors du traitement des tarifs:", e);
-             if (statusEl) statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Err Trait.';
+             statusEl.innerHTML = '<i class="fas fa-times-circle"></i> Err Trait.';
              setTimeout(() => { if (statusEl?.innerHTML.includes('Err Trait.')) statusEl.innerHTML = ''; }, 4000);
               throw e; // Re-throw error
          })
          .finally(() => {
-             // This finally block now only manages status display cleanup after success or error
-             // Button re-enabling is handled in handleRecordingStop's finally
-              setTimeout(() => {
-                 const currentStatusHTML = statusEl?.innerHTML;
-                 if (currentStatusHTML && (currentStatusHTML.includes('Err Trait.') || currentStatusHTML.includes('OK'))) { // Include OK for timeout
-                   if (statusEl) statusEl.innerHTML = '';
-                 }
-               }, 4000);
+             // Button re-enabling is handled here after the fetch completes
+             startBtn.disabled = false;
+             stopBtn.disabled = true;
          });
      }
 
 
-    // --- Send Audio for Full Dictation Automatically ---
-    function sendFullDictationAudio(blob) {
-      // ... (previous code remains the same) ...
-       // Added finally block in handleRecordingStop to re-enable startBtn.
-       // The fetchWithAuth finally block should probably just handle status updates now.
-       // Let's adjust the finally block here slightly to only manage status.
+    // Accept UI elements as parameters
+    function sendFullDictationAudio(blob, statusEl, startBtn, stopBtn) {
+      console.log("sendFullDictationAudio called!");
+       // Elements are passed in, no need to find them again
+       if (!currentIPP || !currentVisitId || !statusEl || !startBtn || !stopBtn) {
+            console.error("Missing parameters or patient/visit for sendFullDictationAudio.");
+             if (statusEl) statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Err Param';
+             if (startBtn) startBtn.disabled = false; if (stopBtn) stopBtn.disabled = true;
+           return Promise.reject(new Error("Missing parameters or patient/visit for sendFullDictationAudio"));
+       }
+
+      statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement...';
+       startBtn.disabled = true;
+       stopBtn.disabled = true;
+
+
+      const fd = new FormData();
+      fd.append("audio", blob, `fullDictation_${currentIPP}_${Date.now()}.webm`);
+      fd.append("ipp", currentIPP);
+      fd.append("visit_id", currentVisitId);
 
       return fetchWithAuth(BASE_URL + PROCESS_VISIT_DICTATION_ENDPOINT, { // <-- Ensure fetchWithAuth is returned
         method: "POST",
         body: fd
       })
       .then(responseData => {
-        // ... (response parsing and textarea/Choices.js updates) ...
-         showMessage("fullDictationMessage", "Dictée traitée et champs mis à jour.", "success");
-          return responseData; // Pass data along
+        console.log("Dictée traitée:", responseData);
+         // Assuming the response might contain the fields either directly or within 'extractedData'
+        const data = responseData.extractedData || responseData;
+        if (data) {
+           // Update text areas with returned data, using empty string fallback
+           document.getElementById("diagnosticInput").value = data.diagnostic || "";
+           document.getElementById("notesInput").value = data.notes_supplementaires || "";
+           document.getElementById("antecedentsInput").value = data.antecedents || "";
+           document.getElementById("treatmentInput").value = data.traitement_en_cours || "";
+           document.getElementById("orientationInput").value = data.orientation || "";
+           document.getElementById("prescriptionInput").value = data.ordonnance_medicale || "";
+           document.getElementById("explorationInput").value = data.prescription_exploration || "";
+           showMessage("fullDictationMessage", "Dictée traitée et champs mis à jour.", "success");
+           // If tarifs are suggested in the full dictation response, update tarifChoices
+           if (data.tarifs && Array.isArray(data.tarifs) && tarifChoices) {
+                const tarifCodes = data.tarifs.map(t => t.code || t).filter(code => code); // Map to codes, handle potential direct codes
+                console.log("Setting suggested tarif codes from full dictation:", tarifCodes);
+                tarifChoices.setValue(tarifCodes);
+                // The card is already visible if a patient is loaded, no need to explicitly show it here.
+           }
+
+        } else {
+          throw new Error(responseData?.message || "Données non reçues ou format inattendu.");
+        }
+         return responseData; // Pass data along
       })
       .catch(e => {
         console.error("Erreur lors du traitement de la dictée:", e);
@@ -1305,9 +1402,11 @@
          throw e; // Re-throw error
       })
       .finally(() => {
-        // This finally block now only manages status display cleanup after success or error
-        // Button re-enabling is handled in handleRecordingStop's finally
-         statusEl.innerHTML = ""; // Clear status display immediately
+        // Button re-enabling is handled here after the fetch completes
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+        // Status message cleanup
+        statusEl.innerHTML = ""; // Clear status display immediately
       });
     }
 
@@ -1342,8 +1441,7 @@
 
 
     // ─── New endpoints & globals ─────────────────────────
-    const TARIFF_LIST_ENDPOINT    = '/webhook/get-all-tarifs';
-    const EXTRACT_TARIFS_ENDPOINT = '/webhook/extract-tarifs'; // This endpoint handles BOTH GET for list and POST for extraction
+    // Constants redefined at the top of the script for clarity
     let tarifChoices;
 
     // ─── 1) Initialize Choices.js on page load ──────────
@@ -1415,7 +1513,7 @@
     // ─── 2) Fetch & populate the full tarifs list ────────
     function loadTarifList() {
       console.log("Loading full tarif list...");
-      fetchWithAuth(BASE_URL + TARIFF_LIST_ENDPOINT)
+      fetchWithAuth(BASE_URL + TARIFF_LIST_ENDPOINT) // Uses TARIFF_LIST_ENDPOINT
         .then(data => {
            // Assuming the endpoint returns an array directly or within a 'data' property
            const list = Array.isArray(data) ? data : (data && Array.isArray(data.data) ? data.data : []);
@@ -1464,7 +1562,7 @@
 
 
     // ─── 4) Setup the voice‑to‑tarifs recorder ───────────
-    // This was partially handled in the general recording functions above.
+    // This was partially handled in the generic recording functions above.
     // This section defines the specific event listeners for the tarif buttons.
     let tarifRecorder; // This is defined in the new global block now.
     let tarifChunks = []; // This is defined in the new global block now.
@@ -1478,7 +1576,11 @@
     });
 
     document.getElementById('stopTarifRecordBtn')?.addEventListener('click', () => {
-        stopRecording('tarifs'); // Use the generic stopRecording function
+        // Pass the elements when calling stopRecording from the button click
+        const startBtn = document.getElementById('startTarifRecordBtn');
+        const stopBtn = document.getElementById('stopTarifRecordBtn');
+        const statusEl = document.getElementById('tarifStatus');
+        stopRecording('tarifs', statusEl, startBtn, stopBtn);
     });
 
 
@@ -1540,16 +1642,10 @@
                console.log("Calling original submitAllData...");
                origSubmitAll(); // This function handles saving all text fields + selected tarifs
 
-               // Then, trigger the tariff extraction logic
-               console.log(`Triggering tarif extraction for IPP: ${ipp}, Visit ID: ${vid}`);
+               // Then, trigger the tariff extraction logic based on visit context
+               console.log(`Triggering tarif extraction from visit context for IPP: ${ipp}, Visit ID: ${vid}`);
 
-               // Note: The prompt mentions this section runs AFTER the original submitAllData.
-               // The original submitAllData also handles sending data and disabling/enabling the button.
-               // This second fetch might interfere with the button state managed by the first.
-               // For robustness, this fetch should probably happen independently or be merged.
-               // BUT following the prompt structure exactly...
-
-               fetchWithAuth(BASE_URL + EXTRACT_TARIFS_ENDPOINT, { // Use the correct endpoint
+               fetchWithAuth(BASE_URL + VISIT_TARIF_SUGGEST_ENDPOINT, { // <-- Uses VISIT_TARIF_SUGGEST_ENDPOINT
                  method: 'POST',
                  // Send IPP and visit_id to identify the visit for extraction context
                  body: JSON.stringify({ ipp: ipp, visit_id: vid, action: 'extract_from_visit' }) // Assume backend needs context
