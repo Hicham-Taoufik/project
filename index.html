@@ -2379,7 +2379,7 @@
             const label = sanitizeInput(item.label || "Sans libellé");
             return `
               <div class="${classNames.item} ${classNames.itemSelectable}" data-id="${item.id}" data-value="${item.value}">
-                ${code} - ${label}
+                <strong>${code}</strong> – ${label}
               </div>
             `;
           },
