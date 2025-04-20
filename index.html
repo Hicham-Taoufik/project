@@ -2040,7 +2040,6 @@
           });
       }
 
-      // Accept UI elements as parameters
       function sendTarifAudioToAI(blob, statusEl, startBtn, stopBtn) {
         const fd = new FormData();
         fd.append("audio", blob, `tarif_${currentIPP}_${Date.now()}.webm`);
