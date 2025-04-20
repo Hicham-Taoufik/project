@@ -1579,14 +1579,15 @@
           if (el) el.value = "";
         });
         if (aiSuggestionDiv) aiSuggestionDiv.style.display = "none";
-        if (document.getElementById("tarifsDropdownCard")) {
-          // Check if the tarifs card exists
-          document.getElementById("tarifsDropdownCard").style.display = "none"; // Always hide when UI is cleared
-        }
+
         if (tarifChoices) {
-          tarifChoices.clearStore(); // Clear previous patient's list and selection
-          // The loadTarifList function will be called again for the new patient
+          // Only clear selected tags, leave the choices list intact
+          tarifChoices.removeActiveItemsByRequireValue(true);
         }
+
+        // Hide the card as before
+        const tarifsCard = document.getElementById("tarifsDropdownCard");
+        if (tarifsCard) tarifsCard.style.display = "none";
 
         enableDoctorSections(false);
         enableFullDictationSection(false);
