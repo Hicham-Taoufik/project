@@ -2420,13 +2420,17 @@
             scannerContainer.style.display = "block";
             video.srcObject = stream;
             video.setAttribute("playsinline", true); // Required for iOS
-            video.play();
-            showMessage(
-              "scanResult",
-              "Scanner activé. Scannez un QR code.",
-              "info"
-            );
-            tick();
+
+            // Wait for the video to be ready before starting the tick function
+            video.addEventListener("loadedmetadata", () => {
+              video.play();
+              showMessage(
+                "scanResult",
+                "Scanner activé. Scannez un QR code.",
+                "info"
+              );
+              tick();
+            });
           })
           .catch((err) => {
             console.error("Camera access error:", err);
