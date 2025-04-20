@@ -1612,8 +1612,23 @@
             enableDoctorSections(true); // Enable UI after data is loaded
             enableFullDictationSection(true); // Enable full dictation UI
 
-            // Load the tariffs list
-            loadTarifList();
+            // Auto-select tariffs if provided in the response
+            if (responseData.tarifs && Array.isArray(responseData.tarifs)) {
+              const choices = responseData.tarifs.map((item) => ({
+                value: item.code,
+                label: `${item.code} - ${
+                  item.description || "Sans description"
+                }`, // Include description
+                customProperties: {
+                  tarif: item.tarif || "0",
+                  devise: item.devise || "MAD",
+                },
+              }));
+              if (tarifChoices) {
+                tarifChoices.setChoices(choices, "value", "label", true);
+                tarifChoices.setValue(choices.map((choice) => choice.value)); // Auto-select
+              }
+            }
           })
           .catch((e) => {
             console.error("Err loadPatient:", e);
@@ -2027,14 +2042,12 @@
 
       // Accept UI elements as parameters
       function sendTarifAudioToAI(blob, statusEl, startBtn, stopBtn) {
-        // Build the multipart form
         const fd = new FormData();
         fd.append("audio", blob, `tarif_${currentIPP}_${Date.now()}.webm`);
         fd.append("ipp", currentIPP);
         fd.append("visit_id", currentVisitId);
 
         const messageEl = document.getElementById("tarifMessage");
-        // UI: spinner + clear old message
         statusEl.innerHTML =
           '<i class="fas fa-spinner fa-spin"></i> Traitement…';
         if (messageEl) messageEl.innerHTML = "";
@@ -2046,16 +2059,23 @@
           body: fd,
         })
           .then((responseData) => {
-            // Normalize to an array of items
             const list = Array.isArray(responseData)
               ? responseData
               : responseData.data && Array.isArray(responseData.data)
               ? responseData.data
               : [];
-            // Extract codes and select them in the dropdown
-            const codes = list.map((item) => item.code).filter(Boolean);
-            if (tarifChoices) tarifChoices.setValue(codes);
-
+            const choices = list.map((item) => ({
+              value: item.code,
+              label: `${item.code} - ${item.description || "Sans description"}`, // Include description
+              customProperties: {
+                tarif: item.tarif || "0",
+                devise: item.devise || "MAD",
+              },
+            }));
+            if (tarifChoices) {
+              tarifChoices.setChoices(choices, "value", "label", true);
+              tarifChoices.setValue(choices.map((choice) => choice.value)); // Auto-select
+            }
             statusEl.innerHTML = '<i class="fas fa-check"></i>';
           })
           .catch((err) => {
