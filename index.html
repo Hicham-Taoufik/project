@@ -2076,8 +2076,19 @@
               // Add AI-suggested tariffs to the dropdown without clearing existing options
               tarifChoices.setChoices(choices, "value", "label", false);
 
+              // Ensure all AI-suggested tariffs are visible in the dropdown
+              const allChoices = tarifChoices._store.choices.map(
+                (choice) => choice.value
+              );
+              const newChoices = choices.map((choice) => choice.value);
+
+              // Merge existing and new choices, ensuring no duplicates
+              const mergedChoices = [
+                ...new Set([...allChoices, ...newChoices]),
+              ];
+
               // Pre-select the AI-suggested tariffs
-              tarifChoices.setValue(choices.map((choice) => choice.value));
+              tarifChoices.setValue(mergedChoices);
             }
 
             statusEl.innerHTML = '<i class="fas fa-check"></i>';
