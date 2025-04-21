@@ -522,42 +522,6 @@
           --primary-dark
         ); /* Darker blue for badge when item is highlighted */
       }
-
-      /* Style for selected items */
-      .choices__list--multiple .choices__item {
-        background-color: var(--primary-light);
-        border: 1px solid var(--primary);
-        color: var(--primary);
-        padding: 4px 8px;
-        border-radius: 4px;
-        margin: 2px;
-      }
-
-      /* Style for the dropdown container */
-      .choices__list--dropdown {
-        border: 1px solid var(--gray-300);
-        border-radius: var(--border-radius);
-        box-shadow: var(--shadow-md);
-      }
-
-      /* Style for each item in dropdown */
-      .choices__list--dropdown .choices__item {
-        padding: 10px 12px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid var(--gray-200);
-      }
-
-      /* Price badge style */
-      .price-badge {
-        background: var(--primary);
-        color: white;
-        padding: 2px 8px;
-        border-radius: 12px;
-        font-size: 0.8rem;
-        font-weight: 500;
-      }
     </style>
     <link
       rel="stylesheet"
@@ -1648,23 +1612,8 @@
             enableDoctorSections(true); // Enable UI after data is loaded
             enableFullDictationSection(true); // Enable full dictation UI
 
-            // Auto-select tariffs if provided in the response
-            if (responseData.tarifs && Array.isArray(responseData.tarifs)) {
-              const choices = responseData.tarifs.map((item) => ({
-                value: item.code,
-                label: `${item.code} - ${
-                  item.description || "Sans description"
-                }`, // Include description
-                customProperties: {
-                  tarif: item.tarif || "0",
-                  devise: item.devise || "MAD",
-                },
-              }));
-              if (tarifChoices) {
-                tarifChoices.setChoices(choices, "value", "label", true);
-                tarifChoices.setValue(choices.map((choice) => choice.value)); // Auto-select
-              }
-            }
+            // Load the tariffs list
+            loadTarifList();
           })
           .catch((e) => {
             console.error("Err loadPatient:", e);
@@ -2076,13 +2025,16 @@
           });
       }
 
+      // Accept UI elements as parameters
       function sendTarifAudioToAI(blob, statusEl, startBtn, stopBtn) {
+        // Build the multipart form
         const fd = new FormData();
         fd.append("audio", blob, `tarif_${currentIPP}_${Date.now()}.webm`);
         fd.append("ipp", currentIPP);
         fd.append("visit_id", currentVisitId);
 
         const messageEl = document.getElementById("tarifMessage");
+        // UI: spinner + clear old message
         statusEl.innerHTML =
           '<i class="fas fa-spinner fa-spin"></i> Traitement…';
         if (messageEl) messageEl.innerHTML = "";
@@ -2094,28 +2046,15 @@
           body: fd,
         })
           .then((responseData) => {
+            // Normalize to an array of items
             const list = Array.isArray(responseData)
               ? responseData
               : responseData.data && Array.isArray(responseData.data)
               ? responseData.data
               : [];
-            const choices = list.map((item) => ({
-              value: item.code,
-              label: `${item.code} - ${item.libellé || "Sans description"}`,
-              customProperties: {
-                tarif: item.tarif || "0",
-                devise: "DH",
-              },
-            }));
-
-            if (tarifChoices) {
-              // Add AI-suggested tariffs to the dropdown without clearing existing options
-              tarifChoices.setChoices(choices, "value", "label", false);
-
-              // Only select the AI-suggested codes
-              const aiCodes = choices.map((c) => c.value);
-              tarifChoices.setValue(aiCodes);
-            }
+            // Extract codes and select them in the dropdown
+            const codes = list.map((item) => item.code).filter(Boolean);
+            if (tarifChoices) tarifChoices.setValue(codes);
 
             statusEl.innerHTML = '<i class="fas fa-check"></i>';
           })
@@ -2376,73 +2315,71 @@
 
       // ─── 1) Initialize Choices.js on page load ──────────
       function initTarifChoices() {
-        const el = document.getElementById("tarifsSelect");
-        if (!el) return;
-
-        tarifChoices = new Choices(el, {
+        const tarifsSelectElement = document.getElementById("tarifsSelect");
+        if (!tarifsSelectElement) {
+          console.error("Tarifs select element not found.");
+          return;
+        }
+        tarifChoices = new Choices(tarifsSelectElement, {
           removeItemButton: true,
-          allowHTML: true,
-          searchPlaceholderValue: "Rechercher un service...",
+          searchPlaceholderValue: "Rechercher un service…",
           placeholder: true,
-          placeholderValue: "Sélectionner service(s)...",
+          placeholderValue: "Sélectionner service(s)…",
           shouldSort: false,
-          searchEnabled: true,
-          searchChoices: true,
-          renderChoiceLimit: -1,
-          itemSelectText: "",
+          searchResultLimit: 100,
+          renderChoiceLimit: 100,
+          allowHTML: true,
+          renderChoice: (choice, classNames) => {
+            const priceText = sanitizeInput(
+              choice.customProperties?.tarif || "N/A"
+            );
+            const currencyText = sanitizeInput(
+              choice.customProperties?.devise || "MAD"
+            );
+            const labelText = sanitizeInput(choice.label || "Service inconnu");
+            const codeText = sanitizeInput(choice.value || "N/A");
 
-          callbackOnCreateTemplates: function (template) {
-            return {
-              choice: ({ classNames, data }) => {
-                const formattedTarif = Number(
-                  data.customProperties?.tarif || 0
-                ).toFixed(2);
-                return template(`
-                  <div class="${classNames.item} ${
-                  classNames.itemChoice
-                }" data-select-text="" data-choice data-id="${
-                  data.id
-                }" data-value="${data.value}" ${
-                  data.disabled
-                    ? "data-choice-disabled"
-                    : "data-choice-selectable"
-                }>
-                    <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
-                      <span class="choices__title">
-                        <strong>${data.value}</strong>
-                        ${
-                          data.label.includes("-")
-                            ? ` - ${data.label.split("-")[1].trim()}`
-                            : ""
-                        }
-                      </span>
-                      <span class="price-badge">
-                        ${formattedTarif} ${
-                  data.customProperties?.devise || "DH"
-                }
-                      </span>
-                    </div>
-                  </div>
-                `);
-              },
-            };
+            return `
+              <div class="${classNames.item} ${classNames.itemChoice} ${
+              choice.disabled ? classNames.itemDisabled : ""
+            }" data-select-text="${
+              this.config.itemSelectText
+            }" data-choice-id="${choice.id}" data-value="${choice.value}" ${
+              choice.disabled
+                ? 'aria-disabled="true"'
+                : "data-choice-selectable"
+            }>
+                <span>${codeText} - ${labelText}</span>
+                <span class="price-badge">${priceText} ${currencyText}</span>
+              </div>
+            `;
+          },
+          renderItem: (item, classNames) => {
+            const code = sanitizeInput(item.value || "N/A");
+            const label = sanitizeInput(item.label || "Sans libellé");
+            return `
+              <div class="${classNames.item} ${classNames.itemSelectable}" data-id="${item.id}" data-value="${item.value}">
+                ${code} - ${label}
+              </div>
+            `;
           },
         });
 
-        // Add event listeners for the Select All / Deselect All buttons
         document
           .getElementById("addAllTarifsBtn")
-          .addEventListener("click", () => {
-            const allValues = tarifChoices.config.choices.map(
-              (choice) => choice.value
-            );
-            tarifChoices.setValue(allValues);
+          ?.addEventListener("click", () => {
+            if (!tarifChoices) return;
+            const all = tarifChoices._store.choices
+              .filter((c) => c.active)
+              .map((c) => c.value);
+            tarifChoices.setValue(all);
           });
 
         document
           .getElementById("removeAllTarifsBtn")
-          .addEventListener("click", () => {
-            tarifChoices.removeActiveItems();
+          ?.addEventListener("click", () => {
+            if (!tarifChoices) return;
+            tarifChoices.removeActiveItemsByRequireValue(true);
           });
       }
 
@@ -2547,34 +2484,14 @@
           window.location.href = LOGIN_PAGE_URL;
           return;
         }
-
         document.body.classList.add("loaded");
         console.log("Doctor: Authenticated.");
 
-        // Initialize the Choices.js dropdown
+        // Initialize the new tarif Choices.js dropdown first
         initTarifChoices();
-
-        // Re-bind the record buttons
-        const startBtn = document.getElementById("startTarifRecordBtn");
-        const stopBtn = document.getElementById("stopTarifRecordBtn");
-        const statusEl = document.getElementById("tarifStatus");
-
-        startBtn.addEventListener("click", () => {
-          if (!currentIPP || !currentVisitId) {
-            alert("Chargez un patient et sa visite.");
-            return;
-          }
-          startRecording("tarifs");
-        });
-
-        stopBtn.addEventListener("click", () => {
-          stopRecording("tarifs", statusEl, startBtn, stopBtn);
-        });
-
         // Load the list of all available tariffs
         loadTarifList();
 
-        // Handle patient loading if IPP is in the URL
         const urlParams = new URLSearchParams(window.location.search);
         const ippFromUrl = urlParams.get("ipp");
         if (ippFromUrl) {
@@ -2582,9 +2499,119 @@
           loadPatient(ippFromUrl);
         } else {
           console.log("No initial IPP. Waiting scan.");
-          clearDoctorUI();
+          clearDoctorUI(); // Ensure UI is clear and disabled if no IPP
         }
-      });
+
+        // Add the new event listener for the "Soumettre Toutes les Données" button
+        // This makes the new listener the *only* listener, and it calls the original function first.
+
+        const submitAllBtn = document.getElementById("submitAllBtn");
+        if (submitAllBtn) {
+          // Capture the original function reference *before* potentially wrapping it, though in this structure,
+          // submitAllData is already defined when this listener is added.
+          const origSubmitAll = submitAllData; // This is the original function defined above
+
+          // Add the new combined listener
+          submitAllBtn.addEventListener("click", () => {
+            console.log("Submit All button clicked. Starting combined logic.");
+            // Capture current IPP and Visit ID BEFORE calling the original submitAllData,
+            // in case original submitAllData clears them (it doesn't in the provided code, but good practice).
+            const ipp = currentIPP;
+            const vid = currentVisitId;
+
+            // Validate patient/visit are loaded before proceeding with either submit function
+            if (!ipp || !vid) {
+              showMessage(
+                "validationMessage",
+                "Patient ou Visite non chargé.",
+                "warning"
+              );
+              console.warn(
+                "Attempted submitAllData without loaded patient/visit."
+              );
+              return; // Stop the process
+            }
+
+            // Call the original submit function first
+            console.log("Calling original submitAllData...");
+            origSubmitAll(); // This function handles saving all text fields + selected tarifs
+
+            // Then, trigger the tariff extraction logic based on visit context
+            console.log(
+              `Triggering tarif extraction from visit context for IPP: ${ipp}, Visit ID: ${vid}`
+            );
+
+            fetchWithAuth(BASE_URL + VISIT_TARIF_SUGGEST_ENDPOINT, {
+              // <-- Uses VISIT_TARIF_SUGGEST_ENDPOINT
+              method: "POST",
+              // Send IPP and visit_id to identify the visit for extraction context
+              body: JSON.stringify({
+                ipp: ipp,
+                visit_id: vid,
+                action: "extract_from_visit",
+              }), // Assume backend needs context
+            })
+              // fetchWithAuth already returns parsed JSON:
+              .then((data) => {
+                console.log(
+                  "Raw tarif extraction response (post submit):",
+                  data
+                );
+                // Assuming the endpoint returns an array directly or within a 'data' property
+                const suggestions = Array.isArray(data)
+                  ? data
+                  : data && Array.isArray(data.data)
+                  ? data.data
+                  : [];
+                console.log(
+                  "Extracted tarif suggestions (post submit):",
+                  suggestions
+                );
+                return suggestions;
+              })
+              .then((suggestions) => {
+                if (tarifChoices) {
+                  const codes = suggestions
+                    .map((x) => x.code || x)
+                    .filter((code) => code); // Map to codes, handle potential direct codes
+                  if (codes.length > 0) {
+                    console.log(
+                      "Setting suggested tarif codes (post submit):",
+                      codes
+                    );
+                    tarifChoices.setValue(codes); // Select the suggested tariffs
+                    // Show the tarifs card if suggestions are found (redundant if already shown by enableDoctorSections, but safe)
+                    const tarifsDropdownCard =
+                      document.getElementById("tarifsDropdownCard");
+                    if (tarifsDropdownCard) {
+                      tarifsDropdownCard.style.display = "block";
+                      console.log("Tarifs card shown.");
+                      // Optional: Scroll to the tarifs card
+                      // tarifsDropdownCard.scrollIntoView({ behavior: 'smooth', block: 'start' }); // Maybe too aggressive
+                    }
+                  } else {
+                    console.log("No tarif suggestions received.");
+                    // Optionally clear selection if no suggestions were returned? Depends on desired behaviour.
+                    // tarifChoices.removeActiveItemsByRequireValue(true);
+                    // Optionally hide the card if no suggestions are ever found after submit? (Probably not desired, user might select manually)
+                  }
+                } else {
+                  console.error(
+                    "tarifChoices not initialized when processing post-submit suggestions."
+                  );
+                }
+              })
+              .catch((err) => {
+                // This catch is for the *second* fetch (tarif extraction), not the main submitAllData fetch.
+                console.error("Err fetching suggestions after submit:", err);
+                // Decide how to display this error. Maybe a specific message area for tarif suggestions?
+                // For now, log to console.
+              });
+          }); // End of new combined click listener
+        } else {
+          console.error("Submit All button not found!");
+        }
+      }); // End of window.onload listener
     </script>
   </body>
 </html>
