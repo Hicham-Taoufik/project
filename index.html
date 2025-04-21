@@ -2350,73 +2350,54 @@
 
       // ─── 1) Initialize Choices.js on page load ──────────
       function initTarifChoices() {
-        const tarifsSelectElement = document.getElementById("tarifsSelect");
-        if (!tarifsSelectElement) {
+        const el = document.getElementById("tarifsSelect");
+        if (!el) {
           console.error("Tarifs select element not found.");
           return;
         }
-        tarifChoices = new Choices(tarifsSelectElement, {
+
+        tarifChoices = new Choices(el, {
           removeItemButton: true,
           searchPlaceholderValue: "Rechercher un service…",
           placeholder: true,
           placeholderValue: "Sélectionner service(s)…",
           shouldSort: false,
-          searchResultLimit: 100,
-          renderChoiceLimit: 100,
           allowHTML: true,
 
-          // Render selected tags with code and description
-          renderItem: (item, classNames) => {
-            const code = sanitizeInput(item.value || "");
-            const label = sanitizeInput(item.label || "");
+          // Render dropdown list entries (with badge)
+          renderChoice: (choice, classNames) => {
+            const code = sanitizeInput(choice.value);
+            const label = sanitizeInput(choice.label);
+            const tarif = sanitizeInput(
+              choice.customProperties?.tarif || "N/A"
+            );
+            const dev = sanitizeInput(choice.customProperties?.devise || "");
             return `
-              <div class="${classNames.item} ${classNames.itemSelectable}"
-                   data-id="${item.id}"
+              <div class="${classNames.item} ${classNames.itemChoice}" 
+                   data-choice-id="${choice.id}" 
+                   data-value="${choice.value}" 
+                   ${
+                     choice.disabled
+                       ? 'aria-disabled="true"'
+                       : "data-choice-selectable"
+                   }>
+                <span>${code} – ${label}</span>
+                <span class="price-badge">${tarif} ${dev}</span>
+              </div>`;
+          },
+
+          // Render selected tags
+          renderItem: (item, classNames) => {
+            const code = sanitizeInput(item.value);
+            const label = sanitizeInput(item.label);
+            return `
+              <div class="${classNames.item} ${classNames.itemSelectable}" 
+                   data-id="${item.id}" 
                    data-value="${item.value}">
                 <strong>${code}</strong> – ${label}
               </div>`;
           },
-
-          // Render dropdown choices with description and price badge
-          renderChoice: (choice, classNames) => {
-            const tarifText = sanitizeInput(
-              choice.customProperties?.tarif || "N/A"
-            );
-            const labelText = sanitizeInput(choice.label || "Service inconnu");
-            const codeText = sanitizeInput(choice.value || "N/A");
-
-            return `
-              <div class="${classNames.item} ${classNames.itemChoice} ${
-              choice.disabled ? classNames.itemDisabled : ""
-            }" data-select-text="${
-              this.config.itemSelectText
-            }" data-choice-id="${choice.id}" data-value="${choice.value}" ${
-              choice.disabled
-                ? 'aria-disabled="true"'
-                : "data-choice-selectable"
-            }>
-                <span>${codeText} - ${labelText}</span>
-                <span class="price-badge">${tarifText}</span>
-              </div>`;
-          },
         });
-
-        document
-          .getElementById("addAllTarifsBtn")
-          ?.addEventListener("click", () => {
-            if (!tarifChoices) return;
-            const all = tarifChoices._store.choices
-              .filter((c) => c.active)
-              .map((c) => c.value);
-            tarifChoices.setValue(all);
-          });
-
-        document
-          .getElementById("removeAllTarifsBtn")
-          ?.addEventListener("click", () => {
-            if (!tarifChoices) return;
-            tarifChoices.removeActiveItemsByRequireValue(true);
-          });
       }
 
       // ─── 2) Fetch & populate the full tarifs list ────────
@@ -2520,14 +2501,34 @@
           window.location.href = LOGIN_PAGE_URL;
           return;
         }
+
         document.body.classList.add("loaded");
         console.log("Doctor: Authenticated.");
 
-        // Initialize the new tarif Choices.js dropdown first
+        // Initialize the Choices.js dropdown
         initTarifChoices();
+
+        // Re-bind the record buttons
+        const startBtn = document.getElementById("startTarifRecordBtn");
+        const stopBtn = document.getElementById("stopTarifRecordBtn");
+        const statusEl = document.getElementById("tarifStatus");
+
+        startBtn.addEventListener("click", () => {
+          if (!currentIPP || !currentVisitId) {
+            alert("Chargez un patient et sa visite.");
+            return;
+          }
+          startRecording("tarifs");
+        });
+
+        stopBtn.addEventListener("click", () => {
+          stopRecording("tarifs", statusEl, startBtn, stopBtn);
+        });
+
         // Load the list of all available tariffs
         loadTarifList();
 
+        // Handle patient loading if IPP is in the URL
         const urlParams = new URLSearchParams(window.location.search);
         const ippFromUrl = urlParams.get("ipp");
         if (ippFromUrl) {
@@ -2535,119 +2536,9 @@
           loadPatient(ippFromUrl);
         } else {
           console.log("No initial IPP. Waiting scan.");
-          clearDoctorUI(); // Ensure UI is clear and disabled if no IPP
+          clearDoctorUI();
         }
-
-        // Add the new event listener for the "Soumettre Toutes les Données" button
-        // This makes the new listener the *only* listener, and it calls the original function first.
-
-        const submitAllBtn = document.getElementById("submitAllBtn");
-        if (submitAllBtn) {
-          // Capture the original function reference *before* potentially wrapping it, though in this structure,
-          // submitAllData is already defined when this listener is added.
-          const origSubmitAll = submitAllData; // This is the original function defined above
-
-          // Add the new combined listener
-          submitAllBtn.addEventListener("click", () => {
-            console.log("Submit All button clicked. Starting combined logic.");
-            // Capture current IPP and Visit ID BEFORE calling the original submitAllData,
-            // in case original submitAllData clears them (it doesn't in the provided code, but good practice).
-            const ipp = currentIPP;
-            const vid = currentVisitId;
-
-            // Validate patient/visit are loaded before proceeding with either submit function
-            if (!ipp || !vid) {
-              showMessage(
-                "validationMessage",
-                "Patient ou Visite non chargé.",
-                "warning"
-              );
-              console.warn(
-                "Attempted submitAllData without loaded patient/visit."
-              );
-              return; // Stop the process
-            }
-
-            // Call the original submit function first
-            console.log("Calling original submitAllData...");
-            origSubmitAll(); // This function handles saving all text fields + selected tarifs
-
-            // Then, trigger the tariff extraction logic based on visit context
-            console.log(
-              `Triggering tarif extraction from visit context for IPP: ${ipp}, Visit ID: ${vid}`
-            );
-
-            fetchWithAuth(BASE_URL + VISIT_TARIF_SUGGEST_ENDPOINT, {
-              // <-- Uses VISIT_TARIF_SUGGEST_ENDPOINT
-              method: "POST",
-              // Send IPP and visit_id to identify the visit for extraction context
-              body: JSON.stringify({
-                ipp: ipp,
-                visit_id: vid,
-                action: "extract_from_visit",
-              }), // Assume backend needs context
-            })
-              // fetchWithAuth already returns parsed JSON:
-              .then((data) => {
-                console.log(
-                  "Raw tarif extraction response (post submit):",
-                  data
-                );
-                // Assuming the endpoint returns an array directly or within a 'data' property
-                const suggestions = Array.isArray(data)
-                  ? data
-                  : data && Array.isArray(data.data)
-                  ? data.data
-                  : [];
-                console.log(
-                  "Extracted tarif suggestions (post submit):",
-                  suggestions
-                );
-                return suggestions;
-              })
-              .then((suggestions) => {
-                if (tarifChoices) {
-                  const codes = suggestions
-                    .map((x) => x.code || x)
-                    .filter((code) => code); // Map to codes, handle potential direct codes
-                  if (codes.length > 0) {
-                    console.log(
-                      "Setting suggested tarif codes (post submit):",
-                      codes
-                    );
-                    tarifChoices.setValue(codes); // Select the suggested tariffs
-                    // Show the tarifs card if suggestions are found (redundant if already shown by enableDoctorSections, but safe)
-                    const tarifsDropdownCard =
-                      document.getElementById("tarifsDropdownCard");
-                    if (tarifsDropdownCard) {
-                      tarifsDropdownCard.style.display = "block";
-                      console.log("Tarifs card shown.");
-                      // Optional: Scroll to the tarifs card
-                      // tarifsDropdownCard.scrollIntoView({ behavior: 'smooth', block: 'start' }); // Maybe too aggressive
-                    }
-                  } else {
-                    console.log("No tarif suggestions received.");
-                    // Optionally clear selection if no suggestions were returned? Depends on desired behaviour.
-                    // tarifChoices.removeActiveItemsByRequireValue(true);
-                    // Optionally hide the card if no suggestions are ever found after submit? (Probably not desired, user might select manually)
-                  }
-                } else {
-                  console.error(
-                    "tarifChoices not initialized when processing post-submit suggestions."
-                  );
-                }
-              })
-              .catch((err) => {
-                // This catch is for the *second* fetch (tarif extraction), not the main submitAllData fetch.
-                console.error("Err fetching suggestions after submit:", err);
-                // Decide how to display this error. Maybe a specific message area for tarif suggestions?
-                // For now, log to console.
-              });
-          }); // End of new combined click listener
-        } else {
-          console.error("Submit All button not found!");
-        }
-      }); // End of window.onload listener
+      });
     </script>
   </body>
 </html>
