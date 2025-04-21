@@ -2368,7 +2368,7 @@
                        ? 'aria-disabled="true"'
                        : "data-choice-selectable"
                    }>
-                <span>${code} – ${label}</span>
+                <span>${label}</span>
                 <span class="price-badge">${tarif} ${dev}</span>
               </div>
             `;
@@ -2382,7 +2382,8 @@
               <div class="${classNames.item} ${classNames.itemSelectable}"
                    data-id="${item.id}"
                    data-value="${item.value}">
-                <strong>${code}</strong> – ${label}
+                ${label}
+                <button type="button" class="${classNames.button}" data-button>Remove item</button>
               </div>
             `;
           },
