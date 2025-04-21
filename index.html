@@ -522,6 +522,42 @@
           --primary-dark
         ); /* Darker blue for badge when item is highlighted */
       }
+
+      /* Style for selected items */
+      .choices__list--multiple .choices__item {
+        background-color: var(--primary-light);
+        border: 1px solid var(--primary);
+        color: var(--primary);
+        padding: 4px 8px;
+        border-radius: 4px;
+        margin: 2px;
+      }
+
+      /* Style for the dropdown container */
+      .choices__list--dropdown {
+        border: 1px solid var(--gray-300);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-md);
+      }
+
+      /* Style for each item in dropdown */
+      .choices__list--dropdown .choices__item {
+        padding: 10px 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--gray-200);
+      }
+
+      /* Price badge style */
+      .price-badge {
+        background: var(--primary);
+        color: white;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
     </style>
     <link
       rel="stylesheet"
@@ -2346,60 +2382,68 @@
         tarifChoices = new Choices(el, {
           removeItemButton: true,
           allowHTML: true,
-          searchPlaceholderValue: "Rechercher un service…",
+          searchPlaceholderValue: "Rechercher un service...",
           placeholder: true,
-          placeholderValue: "Sélectionner service(s)…",
+          placeholderValue: "Sélectionner service(s)...",
           shouldSort: false,
-          classNames: {
-            containerInner: "choices__inner",
-            input: "choices__input",
-            inputCloned: "choices__input--cloned",
-            list: "choices__list",
-            listItems: "choices__list--multiple",
-            listSingle: "choices__list--single",
-            listDropdown: "choices__list--dropdown",
-            item: "choices__item",
-            itemSelectable: "choices__item--selectable",
-            itemDisabled: "choices__item--disabled",
-            itemChoice: "choices__item--choice",
-            placeholder: "choices__placeholder",
-            group: "choices__group",
-            groupHeading: "choices__heading",
-            button: "choices__button",
-          },
-
-          // Custom item render
+          searchEnabled: true,
+          searchChoices: true,
+          renderChoiceLimit: -1,
           itemSelectText: "",
+
           callbackOnCreateTemplates: function (template) {
             return {
-              choice: (classNames, data) => {
-                const code = sanitizeInput(data.value);
-                const description = sanitizeInput(
-                  data.label.split(" - ")[1] || ""
-                );
-                const tarif = sanitizeInput(
-                  data.customProperties?.tarif || "N/A"
-                );
-                const dev = sanitizeInput(data.customProperties?.devise || "");
-
+              choice: ({ classNames, data }) => {
+                const formattedTarif = Number(
+                  data.customProperties?.tarif || 0
+                ).toFixed(2);
                 return template(`
-                  <div class="${classNames.item} ${classNames.itemChoice}" 
-                       data-select-text="" 
-                       data-choice 
-                       data-id="${data.id}" 
-                       data-value="${code}"
-                       data-choice-selectable>
-                    <span class="choices__title">
-                      <strong>${code}</strong>
-                      ${description ? ` - ${description}` : ""}
-                    </span>
-                    <span class="price-badge">${tarif} ${dev}</span>
+                  <div class="${classNames.item} ${
+                  classNames.itemChoice
+                }" data-select-text="" data-choice data-id="${
+                  data.id
+                }" data-value="${data.value}" ${
+                  data.disabled
+                    ? "data-choice-disabled"
+                    : "data-choice-selectable"
+                }>
+                    <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                      <span class="choices__title">
+                        <strong>${data.value}</strong>
+                        ${
+                          data.label.includes("-")
+                            ? ` - ${data.label.split("-")[1].trim()}`
+                            : ""
+                        }
+                      </span>
+                      <span class="price-badge">
+                        ${formattedTarif} ${
+                  data.customProperties?.devise || "DH"
+                }
+                      </span>
+                    </div>
                   </div>
                 `);
               },
             };
           },
         });
+
+        // Add event listeners for the Select All / Deselect All buttons
+        document
+          .getElementById("addAllTarifsBtn")
+          .addEventListener("click", () => {
+            const allValues = tarifChoices.config.choices.map(
+              (choice) => choice.value
+            );
+            tarifChoices.setValue(allValues);
+          });
+
+        document
+          .getElementById("removeAllTarifsBtn")
+          .addEventListener("click", () => {
+            tarifChoices.removeActiveItems();
+          });
       }
 
       // ─── 2) Fetch & populate the full tarifs list ────────
