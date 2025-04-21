@@ -2351,10 +2351,12 @@
           placeholderValue: "Sélectionner service(s)…",
           shouldSort: false,
 
-          // ─── how each dropdown row is rendered ───────────────────
+          // Modified dropdown item rendering
           renderChoice: (choice, classNames) => {
             const code = sanitizeInput(choice.value);
-            const label = sanitizeInput(choice.label);
+            const description = sanitizeInput(
+              choice.label.split(" - ")[1] || ""
+            );
             const tarif = sanitizeInput(
               choice.customProperties?.tarif || "N/A"
             );
@@ -2362,28 +2364,28 @@
             return `
               <div class="${classNames.item} ${classNames.itemChoice}"
                    data-choice-id="${choice.id}"
-                   data-value="${choice.value}"
+                   data-value="${code}"
                    ${
                      choice.disabled
                        ? 'aria-disabled="true"'
                        : "data-choice-selectable"
                    }>
-                <span>${label}</span>
+                <span><strong>${code}</strong> - ${description}</span>
                 <span class="price-badge">${tarif} ${dev}</span>
               </div>
             `;
           },
 
-          // ─── how each selected "tag" is rendered ─────────────────
+          // Modified selected item rendering
           renderItem: (item, classNames) => {
             const code = sanitizeInput(item.value);
-            const label = sanitizeInput(item.label);
+            const description = sanitizeInput(item.label.split(" - ")[1] || "");
             return `
               <div class="${classNames.item} ${classNames.itemSelectable}"
                    data-id="${item.id}"
-                   data-value="${item.value}">
-                ${label}
-                <button type="button" class="${classNames.button}" data-button>Remove item</button>
+                   data-value="${code}">
+                <span><strong>${code}</strong> - ${description}</span>
+                <button type="button" class="${classNames.button}" data-button>×</button>
               </div>
             `;
           },
