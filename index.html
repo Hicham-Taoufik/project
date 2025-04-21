@@ -2364,6 +2364,20 @@
           searchResultLimit: 100,
           renderChoiceLimit: 100,
           allowHTML: true,
+
+          // Render selected tags with code and description
+          renderItem: (item, classNames) => {
+            const code = sanitizeInput(item.value || "");
+            const label = sanitizeInput(item.label || "");
+            return `
+              <div class="${classNames.item} ${classNames.itemSelectable}"
+                   data-id="${item.id}"
+                   data-value="${item.value}">
+                <strong>${code}</strong> – ${label}
+              </div>`;
+          },
+
+          // Render dropdown choices with description and price badge
           renderChoice: (choice, classNames) => {
             const tarifText = sanitizeInput(
               choice.customProperties?.tarif || "N/A"
@@ -2383,17 +2397,7 @@
             }>
                 <span>${codeText} - ${labelText}</span>
                 <span class="price-badge">${tarifText}</span>
-              </div>
-            `;
-          },
-          renderItem: (item, classNames) => {
-            const code = sanitizeInput(item.value || "N/A");
-            const label = sanitizeInput(item.label || "Sans libellé");
-            return `
-              <div class="${classNames.item} ${classNames.itemSelectable}" data-id="${item.id}" data-value="${item.value}">
-                ${code} - ${label}
-              </div>
-            `;
+              </div>`;
           },
         });
 
