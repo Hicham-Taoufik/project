@@ -2065,10 +2065,10 @@
               : [];
             const choices = list.map((item) => ({
               value: item.code,
-              label: `${item.code} - ${item.libellé || "Sans description"}`, // Include libellé
+              label: `${item.code} - ${item.libellé || "Sans description"}`,
               customProperties: {
                 tarif: item.tarif || "0",
-                devise: "DH", // Assuming "DH" is the currency
+                devise: "DH",
               },
             }));
 
@@ -2076,19 +2076,9 @@
               // Add AI-suggested tariffs to the dropdown without clearing existing options
               tarifChoices.setChoices(choices, "value", "label", false);
 
-              // Ensure all AI-suggested tariffs are visible in the dropdown
-              const allChoices = tarifChoices._store.choices.map(
-                (choice) => choice.value
-              );
-              const newChoices = choices.map((choice) => choice.value);
-
-              // Merge existing and new choices, ensuring no duplicates
-              const mergedChoices = [
-                ...new Set([...allChoices, ...newChoices]),
-              ];
-
-              // Pre-select the AI-suggested tariffs
-              tarifChoices.setValue(mergedChoices);
+              // Only select the AI-suggested codes
+              const aiCodes = choices.map((c) => c.value);
+              tarifChoices.setValue(aiCodes);
             }
 
             statusEl.innerHTML = '<i class="fas fa-check"></i>';
@@ -2373,9 +2363,9 @@
             );
             const dev = sanitizeInput(choice.customProperties?.devise || "");
             return `
-              <div class="${classNames.item} ${classNames.itemChoice}" 
-                   data-choice-id="${choice.id}" 
-                   data-value="${choice.value}" 
+              <div class="${classNames.item} ${classNames.itemChoice}"
+                   data-choice-id="${choice.id}"
+                   data-value="${choice.value}"
                    ${
                      choice.disabled
                        ? 'aria-disabled="true"'
@@ -2383,7 +2373,8 @@
                    }>
                 <span>${code} – ${label}</span>
                 <span class="price-badge">${tarif} ${dev}</span>
-              </div>`;
+              </div>
+            `;
           },
 
           // Render selected tags
@@ -2391,11 +2382,12 @@
             const code = sanitizeInput(item.value);
             const label = sanitizeInput(item.label);
             return `
-              <div class="${classNames.item} ${classNames.itemSelectable}" 
-                   data-id="${item.id}" 
+              <div class="${classNames.item} ${classNames.itemSelectable}"
+                   data-id="${item.id}"
                    data-value="${item.value}">
                 <strong>${code}</strong> – ${label}
-              </div>`;
+              </div>
+            `;
           },
         });
       }
