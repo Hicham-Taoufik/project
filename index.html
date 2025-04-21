@@ -2350,44 +2350,54 @@
           placeholder: true,
           placeholderValue: "Sélectionner service(s)…",
           shouldSort: false,
-
-          // Modified dropdown item rendering
-          renderChoice: (choice, classNames) => {
-            const code = sanitizeInput(choice.value);
-            const description = sanitizeInput(
-              choice.label.split(" - ")[1] || ""
-            );
-            const tarif = sanitizeInput(
-              choice.customProperties?.tarif || "N/A"
-            );
-            const dev = sanitizeInput(choice.customProperties?.devise || "");
-            return `
-              <div class="${classNames.item} ${classNames.itemChoice}"
-                   data-choice-id="${choice.id}"
-                   data-value="${code}"
-                   ${
-                     choice.disabled
-                       ? 'aria-disabled="true"'
-                       : "data-choice-selectable"
-                   }>
-                <span><strong>${code}</strong> - ${description}</span>
-                <span class="price-badge">${tarif} ${dev}</span>
-              </div>
-            `;
+          classNames: {
+            containerInner: "choices__inner",
+            input: "choices__input",
+            inputCloned: "choices__input--cloned",
+            list: "choices__list",
+            listItems: "choices__list--multiple",
+            listSingle: "choices__list--single",
+            listDropdown: "choices__list--dropdown",
+            item: "choices__item",
+            itemSelectable: "choices__item--selectable",
+            itemDisabled: "choices__item--disabled",
+            itemChoice: "choices__item--choice",
+            placeholder: "choices__placeholder",
+            group: "choices__group",
+            groupHeading: "choices__heading",
+            button: "choices__button",
           },
 
-          // Modified selected item rendering
-          renderItem: (item, classNames) => {
-            const code = sanitizeInput(item.value);
-            const description = sanitizeInput(item.label.split(" - ")[1] || "");
-            return `
-              <div class="${classNames.item} ${classNames.itemSelectable}"
-                   data-id="${item.id}"
-                   data-value="${code}">
-                <span><strong>${code}</strong> - ${description}</span>
-                <button type="button" class="${classNames.button}" data-button>×</button>
-              </div>
-            `;
+          // Custom item render
+          itemSelectText: "",
+          callbackOnCreateTemplates: function (template) {
+            return {
+              choice: (classNames, data) => {
+                const code = sanitizeInput(data.value);
+                const description = sanitizeInput(
+                  data.label.split(" - ")[1] || ""
+                );
+                const tarif = sanitizeInput(
+                  data.customProperties?.tarif || "N/A"
+                );
+                const dev = sanitizeInput(data.customProperties?.devise || "");
+
+                return template(`
+                  <div class="${classNames.item} ${classNames.itemChoice}" 
+                       data-select-text="" 
+                       data-choice 
+                       data-id="${data.id}" 
+                       data-value="${code}"
+                       data-choice-selectable>
+                    <span class="choices__title">
+                      <strong>${code}</strong>
+                      ${description ? ` - ${description}` : ""}
+                    </span>
+                    <span class="price-badge">${tarif} ${dev}</span>
+                  </div>
+                `);
+              },
+            };
           },
         });
       }
