@@ -2341,20 +2341,17 @@
       // ─── 1) Initialize Choices.js on page load ──────────
       function initTarifChoices() {
         const el = document.getElementById("tarifsSelect");
-        if (!el) {
-          console.error("Tarifs select element not found.");
-          return;
-        }
+        if (!el) return;
 
         tarifChoices = new Choices(el, {
           removeItemButton: true,
+          allowHTML: true,
           searchPlaceholderValue: "Rechercher un service…",
           placeholder: true,
           placeholderValue: "Sélectionner service(s)…",
           shouldSort: false,
-          allowHTML: true,
 
-          // Render dropdown list entries (with badge)
+          // ─── how each dropdown row is rendered ───────────────────
           renderChoice: (choice, classNames) => {
             const code = sanitizeInput(choice.value);
             const label = sanitizeInput(choice.label);
@@ -2377,7 +2374,7 @@
             `;
           },
 
-          // Render selected tags
+          // ─── how each selected "tag" is rendered ─────────────────
           renderItem: (item, classNames) => {
             const code = sanitizeInput(item.value);
             const label = sanitizeInput(item.label);
